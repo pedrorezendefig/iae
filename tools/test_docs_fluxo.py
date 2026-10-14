@@ -35,3 +35,16 @@ def _labels_nas_tabelas(texto: str) -> set[str]:
 def test_triage_labels_lista_as_mesmas_labels_do_repo_com_area_video() -> None:
     texto = (RAIZ / "docs/agents/triage-labels.md").read_text(encoding="utf-8")
     assert _labels_nas_tabelas(texto) == LABELS_DO_REPO
+
+
+def test_onboarding_dev_leva_do_clone_ao_painel_aberto_passando_pelo_hook() -> None:
+    texto = (RAIZ / "docs/onboarding/dev.md").read_text(encoding="utf-8")
+    passos = [
+        "gh repo clone pedrorezendefig/iae",
+        "git config core.hooksPath .githooks",
+        "tools/workflow-dashboard/install-launchd.sh",
+        "http://localhost:8800",
+    ]
+    posicoes = [texto.find(p) for p in passos]
+    assert -1 not in posicoes, dict(zip(passos, posicoes))
+    assert posicoes == sorted(posicoes), "os passos têm de aparecer na ordem do primeiro dia"
