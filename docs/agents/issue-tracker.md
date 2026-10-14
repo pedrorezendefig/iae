@@ -1,6 +1,6 @@
 # Issue tracker: GitHub
 
-As issues e PRDs deste repositório vivem como **GitHub Issues**. Use o `gh` CLI para tudo — o repositório é inferido do `git remote` automaticamente quando rodado dentro do clone.
+As issues e PRDs deste repositório vivem como **GitHub Issues**. Use o `gh` CLI para tudo, o repositório é inferido do `git remote` automaticamente quando rodado dentro do clone.
 
 > **Idioma:** todo conteúdo de issue voltado ao time é em **pt-BR** (título, corpo, user stories, critérios de aceite, comentários). Veja a regra de idioma no `CLAUDE.md`.
 
@@ -11,14 +11,14 @@ As issues e PRDs deste repositório vivem como **GitHub Issues**. Use o `gh` CLI
 - **Listar issues:** `gh issue list --state open --json number,title,labels,assignees`.
 - **Comentar:** `gh issue comment <N> --body "..."`.
 - **Aplicar/remover label:** `gh issue edit <N> --add-label "..." --remove-label "..."`.
-- **Fechar:** `gh issue close <N> --comment "..."` — ou automático via `Closes #N` no merge do PR.
+- **Fechar:** `gh issue close <N> --comment "..."`, ou automático via `Closes #N` no merge do PR.
 
 Quando uma skill disser **"publicar no issue tracker"** → criar uma GitHub Issue.
 Quando disser **"buscar o ticket"** → `gh issue view <N> --comments`.
 
 ## Hierarquia: PRD → fatias (sub-issues nativas)
 
-O `/to-prd` cria a issue grande (o **PRD**); o `/to-issues` quebra em fatias e registra cada uma como **sub-issue nativa** do PRD — não só a menção `Pai: #N` no corpo, mas o vínculo estrutural do GitHub (barra de progresso "X de Y concluídas" no PRD + navegação pai↔filha na UI).
+O `/to-prd` cria a issue grande (o **PRD**); o `/to-issues` quebra em fatias e registra cada uma como **sub-issue nativa** do PRD, não só a menção `Pai: #N` no corpo, mas o vínculo estrutural do GitHub (barra de progresso "X de Y concluídas" no PRD + navegação pai↔filha na UI).
 
 - **Vincular uma fatia ao PRD** (o `sub_issue_id` é o *database id* da filha, **não** o número):
   ```bash
@@ -37,9 +37,9 @@ O `/to-prd` cria a issue grande (o **PRD**); o `/to-issues` quebra em fatias e r
 A Action `.github/workflows/higiene-issues.yml` dispara no evento `issues.closed`, para **qualquer** fechamento (merge com `Closes #N`, web, ou manual), e garante que o status nunca minta (ADR 0068):
 
 1. Remove as labels de estado (`in-progress`, `ready-for-agent`, `blocked`) da issue fechada.
-2. Se ela era a **última sub-issue aberta** de um PRD, fecha o PRD com um comentário — limpando as labels do PRD na mesma run (o fechamento via `GITHUB_TOKEN` não re-dispara a Action).
+2. Se ela era a **última sub-issue aberta** de um PRD, fecha o PRD com um comentário, limpando as labels do PRD na mesma run (o fechamento via `GITHUB_TOKEN` não re-dispara a Action).
 
-Nenhuma skill ou passo manual cuida disso — a higiene é event-driven de propósito.
+Nenhuma skill ou passo manual cuida disso, a higiene é event-driven de propósito.
 
 ## Snapshot e draft do Manual (GitHub Action)
 
@@ -53,25 +53,25 @@ O `[skip ci]` impede o push do bot de redisparar workflow, e o filtro de caminho
 
 ## Loop do revisor (ADR 0068)
 
-O **revisor** (papel; o **diretor** é o caso canônico) acompanha as issues pelo GitHub web/mobile e comenta. O mecanismo **independe da pessoa** — o que dispara o loop é o comentário e o contexto que ele adiciona:
+O **revisor** (papel; o **diretor** é o caso canônico) acompanha as issues pelo GitHub web/mobile e comenta. O mecanismo **independe da pessoa**: o que dispara o loop é o comentário e o contexto que ele adiciona:
 
 1. **Acesso:** o revisor entra como colaborador com papel **Triage** (vê, comenta e rotula; não toca em código):
    ```bash
    REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
    gh api -X PUT "repos/$REPO/collaborators/<login>" -f permission=triage
    ```
-   Ele recebe o convite por email/GitHub e precisa aceitar. (O revisor de teste atual, `pedrorezendefig`, é o dono do repo — o acesso já existe.)
-2. **Quem é revisor é configuração:** a repository variable `REVIEWER_LOGINS` (lista separada por vírgula; default `pedrorezendefig` definido no workflow). Trocar o revisor é trocar a variable — sem commit:
+   Ele recebe o convite por email/GitHub e precisa aceitar. (O revisor de teste atual, `pedrorezendefig`, é o dono do repo, o acesso já existe.)
+2. **Quem é revisor é configuração:** a repository variable `REVIEWER_LOGINS` (lista separada por vírgula; default `pedrorezendefig` definido no workflow). Trocar o revisor é trocar a variable, sem commit:
    ```bash
    gh variable set REVIEWER_LOGINS --body "login1,login2"
    ```
 3. **Detecção (dois gatilhos):** a mesma Action de higiene dispara em `issue_comment.created` e acende `revisor-comentou` numa **issue** quando o autor é um login da lista, **ou** quando o corpo do comentário traz o marcador `<!-- revisor-app` (ADR 0054, decisão 4). O marcador vale antes de `REVIEWER_LOGINS` e independe do login: é a assinatura do revisor que não tem conta no GitHub e responde na Conversa da Demanda, com o app espelhando o comentário aqui pelo token da integração. Não é "qualquer um com o marcador acende a label": no caminho do marcador quem segura a porta é o `if:` do job, pelo `author_association` (OWNER, MEMBER, COLLABORATOR), e o comentário espelhado sai justamente pelo token de um colaborador. Comentário de terceiro num repositório público nem chega ao script. A Action **só sinaliza**, nunca reabre nem edita.
 4. **Automação não dispara o loop:** a Action ignora comentários em PRs e comentários com marcador de automação: o disclaimer do `/triage` ou `<!-- automacao -->`. Skill ou script que comente numa issue usando a mesma conta do revisor deve incluir um dos dois no corpo. Esse corte vale só para comentário **sem** `<!-- revisor-app`: quem carrega o marcador é voz de revisor e acende a label de qualquer jeito. Por isso o app espelha com `<!-- automacao -->` a resposta de quem tem `github_login` e com `<!-- revisor-app ... -->` a de quem não tem (o que a Action olha é o prefixo `<!-- revisor-app`; os atributos dentro do marcador podem variar).
-5. **Curadoria (HITL):** `/triage` e `/pegar-issue` listam as issues `revisor-comentou` no topo. O agente lê o comentário, extrai o contexto, classifica (pedido de mudança vs. elogio/observação) e age sob aprovação humana — protocolo completo na skill `/triage`. Issue **fechada** + pedido de mudança → reabre com o critério novo **desmarcado** (contagem honesta, ex. 6/7); o refazer é um ship de follow-up.
+5. **Curadoria (HITL):** `/triage` e `/pegar-issue` listam as issues `revisor-comentou` no topo. O agente lê o comentário, extrai o contexto, classifica (pedido de mudança vs. elogio/observação) e age sob aprovação humana, protocolo completo na skill `/triage`. Issue **fechada** + pedido de mudança → reabre com o critério novo **desmarcado** (contagem honesta, ex. 6/7); o refazer é um ship de follow-up.
 
 ## Desenvolvimento paralelo (N sessões Claude Code, sem Docker)
 
-O `/to-issues` gera issues vertical-slice **independentes**. Várias sessões Claude Code (cada uma rodando Opus, em terminais diferentes) podem trabalhar em paralelo — **uma issue por sessão**. Para não haver colisão, siga o protocolo:
+O `/to-issues` gera issues vertical-slice **independentes**. Várias sessões Claude Code (cada uma rodando Opus, em terminais diferentes) podem trabalhar em paralelo, **uma issue por sessão**. Para não haver colisão, siga o protocolo:
 
 ### 1. Ver a fila disponível
 ```bash
