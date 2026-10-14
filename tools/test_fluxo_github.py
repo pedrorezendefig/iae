@@ -72,3 +72,47 @@ def test_travessao_numa_skill_fica_vermelho(tmp_path: Path) -> None:
 
 def test_repo_real_passa_no_lint() -> None:
     assert _rodar_lint(RAIZ).returncode == 0, _rodar_lint(RAIZ).stdout
+
+
+# Higiene de issues: o script do job `higiene` roda no Node com um `github`
+# falso que registra as chamadas, como o actions/github-script rodaria.
+HIGIENE = RAIZ / ".github" / "workflows" / "higiene-issues.yml"
+
+ARNES_JS = """
+const chamadas = [];
+const github = {
+  rest: { issues: {
+    removeLabel: async (a) => { chamadas.push(['removeLabel', a.issue_number, a.name]); },
+    createComment: async (a) => { chamadas.push(['createComment', a.issue_number]); },
+    update: async (a) => { chamadas.push(['update', a.issue_number, a.state]); },
+  } },
+  graphql: async () => ({ repository: { issue: { parent: null } } }),
+};
+const context = {
+  repo: { owner: 'pedrorezendefig', repo: 'iae' },
+  payload: { issue: { number: 7, labels: [{ name: 'in-progress' }, { name: 'fatia:M' }] } },
+};
+const core = { info: () => {} };
+(async () => {
+  await (async () => { %s })();
+  console.log(JSON.stringify(chamadas));
+})().catch((e) => { console.error(e); process.exit(1); });
+"""
+
+
+def test_fechar_issue_com_in_progress_tira_a_label(tmp_path: Path) -> None:
+    import json
+
+    wf = yaml.safe_load(HIGIENE.read_text(encoding="utf-8"))
+    # `on:` vira True no YAML 1.1 do PyYAML.
+    gatilhos = wf.get("on", wf.get(True))
+    assert "closed" in gatilhos["issues"]["types"]
+    script = wf["jobs"]["higiene"]["steps"][0]["with"]["script"]
+    arquivo = tmp_path / "higiene.js"
+    arquivo.write_text(ARNES_JS % script, encoding="utf-8")
+    saida = subprocess.run(
+        ["node", str(arquivo)], check=True, capture_output=True, text=True
+    ).stdout
+    chamadas = json.loads(saida)
+    assert ["removeLabel", 7, "in-progress"] in chamadas
+    assert ["removeLabel", 7, "fatia:M"] not in chamadas
