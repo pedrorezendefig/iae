@@ -40,6 +40,8 @@ Tudo que está na árvore é código, doc viva ou decisão. Estado de trabalho f
 | `spec/` | Contrato de deploy e mapa factual do app | O agente lê daqui, nunca de memória | `deploy/` (`project.json`, `state.json`, `history.json`; sem plataforma ainda) e `snapshots/` (rotas, tabelas e integrações, gerados pelo `/snapshot`; vazios até a plataforma ter código) | `/deploy status` e `/snapshot --check` |
 | `comercial/` | Material comercial para o Cliente | O plano de ação proposto ao IAE e a pesquisa que o sustenta | `plano-de-acao/` (o prompt, a pesquisa em `saida/pesquisa/` e as páginas HTML geradas) | Ao conversar com o Cliente sobre escopo e preço. O IAE OS não lê esta pasta |
 
+Na raiz de `docs/`, o `STACK.md` lista a stack de hoje e a prevista. Peça nova na stack entra nele, no mesmo PR que a traz; o IAE OS mostra o arquivo na Documentação, sub-aba Stack.
+
 ## O fluxo, em uma linha por etapa
 
 1. Ideia: `/grill-with-docs` afia contra `CONTEXT.md` e as ADRs. 2. `/to-prd` e `/to-issues` viram issues. 3. `/pegar-issue N` faz o claim e abre a branch. 4. `/tdd` escreve o teste primeiro. 5. `/ship` abre o PR, roda os gates e, com o PR verde, roda a subida (`fechar_onda.py`). 6. A subida mergeia pela API. O IAE ainda não tem deploy, então o caminho termina no merge.
