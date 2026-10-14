@@ -1,6 +1,6 @@
 """Skills de planejamento e claim do IAE (issue #4).
 
-Vieram do Hospital (pedrorezendefig/hospital-reunioes) pelo MANIFESTO do kit
+Vieram do repositório do Hospital pelo MANIFESTO do kit
 `tools/instalar-fluxo/`. Estes testes travam a adaptação: o router é o
 `/ask-iae`, e nenhuma regra fala do Hospital, do diretor ou do Manual. Citar o
 Hospital como origem é permitido (a linha diz "origem").
