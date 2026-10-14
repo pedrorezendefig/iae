@@ -831,3 +831,41 @@ def test_chip_da_main_atrasada_leva_a_classe_de_alerta_e_o_em_dia_nao(tmp_path):
     em_dia = _app(tmp_path, "_els['#mast-status'].innerHTML", dados={**DADOS, "git": {"main_atras": 0}})
     assert 'class="ago main-atras warn" title=' in atrasado
     assert 'class="ago main-atras" title=' in em_dia
+
+
+# ---------- IAE sem deploy: a aba diz "sem deploy ainda" (issue #8 do IAE) ----------
+
+# o state.json que o IAE grava antes do primeiro deploy
+ESTADO_SEM_DEPLOY = {"schema_version": "1.0", "last_app_version": "0.0.0", "services": []}
+
+
+@com_node
+def test_sem_deploy_no_history_a_aba_diz_sem_deploy_ainda_no_lugar_da_versao_e_da_linha_do_tempo(tmp_path):
+    dados = {
+        **DADOS,
+        "history": [],
+        "linha_do_tempo": collect._linha_do_tempo([], PRS, agora=AGORA),
+        "state": ESTADO_SEM_DEPLOY,
+    }
+    html = _app(tmp_path, "_view.innerHTML", dados=dados)
+    assert "sem deploy ainda" in html
+    # nem a versão 0.0.0 do state, nem a faixa dos serviços, nem a trilha
+    assert "v0.0.0" not in html
+    assert "prod-band" not in html and "prod-spark" not in html
+    assert '<ol class="lt">' not in html and "PR #72" not in html
+
+
+@com_node
+def test_com_o_primeiro_deploy_a_aba_mostra_a_versao_e_a_linha_do_tempo(tmp_path):
+    [primeiro] = [d for d in HISTORY if d["sha"] == "aaa1111"]
+    dados = {
+        **DADOS,
+        "history": [primeiro],
+        "linha_do_tempo": collect._linha_do_tempo([primeiro], PRS, agora=AGORA),
+        "state": {**ESTADO_SEM_DEPLOY, "last_app_version": "0.163.4"},
+    }
+    html = _app(tmp_path, "_view.innerHTML", dados=dados)
+    assert "sem deploy ainda" not in html
+    assert re.search(r'<div class="prod-v">v0\.163\.4</div>\s*<div class="prod-k">no ar</div>', html)
+    assert [v for v, _, _ in _versoes(html)] == ["v0.163.4"]
+    assert "lt-deploy" in html
