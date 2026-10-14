@@ -26,9 +26,9 @@ Esvazia uma fila de issues em ondas: implementa em paralelo, revisa uma vez, mer
 
 | Agente | Esforço | Quando |
 |---|---|---|
-| `hr-implementador` | high (`effort: xhigh` na `fatia:G`) | 1 por issue, `isolation: worktree` |
-| `hr-revisor` | high | PR do app (toca `plataforma/`), uma vez só |
-| `hr-corretor` | high (`effort: max` na segunda falha de CI) | must-fix, CI vermelho, conflito, retomada |
+| `iae-implementador` | high (`effort: xhigh` na `fatia:G`) | 1 por issue, `isolation: worktree` |
+| `iae-revisor` | high | PR do app (toca `plataforma/`), uma vez só |
+| `iae-corretor` | high (`effort: max` na segunda falha de CI) | must-fix, CI vermelho, conflito, retomada |
 
 Você, orquestrador, **não lê código, diff, PRD nem spec**: mantém a tabela da fila e delega. Prompts em [references/prompts.md](references/prompts.md), literais.
 
@@ -53,7 +53,7 @@ A onda é toda issue da fila fixa já desbloqueada (`blocked_by` todo fechado), 
 Dispare os implementadores **na mesma mensagem**, um por issue. Registre a hora do primeiro disparo. A cada término, **confira o GitHub**, não o relatório (`gh pr list --search "<N> in:title,body" --state open`):
 
 - **PR aberto:** passo 3.
-- **Branch com commits `wip:`, sem PR:** `hr-corretor` motivo `retomar`. Conta tentativa.
+- **Branch com commits `wip:`, sem PR:** `iae-corretor` motivo `retomar`. Conta tentativa.
 - **Nada:** implementador fresco com "tentativa k de 3". Conta tentativa.
 
 ### 3. Por PR
@@ -63,13 +63,13 @@ Assim que o PR abre, na mesma mensagem:
 1. `gh pr checks <PR> --watch --fail-fast` em segundo plano.
 2. `gh pr diff <PR> --name-only | grep -q '^plataforma/'` falhou = **PR de ferramenta: só o CI**, pule 3 e 4 (ADR 0068).
 3. `uv run --no-project --python ">=3.12" python .claude/skills/onda-enxuta/scripts/sensivel.py <PR>`: saída 0 = sensível, 1 = não; outra saída, rode de novo e, na segunda falha, baixa.
-4. `hr-revisor` uma vez; se sensível, com `Sensível: <arquivos>` no prompt.
+4. `iae-revisor` uma vez; se sensível, com `Sensível: <arquivos>` no prompt.
 
 Por notificação:
 
-- **`VEREDITO: MUST-FIX`** → `hr-corretor` motivo `revisao` com o comentário inteiro. Sem re-revisão: depois do corretor, quem confere é o CI. Corretor com `pendente`: baixa.
+- **`VEREDITO: MUST-FIX`** → `iae-corretor` motivo `revisao` com o comentário inteiro. Sem re-revisão: depois do corretor, quem confere é o CI. Corretor com `pendente`: baixa.
 - **Revisor sem veredito:** baixa.
-- **CI vermelho:** `python .claude/skills/onda-enxuta/scripts/ci_sem_runner.py <PR>`. Saída 0 = falta de runner, o script já pediu o rerun: outro `--watch`, sem tentativa. Saída 1 = `hr-corretor` motivo `ci` com `gh run view <id> --log-failed | tail -60`; na segunda falha, `effort: max`. Depois, `--watch` de novo.
+- **CI vermelho:** `python .claude/skills/onda-enxuta/scripts/ci_sem_runner.py <PR>`. Saída 0 = falta de runner, o script já pediu o rerun: outro `--watch`, sem tentativa. Saída 1 = `iae-corretor` motivo `ci` com `gh run view <id> --log-failed | tail -60`; na segunda falha, `effort: max`. Depois, `--watch` de novo.
 
 PR verde = CI verde e, no app, `VEREDITO: LIMPO` ou corretor sem `pendente`. Issue que não fecha em **3 tentativas** (somadas): baixa.
 
@@ -87,7 +87,7 @@ Com todos os PRs verdes ou baixados, registre a hora dos PRs verdes e imprima a 
 `python .claude/skills/onda-enxuta/scripts/fechar_onda.py --prs <a> <b> --sessao <nome>-onda<N>` em segundo plano, com os PRs verdes na ordem da tabela. A chave é a da onda, não a da sessão (a onda seguinte já roda). Leia só a saída; o que cada código significa está na docstring do script. Cabe a você:
 
 - **`migration: cole no Studio <arquivo>:1`:** repasse por `PushNotification` assim que aparecer.
-- **2 com `conflito no merge de #N em: <arquivos>`:** `hr-corretor` motivo `conflito` com os arquivos, `--watch` de novo e a subida só com os de fora. Outra `de fora:` (CI vermelho, merge recusado): passo 3 ou subida de novo. Ambas contam tentativa. `de fora: #<PR> bloqueada por #<X>`: issue em `blocked`, sem tentativa.
+- **2 com `conflito no merge de #N em: <arquivos>`:** `iae-corretor` motivo `conflito` com os arquivos, `--watch` de novo e a subida só com os de fora. Outra `de fora:` (CI vermelho, merge recusado): passo 3 ou subida de novo. Ambas contam tentativa. `de fora: #<PR> bloqueada por #<X>`: issue em `blocked`, sem tentativa.
 - **3 ou 4:** pare; imprima a chave e a linha. Rollback pelo `/deploy rollback`.
 - **6:** uma tentativa por fatia e `PushNotification` "rollback disparado no PR #N, versão vX.Y.Z voltou".
 - **7 e 8:** `PushNotification` com a linha do script; o mesmo comando de novo depois do humano. Sem tentativa.

@@ -17,7 +17,7 @@ Do código ao PR verde e, com os gates verdes, a subida (`fechar_onda.py`), sem 
 |---|---|
 | `--issue N` | Vincula a issue: `Closes #N` no PR, critérios de aceite como checklist. |
 | `--type` | Prefixo de branch e commit. Sem ele: "bug/corrigir/fix" → `fix`, "nova/adicionar" → `feature`, "refactor/limpar" → `refactor`, "doc/readme" → `docs`, senão `chore`. |
-| `--skip-review` | Pula Gates 1 e 2 e termina no PR aberto, sem a subida. Modo do `hr-implementador` da onda. |
+| `--skip-review` | Pula Gates 1 e 2 e termina no PR aberto, sem a subida. Modo do `iae-implementador` da onda. |
 | `--hotfix` | Roda Gate 2 e CI e termina no PR verde, sem a subida. |
 | `--draft` | PR como draft. |
 | `--from-diff` | O código já está no working tree: vai direto ao commit. |
@@ -43,12 +43,12 @@ Do código ao PR verde e, com os gates verdes, a subida (`fechar_onda.py`), sem 
 **PR do app**, na ordem:
 
 - **Gate 2, `sensivel.py`** (rode primeiro): `uv run --no-project --python ">=3.12" python .claude/skills/onda-enxuta/scripts/sensivel.py "$PR"`. Saída 0: o prompt do revisor leva `Sensível: <arquivos impressos>`. Saída 1: nada. Outra saída: rode de novo; na segunda falha, baixa.
-- **Gate 1, `hr-revisor`**, prompt de `.claude/skills/onda-enxuta/references/prompts.md`. Última linha do comentário: `VEREDITO: LIMPO` ou `VEREDITO: MUST-FIX (n)`. Com issue vinculada, o revisor também confere spec × diff.
+- **Gate 1, `iae-revisor`**, prompt de `.claude/skills/onda-enxuta/references/prompts.md`. Última linha do comentário: `VEREDITO: LIMPO` ou `VEREDITO: MUST-FIX (n)`. Com issue vinculada, o revisor também confere spec × diff.
 - **Gate 3, CI:** `gh pr checks "$PR" --watch`.
 
 Correção:
-- `MUST-FIX` → `hr-corretor` motivo `revisao` com o comentário inteiro. Uma revisão, uma correção, sem re-revisão: depois do corretor, quem confere é o CI. Corretor com `pendente` é baixa.
-- CI vermelho → `hr-corretor` motivo `ci` com as últimas 60 linhas de `gh run view <id> --log-failed`; a segunda falha da fatia vai com `effort: max`. Depois, `gh pr checks --watch` de novo.
+- `MUST-FIX` → `iae-corretor` motivo `revisao` com o comentário inteiro. Uma revisão, uma correção, sem re-revisão: depois do corretor, quem confere é o CI. Corretor com `pendente` é baixa.
+- CI vermelho → `iae-corretor` motivo `ci` com as últimas 60 linhas de `gh run view <id> --log-failed`; a segunda falha da fatia vai com `effort: max`. Depois, `gh pr checks --watch` de novo.
 - Cada falha conta uma tentativa; na terceira, baixa.
 
 **Baixa:** `gh issue edit N --remove-label in-progress --add-label ready-for-human`, comentário com `<!-- automacao -->` na primeira linha e o diagnóstico (gate, achado, hipótese) e `PushNotification` de uma linha. O PR fica aberto e a subida não roda.
@@ -66,7 +66,7 @@ python3 .claude/skills/onda-enxuta/scripts/fechar_onda.py --prs "$PR"
 ```
 
 Em segundo plano (builds levam minutos); leia só a saída. O que fazer em cada código de saída está na docstring do script. Os dois que pedem ação de quem rodou:
-- **Saída 2 com `conflito no merge de #N em: <arquivos>`:** `hr-corretor` motivo `conflito` com os arquivos, CI de novo, subida de novo. Conta tentativa.
+- **Saída 2 com `conflito no merge de #N em: <arquivos>`:** `iae-corretor` motivo `conflito` com os arquivos, CI de novo, subida de novo. Conta tentativa.
 - **Saídas 6, 7 e 8:** `PushNotification` com a linha que o script imprimiu. A 6 conta tentativa.
 
 **Migration nova:** a subida imprime `migration: cole no Studio <arquivo>:1` e espera o `/api/health` devolver o número dela (até 24 h). Repasse a linha por `PushNotification`. Quem aplica é o humano, no SQL Editor do Studio de produção; o `/ship` nunca aplica migration. Quando o humano disser "apliquei a migration N" (ou `/ondas aplicada N`), o mod hr-ondas grava em `~/.claude/hr-ondas/aplicadas` e o painel para de cobrar; a subida continua esperando o `/api/health`.
