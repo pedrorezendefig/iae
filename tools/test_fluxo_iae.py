@@ -143,6 +143,33 @@ def test_deploy_status_nao_diz_sem_deploy_quando_a_plataforma_chega(tmp_path: Pa
     assert "ainda não tem deploy" not in feito.stdout
 
 
+SNAPSHOT = RAIZ / ".claude" / "skills" / "snapshot" / "scripts" / "snapshot.py"
+SETE = {"ESTRUTURA.md", "ROTAS.md", "ENTIDADES.md", "SCHEMA.md", "MIGRATIONS.md", "INTEGRACOES.md", "FLUXOGRAMAS.md"}
+
+
+def _snapshot(raiz: Path, *flags: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run([sys.executable, str(SNAPSHOT), "--root", str(raiz), *flags], check=False,
+                          capture_output=True, text=True, encoding="utf-8")
+
+
+def test_snapshot_gera_os_sete_arquivos_e_o_check_acusa_quando_a_plataforma_muda(tmp_path: Path) -> None:
+    assert _snapshot(tmp_path).returncode == 0
+    pasta = tmp_path / "docs/spec/snapshots"
+    assert {p.name for p in pasta.glob("*.md")} == SETE
+    assert "ainda não existe" in (pasta / "ESTRUTURA.md").read_text(encoding="utf-8")
+    assert _snapshot(tmp_path, "--check").returncode == 0
+
+    (tmp_path / "plataforma/supabase/migrations").mkdir(parents=True)
+    (tmp_path / "plataforma/supabase/migrations/001_alunos.sql").write_text("select 1;", encoding="utf-8")
+    (tmp_path / "plataforma/.env.example").write_text("MUX_TOKEN_ID=\n# comentario\nSTRIPE_KEY=x\n", encoding="utf-8")
+    checado = _snapshot(tmp_path, "--check")
+    assert checado.returncode == 1 and "MIGRATIONS.md" in checado.stdout
+    assert _snapshot(tmp_path).returncode == 0
+    assert "001_alunos.sql" in (pasta / "MIGRATIONS.md").read_text(encoding="utf-8")
+    assert "MUX_TOKEN_ID" in (pasta / "INTEGRACOES.md").read_text(encoding="utf-8")
+    assert "supabase/" in (pasta / "ESTRUTURA.md").read_text(encoding="utf-8")
+
+
 def _textos(pastas, sufixos=(".md", ".py", ".sh", ".yml", ".txt")):
     """Arquivos de texto do repositório, sem os worktrees de agente que moram
     dentro de `.claude/worktrees/` na árvore principal."""
