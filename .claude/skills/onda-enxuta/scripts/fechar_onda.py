@@ -27,6 +27,11 @@ e servicos saem do lote inteiro, antes do primeiro merge.
     versao nova, sem APP_VERSION, sem tag, sem esperar build, sem health e sem
     registro (nenhuma entrada no history.json). Se o webhook do Coolify disparar
     build em algum merge, a subida o cancela, como faz com o do commit do registro.
+Sem plataforma (IAE, issue #5): enquanto o `services` do project.json estiver
+vazio, todo lote e ferramenta, inclusive o que toca `plataforma/`. A subida
+termina no merge: o CLI do Coolify nao e pre-condicao e a espera da migration
+nao roda. Quando o primeiro servico entrar no project.json, a sequencia inteira
+volta a valer.
 
 Sequencia (cada passo imprime no maximo uma linha, o 4 uma por PR; sucesso
 cabe em 10 linhas mais uma por PR, fora as da migration):
@@ -192,6 +197,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "tools"))
 import checar_migration_repetida  # noqa: E402
 import ci_sem_runner  # noqa: E402
 
+# Sem servico no project.json, nao ha plataforma: a subida termina no merge
+# (issue #5 do IAE). A regra e a mesma do `/deploy status`.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "deploy" / "scripts"))
+from status_deploy import tem_plataforma  # noqa: E402
+
 EXIT_PRECOND = 1
 EXIT_MERGE = 2
 EXIT_BUILD = 3
@@ -283,11 +293,13 @@ def bash_path(p: Path) -> str:
 
 # ------------------------------------------------------------- pre-condicoes
 
-def checar_pre_condicoes(raiz: Path, prs: list[int], dry: bool) -> tuple[list[dict], list[tuple[str, str]]]:
-    """Devolve as infos dos PRs e (head, caminho) de cada migration nova do lote."""
+def checar_pre_condicoes(raiz: Path, prs: list[int], dry: bool,
+                         plataforma: bool = True) -> tuple[list[dict], list[tuple[str, str]]]:
+    """Devolve as infos dos PRs e (head, caminho) de cada migration nova do lote.
+    Sem plataforma, o CLI do Coolify nao e pre-condicao: a subida so mergeia."""
     if run(["gh", "auth", "status"], check=False).returncode != 0:
         falhar("pre-condicao: `gh auth status` falhou.", EXIT_PRECOND)
-    if not shutil.which("coolify"):
+    if plataforma and not shutil.which("coolify"):
         if dry:
             print("aviso: `coolify` nao esta no PATH (o dry-run segue; o fechamento real precisa dele).")
         else:
@@ -1516,8 +1528,9 @@ def main() -> int:
         run(["git", "rev-parse", "--show-toplevel"]).stdout.strip()).resolve()
     projeto = ler_json(raiz / SPEC / "deploy" / "project.json")
     servicos_cfg = {s["id"]: s for s in projeto["services"]}
+    plataforma = tem_plataforma(projeto)
 
-    infos, novas = checar_pre_condicoes(raiz, args.prs, args.dry_run)
+    infos, novas = checar_pre_condicoes(raiz, args.prs, args.dry_run, plataforma)
     de_fork = " ".join(f"#{i['number']}" for i in infos if i.get("isCrossRepository"))
     if de_fork:
         falhar(f"pre-condicao: {de_fork} vem de um fork; a main entra na branch do PR, "
@@ -1527,7 +1540,7 @@ def main() -> int:
           + (" (dry-run)" if args.dry_run else ""), flush=True)
     numeros = [n for n in (checar_migration_repetida._numero(Path(c).name) for _, c in novas) if n is not None]
     # antes do semaforo: a espera pode levar horas (issue #969)
-    if numeros and not args.dry_run and not esperar_migrations_do_lote(
+    if numeros and plataforma and not args.dry_run and not esperar_migrations_do_lote(
             raiz, servicos_cfg["backend"], novas, max(numeros), args.sessao, prs_txt):
         return EXIT_MIGRACAO
 
@@ -1559,7 +1572,8 @@ def main() -> int:
             arquivos.update(run(["git", "diff", "--no-renames", "--name-only", f"{base}...{i['head_conferido']}"],
                                 cwd=wt).stdout.split())
             arquivos.update(f["path"] for f in i.get("files") or [])
-        ferramenta = classe_do_lote(arquivos) == "ferramenta"
+        # sem plataforma todo lote e ferramenta: so merge (issue #5 do IAE)
+        ferramenta = not plataforma or classe_do_lote(arquivos) == "ferramenta"
         tipo = None if ferramenta else tipo_de_bump(infos)
         versao_nova = proxima_versao(versao_antiga, tipo) if tipo else None
         # supabase nao tem build: migration se aplica a mao no Studio (o deploy nao aplica SQL)
