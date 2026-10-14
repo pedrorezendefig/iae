@@ -20,6 +20,10 @@ import pytest
 DASH = Path(__file__).resolve().parents[1]
 STATIC = DASH / "static"
 RAIZ = Path(__file__).resolve().parents[3]
+# O repo de verdade destes testes é uma amostra congelada do Hospital
+# (pedrorezendefig/hospital-reunioes@9c1aabe, em amostra_hospital/): o IAE ainda
+# não tem app nem ADRs encadeadas, e o parser precisa de dados reais para conferir.
+AMOSTRA = Path(__file__).resolve().parent / "amostra_hospital"
 FLUXO_TXT = (STATIC / "fluxo.json").read_text(encoding="utf-8")
 APP_JS = (STATIC / "app.js").read_text(encoding="utf-8")
 DIAGRAMAS_JS = (STATIC / "diagramas.js").read_text(encoding="utf-8")
@@ -187,7 +191,7 @@ def test_indice_sem_tema_parseavel_devolve_vazio():
 
 def test_indice_real_agrupa_a_0068_no_workflow():
     temas = parse_temas_adr(
-        (RAIZ / "docs" / "adr" / "README.md").read_text(encoding="utf-8")
+        (AMOSTRA / "docs" / "adr" / "README.md").read_text(encoding="utf-8")
     )
     por_tema = {t["tema"]: t["numeros"] for t in temas}
     assert len(por_tema) >= 5
