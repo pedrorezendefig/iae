@@ -16,7 +16,7 @@ Quando uma skill mencionar um papel (ex.: "aplique a label de AFK-ready"), use a
 
 | Label | Significado |
 | --- | --- |
-| `in-progress` | Uma sessão deu claim e está trabalhando — sai da fila `ready-for-agent` |
+| `in-progress` | Uma sessão deu claim e está trabalhando, sai da fila `ready-for-agent` |
 
 > **Aposentada:** a label `blocked` (e a convenção `Bloqueada por: #X` no corpo) saiu de uso em 13/07/2026. Bloqueio entre issues agora é a **dependência nativa** do GitHub ("blocked by"); a fila filtra com `-is:blocked` e o destravamento é automático. Ver ADR 0068 e `docs/agents/issue-tracker.md`.
 
@@ -30,19 +30,19 @@ Aplicada automaticamente pela Action de higiene (`.github/workflows/higiene-issu
 
 ## Labels de tamanho de fatia (Plano vivo)
 
-Família **descritiva de tamanho** (não de estado), aplicada pelo `/to-issues` no momento da quebra do PRD — uma por fatia, nunca no PRD pai:
+Família **descritiva de tamanho** (não de estado), aplicada pelo `/to-issues` no momento da quebra do PRD, uma por fatia, nunca no PRD pai:
 
 | Label | Significado |
 | --- | --- |
-| `fatia:P` | Pequena — poucas horas, escopo contido (1 camada dominante, poucos critérios) |
-| `fatia:M` | Média — meio período típico (fatia vertical completa, escopo conhecido) |
-| `fatia:G` | Grande — dia cheio ou mais; maior risco/incerteza (muitas camadas, UI nova, integração externa) |
+| `fatia:P` | Pequena, poucas horas, escopo contido (1 camada dominante, poucos critérios) |
+| `fatia:M` | Média, meio período típico (fatia vertical completa, escopo conhecido) |
+| `fatia:G` | Grande, dia cheio ou mais; maior risco/incerteza (muitas camadas, UI nova, integração externa) |
 
 O Hospital OS agrupa esses labels no filtro `fatia:` da aba Issues, e a `/onda-enxuta` escolhe por eles o esforço do implementador. Tempo típico, lead time por tamanho e caminho crítico saíram com o Plano (ADR 0068). O vocabulário do painel (fase, funil, raia, tentativa) fica no README de `tools/workflow-dashboard/`.
 
 ## Labels ortogonais (mantidas do fluxo anterior)
 
-Estas convivem com as de triage — descrevem **o que** é a mudança, não o estado dela:
+Estas convivem com as de triage, descrevem **o que** é a mudança, não o estado dela:
 
 - `type:feature` · `type:fix` · `type:chore` · `type:refactor` · `type:docs`: natureza da mudança (alimenta o tipo do PR e do commit).
-- `area:backend` · `area:frontend` · `area:supabase` · `area:infra` · `area:docs` · `area:skills` · `area:spec` — onde a mudança incide.
+- `area:backend` · `area:frontend` · `area:supabase` · `area:infra` · `area:docs` · `area:skills` · `area:spec` · `area:video`: onde a mudança incide.

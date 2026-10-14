@@ -7,7 +7,7 @@ description: 'Claim atômico de uma issue ready-for-agent, branch e spec, e daí
 
 Entry point de **desenvolvimento**. Pega uma issue da fila `ready-for-agent`, dá "claim" para evitar colisão entre sessões paralelas, cria a branch, carrega a spec no contexto e encadeia `/tdd`, `/ship` e a subida até produção, sem parar para perguntar (ADR 0068). Protocolo completo em `docs/agents/issue-tracker.md`.
 
-## Sem argumento — listar a fila
+## Sem argumento: listar a fila
 
 **Antes da fila, o loop do revisor (ADR 0068).** Issues com `revisor-comentou` vêm **no topo**, inclusive fechadas (um pedido de mudança do revisor reabre trabalho entregue):
 
@@ -16,7 +16,7 @@ gh issue list --label revisor-comentou --state all \
   --json number,title,state --jq '.[] | {number, title, state}'
 ```
 
-Se houver alguma, mostre num bloco separado ("🔔 Revisor comentou — curadoria pendente") e recomende tratá-las antes de pegar issue nova. A curadoria (ler o comentário, classificar, reabrir/editar critérios sob aprovação humana) segue o protocolo do `/triage`.
+Se houver alguma, mostre num bloco separado ("🔔 Revisor comentou, curadoria pendente") e recomende tratá-las antes de pegar issue nova. A curadoria (ler o comentário, classificar, reabrir/editar critérios sob aprovação humana) segue o protocolo do `/triage`.
 
 Depois, mostre as issues disponíveis (prontas e sem dono), cada uma com o dono do PRD ao lado (ADR 0068):
 
@@ -26,7 +26,7 @@ python3 .claude/skills/pegar-issue/scripts/dono_do_prd.py --fila
 
 O script busca `ready-for-agent`, sem assignee e `-is:blocked` (a busca avançada exclui as bloqueadas server-side, dependências nativas, ADR 0068) e imprime a tabela com as colunas **PRD** e **dono do PRD**: `avulsa` quando a issue não tem PRD, `sem dono` quando o PRD não tem assignee. Mostre essa tabela, acrescentando o tipo AFK/HITL, se marcado. Pergunte qual número pegar; se o usuário disser "pega a próxima", pegue a primeira AFK e siga.
 
-## Com argumento `<N>` — pegar a issue
+## Com argumento `<N>`: pegar a issue
 
 ### 1. Ler a issue
 ```bash
@@ -60,7 +60,7 @@ Se a fatia é de um PRD cujo dono (assignee do PRD pai) é outro login, o script
 ```bash
 gh issue edit <N> --remove-label ready-for-agent --add-label in-progress --add-assignee @me
 ```
-Se o `--remove-label` falhar porque `ready-for-agent` já não estava lá, **outra sessão pegou primeiro** — avise e pare.
+Se o `--remove-label` falhar porque `ready-for-agent` já não estava lá, **outra sessão pegou primeiro**: avise e pare.
 
 ### 6. Verificação anti-corrida
 ```bash
