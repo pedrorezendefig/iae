@@ -1,6 +1,6 @@
 'use strict';
 
-/* Router de hash do Hospital OS (ADR 0062, decisão 8; issue #944).
+/* Router de hash do IAE OS (ADR 0062, decisão 8; issue #944).
    A rota é aba, item aberto e filtros: #issues/930, #prs/930,
    #producao/v0.161.0, #issues?resp=...&fase=.... Único módulo que lê e
    escreve o location.hash: o app.js recebe e entrega a rota como objeto

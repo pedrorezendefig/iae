@@ -236,11 +236,11 @@ function renderIntegracoes(dados) {
       <span class="k-label">quem conversa com o app · ${svcs.length} serviços externos</span>
       <span class="er-capa-hint">passe o mouse num serviço para acender o caminho dele</span>
     </div>
-    <svg class="ctx-svg" viewBox="0 0 ${W} ${H}" role="group" aria-label="Diagrama de contexto: o Hospital Reuniões no centro e os serviços externos em volta">
+    <svg class="ctx-svg" viewBox="0 0 ${W} ${H}" role="group" aria-label="Diagrama de contexto: a Plataforma de cursos no centro e os serviços externos em volta">
       <defs><marker id="ctxPonta" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0 L9 4 L0 8 Z"/></marker></defs>
       ${boxes}
       <g class="ctx-app"><rect x="${ax}" y="${ay}" width="${AW}" height="${AH}" rx="16"/>
-        <text class="ctx-app-nome" x="${W / 2}" y="${ay + 32}">Hospital Reuniões</text>
+        <text class="ctx-app-nome" x="${W / 2}" y="${ay + 32}">Plataforma de cursos</text>
         <text class="ctx-app-sub" x="${W / 2}" y="${ay + 52}">backend FastAPI</text></g>
       <g class="ctx-rotulos">${rotulos.join('')}</g>
     </svg>

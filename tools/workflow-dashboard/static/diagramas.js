@@ -712,7 +712,7 @@ function flowSvg(diag) {
 /* ---------- Fluxo de trabalho: grade desenhada à mão (fluxo.json) ---------- */
 
 /* O fluxo do pedido à produção não é parseado de Mermaid: vem do
-   static/fluxo.json, mantido à mão junto com o /ask-pedro. Cada nó diz onde
+   static/fluxo.json, mantido à mão junto com o /ask-iae. Cada nó diz onde
    fica numa grade (x em colunas, y em linhas, fracionários valem), então o
    renderer não decide layout nenhum: desenha raias, nós (retângulo com título
    e subtítulo; decisão com borda dupla; parada humana em âmbar com a mão),
