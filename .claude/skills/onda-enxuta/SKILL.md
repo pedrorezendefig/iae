@@ -84,7 +84,7 @@ Com todos os PRs verdes ou baixados, registre a hora dos PRs verdes e imprima a 
 
 ### 5. Subida
 
-`python .claude/skills/onda-enxuta/scripts/fechar_onda.py --prs <a> <b> --sessao <nome>-onda<N>` em segundo plano, com os PRs verdes na ordem da tabela. A chave é a da onda, não a da sessão (a onda seguinte já roda). Leia só a saída; o que cada código significa está na docstring do script. Cabe a você:
+`python .claude/skills/onda-enxuta/scripts/fechar_onda.py --prs <a> <b> --sessao <nome>-onda<N>` em segundo plano, com os PRs verdes na ordem da tabela. A chave é a da onda, não a da sessão (a onda seguinte já roda). Leia só a saída; o que cada código significa está na docstring do script. Enquanto o IAE não tiver plataforma (`/deploy status`), a subida termina no merge: sem versão, build, health nem espera de migration, e as saídas 3, 4, 6 e 7 não acontecem. Cabe a você:
 
 - **`migration: cole no Studio <arquivo>:1`:** repasse por `PushNotification` assim que aparecer.
 - **2 com `conflito no merge de #N em: <arquivos>`:** `iae-corretor` motivo `conflito` com os arquivos, `--watch` de novo e a subida só com os de fora. Outra `de fora:` (CI vermelho, merge recusado): passo 3 ou subida de novo. Ambas contam tentativa. `de fora: #<PR> bloqueada por #<X>`: issue em `blocked`, sem tentativa.
