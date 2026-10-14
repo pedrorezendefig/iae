@@ -9,6 +9,7 @@ Vercel ou Manual.
 from __future__ import annotations
 
 import re
+import subprocess
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[1]
@@ -48,3 +49,32 @@ def test_onboarding_dev_leva_do_clone_ao_painel_aberto_passando_pelo_hook() -> N
     posicoes = [texto.find(p) for p in passos]
     assert -1 not in posicoes, dict(zip(passos, posicoes))
     assert posicoes == sorted(posicoes), "os passos têm de aparecer na ordem do primeiro dia"
+
+
+CABECALHO_RAIZ = "| Pasta ou arquivo | O que é | Por que existe | O que você acha dentro | Para que serve no dia a dia |"
+CABECALHO_DOCS = "| Pasta | O que é | Por que existe | O que tem | Quando abrir |"
+
+
+def _pastas_do_git() -> set[str]:
+    """Pastas de nível 1 e 2 que o git conhece, sem cache de Python."""
+    arquivos = subprocess.run(["git", "ls-files"], cwd=RAIZ, check=True, capture_output=True,
+                              text=True).stdout.splitlines()
+    pastas = set()
+    for arquivo in arquivos:
+        partes = arquivo.split("/")[:-1]
+        for nivel in (1, 2):
+            if len(partes) >= nivel:
+                pastas.add("/".join(partes[:nivel]))
+    return {p for p in pastas if "__pycache__" not in p}
+
+
+def test_readme_tem_o_mapa_de_pastas_no_formato_do_hospital() -> None:
+    texto = (RAIZ / "README.md").read_text(encoding="utf-8")
+    assert CABECALHO_RAIZ in texto
+    assert CABECALHO_DOCS in texto
+    bloco = re.search(r"<!-- cobertura:start -->\n```\n(.*?)```\n<!-- cobertura:end -->", texto, re.S)
+    assert bloco, "falta o bloco cobertura"
+    cobertura = set(bloco.group(1).split())
+    assert _pastas_do_git() - cobertura == set()
+    for pasta in {p for p in cobertura if "/" not in p}:
+        assert f"| `{pasta}/` |" in texto, f"{pasta}/ fora da tabela da raiz"
