@@ -86,7 +86,7 @@ A subida (`fechar_onda.py --prs <PR>`) mergeia o PR pela API depois do CI verde.
 
 ### Cenário C: a sessão fechou no meio do trabalho
 
-O contexto não vive em arquivo de plano, vive na Issue:
+O contexto do trabalho está na Issue:
 
 ```
 git checkout <tipo>/<slug>-42     # a branch é determinística pelo número da issue
@@ -142,7 +142,7 @@ fechar_onda.py     merge pela API (squash). Sem deploy ainda: sem versão, build
 1. **Nunca dê push na `main`.** Todo trabalho entra por branch e PR. O hook do passo 3 trava.
 2. **Uma issue por vez, uma branch por issue.** Em paralelo (vários terminais), um git worktree por issue; o claim atômico evita que duas sessões peguem a mesma. Protocolo em `docs/agents/issue-tracker.md`.
 3. **A árvore principal do clone fica na `main`** e só recebe `git pull`. Voltou de uma pausa? `git pull` antes de tudo.
-4. **O contexto vive na Issue**, não em arquivo de plano. Os critérios de aceite viram os testes do `/tdd`.
+4. **O contexto vive na Issue.** Os critérios de aceite viram os testes do `/tdd`.
 5. **Todo PRD tem dono:** quem fez o grilling. Pegar fatia do PRD de outro sócio se combina antes com ele.
 6. **Mexeu numa skill de `.claude/skills/`?** Ela é do time: avise os outros sócios no PR.
 
