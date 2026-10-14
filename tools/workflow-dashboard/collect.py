@@ -932,6 +932,7 @@ def collect(root: Path) -> dict:
         "adr_temas": _temas_adr(root),
         "adr_arestas": arestas_adr(adrs),
         "context_md": _read_text(root / "CONTEXT.md"),
+        "stack_md": _read_text(root / "docs" / "STACK.md"),
         "snapshots": _snapshots(root),
         "git": _git_info(root),
         "fases": _montar_fases_seguro(root, slug, github, history),
