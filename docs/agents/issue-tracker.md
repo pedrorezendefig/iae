@@ -4,6 +4,8 @@ As issues e PRDs deste repositório vivem como **GitHub Issues**. Use o `gh` CLI
 
 > **Idioma:** todo conteúdo de issue voltado ao time é em **pt-BR** (título, corpo, user stories, critérios de aceite, comentários). Veja a regra de idioma no `CLAUDE.md`.
 
+> **Origem:** este protocolo veio do Hospital, como o resto do fluxo (ADR 0001). Os números de ADR citados aqui (0027, 0068) são decisões do repositório do Hospital, não do IAE. Para saber qual skill usar em cada momento, rode `/ask-iae`.
+
 ## Comandos essenciais
 
 - **Criar issue:** `gh issue create --title "..." --body "..."` (use heredoc para corpo multilinha).
@@ -29,8 +31,7 @@ O `/to-prd` cria a issue grande (o **PRD**); o `/to-issues` quebra em fatias e r
 - **Listar as fatias de um PRD:** `gh api "repos/$REPO/issues/<PRD>/sub_issues" --jq '.[].number'`.
 - **De que PRD veio uma fatia:** a seção `Pai: #N` no corpo, ou o painel de sub-issues na UI da própria fatia.
 - Quando a **última fatia aberta** fecha, a [Action de higiene](#higiene-de-fechamento-github-action) fecha o PRD sozinha, com um comentário. O **claim e o paralelismo (abaixo) acontecem nas fatias**, não no PRD.
-- **Emenda (ADR 0068): o PRD tem dono.** O `/to-prd` põe como assignee do PRD quem fez o grilling. Isso não é claim (ninguém "trabalha o PRD"), é responsabilidade: fatia ainda sem claim conta, para efeito de visão, como do dono do PRD. O Hospital OS (painel local) filtra a aba Issues por quem está designado (assignee), sem herdar o dono do PRD (ADR 0068).
-- **Issue nascida de uma Demanda (botão "Levar para desenvolvimento", ADR 0054) nasce designada ao responsável do card.** Em `needs-triage` esse assignee é responsabilidade, não claim, pela mesma leitura do dono do PRD. A `/triage` tira o assignee ao mover para `ready-for-agent`, porque o pool é `no:assignee`. O Hospital OS marca essas issues com o chip "Demanda".
+- **Emenda (ADR 0068): o PRD tem dono.** O `/to-prd` põe como assignee do PRD quem fez o grilling. Isso não é claim (ninguém "trabalha o PRD"), é responsabilidade: fatia ainda sem claim conta, para efeito de visão, como do dono do PRD. O IAE OS (painel local) filtra a aba Issues por quem está designado (assignee), sem herdar o dono do PRD (ADR 0068).
 
 ## Higiene de fechamento (GitHub Action)
 
@@ -41,19 +42,13 @@ A Action `.github/workflows/higiene-issues.yml` dispara no evento `issues.closed
 
 Nenhuma skill ou passo manual cuida disso, a higiene é event-driven de propósito.
 
-## Snapshot e draft do Manual (GitHub Action)
+## Registro de deploy e snapshot
 
-A Action `.github/workflows/pos-merge.yml` dispara em todo push na `main` e faz o que saiu da subida (ADR 0068): o `fechar_onda.py` grava só `history.json` e `state.json`, e o resto é dela.
-
-1. Tira do `draft` as páginas do Manual dos PRDs do último deploy do `history.json` (`tools/tirar_draft_manual.py`). Deploy sem PRD (PR avulso) pula o passo; página com Vídeo de tarefa fica em draft com um aviso no run, porque o MP4 não vem no clone (issue #951).
-2. Regenera o mapa factual (`docs/spec/snapshots/` e os blocos AUTO do `docs/ARQUITETURA.md`) com o backend montado como no CI, sem o modo parcial da máquina local.
-3. Com diff, commita direto na `main` como `github-actions[bot]`, com `[skip ci]`. Quem empurra é a deploy key da Action, num job separado que não instala nada; o ruleset da `main` dá bypass a ela e a mais ninguém (`.github/rulesets/main.json`, ADR 0068).
-
-O `[skip ci]` impede o push do bot de redisparar workflow, e o filtro de caminhos da Action ignora o que ela mesma escreve. Nenhuma skill nem a subida roda snapshot ou draft.
+No Hospital, uma Action pós-merge grava o registro de deploy e regenera os snapshots na `main`. O IAE ainda não tem essa Action: sem deploy, a subida só mergeia, e os arquivos de `docs/spec/snapshots/` se regeneram com `/snapshot` no PR que mudar a plataforma.
 
 ## Loop do revisor (ADR 0068)
 
-O **revisor** (papel; o **diretor** é o caso canônico) acompanha as issues pelo GitHub web/mobile e comenta. O mecanismo **independe da pessoa**: o que dispara o loop é o comentário e o contexto que ele adiciona:
+O **revisor** (papel; hoje é o Pedro) acompanha as issues pelo GitHub web/mobile e comenta. O mecanismo **independe da pessoa**: o que dispara o loop é o comentário e o contexto que ele adiciona:
 
 1. **Acesso:** o revisor entra como colaborador com papel **Triage** (vê, comenta e rotula; não toca em código):
    ```bash
@@ -65,8 +60,8 @@ O **revisor** (papel; o **diretor** é o caso canônico) acompanha as issues pel
    ```bash
    gh variable set REVIEWER_LOGINS --body "login1,login2"
    ```
-3. **Detecção (dois gatilhos):** a mesma Action de higiene dispara em `issue_comment.created` e acende `revisor-comentou` numa **issue** quando o autor é um login da lista, **ou** quando o corpo do comentário traz o marcador `<!-- revisor-app` (ADR 0054, decisão 4). O marcador vale antes de `REVIEWER_LOGINS` e independe do login: é a assinatura do revisor que não tem conta no GitHub e responde na Conversa da Demanda, com o app espelhando o comentário aqui pelo token da integração. Não é "qualquer um com o marcador acende a label": no caminho do marcador quem segura a porta é o `if:` do job, pelo `author_association` (OWNER, MEMBER, COLLABORATOR), e o comentário espelhado sai justamente pelo token de um colaborador. Comentário de terceiro num repositório público nem chega ao script. A Action **só sinaliza**, nunca reabre nem edita.
-4. **Automação não dispara o loop:** a Action ignora comentários em PRs e comentários com marcador de automação: o disclaimer do `/triage` ou `<!-- automacao -->`. Skill ou script que comente numa issue usando a mesma conta do revisor deve incluir um dos dois no corpo. Esse corte vale só para comentário **sem** `<!-- revisor-app`: quem carrega o marcador é voz de revisor e acende a label de qualquer jeito. Por isso o app espelha com `<!-- automacao -->` a resposta de quem tem `github_login` e com `<!-- revisor-app ... -->` a de quem não tem (o que a Action olha é o prefixo `<!-- revisor-app`; os atributos dentro do marcador podem variar).
+3. **Detecção (dois gatilhos):** a mesma Action de higiene dispara em `issue_comment.created` e acende `revisor-comentou` numa **issue** quando o autor é um login da lista, **ou** quando o corpo do comentário começa pelo marcador `<!-- revisor-app`. O marcador veio do Hospital, onde um app espelha aqui a resposta de quem não tem conta no GitHub; o IAE não tem esse app, então na prática o gatilho é o login. Nos dois caminhos o `if:` do job só deixa passar comentário de OWNER, MEMBER ou COLLABORATOR. A Action **só sinaliza**, nunca reabre nem edita.
+4. **Automação não dispara o loop:** a Action ignora comentários em PRs e comentários com marcador de automação: o disclaimer do `/triage` ou `<!-- automacao -->`. Skill ou script que comente numa issue usando a mesma conta do revisor deve incluir um dos dois no corpo.
 5. **Curadoria (HITL):** `/triage` e `/pegar-issue` listam as issues `revisor-comentou` no topo. O agente lê o comentário, extrai o contexto, classifica (pedido de mudança vs. elogio/observação) e age sob aprovação humana, protocolo completo na skill `/triage`. Issue **fechada** + pedido de mudança → reabre com o critério novo **desmarcado** (contagem honesta, ex. 6/7); o refazer é um ship de follow-up.
 
 ## Desenvolvimento paralelo (N sessões Claude Code, sem Docker)
@@ -100,9 +95,9 @@ gh issue edit <N> --remove-assignee @me   # devolve para quem chegou primeiro
 ### 4. Isolar o filesystem: 1 worktree por issue
 Para rodar em paralelo de verdade na mesma máquina, cada sessão trabalha num **git worktree** próprio (branches isoladas, mesmo `.git`, sem Docker), nascido da `origin/main` recém-buscada, e não do HEAD da árvore principal, que pode estar atrasado (issue #1081):
 ```bash
-git fetch origin && git worktree add ../hospital-issue-<N> -b <type>/<slug>-<N> origin/main
+git fetch origin && git worktree add ../iae-issue-<N> -b <type>/<slug>-<N> origin/main
 ```
-Abra a sessão Claude Code dentro de `../hospital-issue-<N>`. O `EnterWorktree` nativo do Claude Code também resolve isso; nesse caso confira com `git log --oneline -1 origin/main` que a branch nasceu da ponta.
+Abra a sessão Claude Code dentro de `../iae-issue-<N>`. O `EnterWorktree` nativo do Claude Code também resolve isso; nesse caso confira com `git log --oneline -1 origin/main` que a branch nasceu da ponta.
 
 ### 5. Trabalhar e fechar
 - Branch determinística por número da issue: `<type>/<slug>-<N>` → nunca colide com outra.
@@ -110,7 +105,7 @@ Abra a sessão Claude Code dentro de `../hospital-issue-<N>`. O `EnterWorktree` 
 - `/ship` abre o PR com `Closes #N` no corpo → ao mergear, o GitHub **fecha a issue**, e a [Action de higiene](#higiene-de-fechamento-github-action) remove o `in-progress` automaticamente.
 - Abandonou? Devolva ao pool: `gh issue edit <N> --remove-assignee @me --remove-label in-progress --add-label ready-for-agent`.
 - **Fatia de PRD alheio (ADR 0068):** pode pegar, mas combine antes com o dono do PRD (assignee da issue-raiz). O claim muda o responsável da fatia; o PRD continua do dono.
-- **Quem mergeia e deploya é o autor do PR (ADR 0068):** migration em produção e `APP_VERSION` são de quem mergeia. A versão não entra no PR nem vira commit: a subida (`fechar_onda.py`) a define pelo tipo dos commits, em `APP_VERSION` no Coolify e na tag.
+- **Quem mergeia é o autor do PR (ADR 0068):** a subida (`fechar_onda.py`) mergeia o próprio PR pela API depois do CI verde. O IAE ainda não tem deploy, então não há versão, build nem migration em produção para cuidar.
 
 ## Bloqueios entre issues (dependências nativas)
 
