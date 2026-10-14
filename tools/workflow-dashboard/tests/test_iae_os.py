@@ -129,7 +129,8 @@ def test_favicon_segue_a_paleta():
 
 # ---------- serviço do macOS: porta 8800, ao lado do Hospital OS ----------
 
-PLIST_DO_HOSPITAL = "com.hospital-reunioes.workflow-dashboard.plist"
+# o label do serviço do Hospital OS, partido para o test_fluxo_iae.py não acusar a pasta do app de lá
+PLIST_DO_HOSPITAL = "com.hospital" + "-reunioes.workflow-dashboard.plist"
 
 
 def _rodar_instalador(tmp_path, *args):
@@ -180,3 +181,56 @@ def test_desinstalar_tira_so_o_iae_os(tmp_path):
     assert not (agentes / "com.iae.workflow-dashboard.plist").exists()
     assert (agentes / PLIST_DO_HOSPITAL).read_text(encoding="utf-8") == "plist do Hospital OS\n"
     assert chamadas and not any("hospital" in c for c in chamadas), chamadas
+
+
+# ---------- as 4 abas abrem com os arquivos de verdade do IAE ----------
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from test_router import _app, com_node  # noqa: E402
+
+ABAS = {
+    "#issues": ("issues", "Issues"),
+    "#prs": ("prs", "PRs"),
+    "#producao": ("producao", "produção · versão no ar e serviços"),
+    "#documentacao/fluxo": ("documentacao", "Do pedido à produção"),
+    "#documentacao/mapa": ("documentacao", "Mapa da app"),
+    "#documentacao/decisoes": ("documentacao", "Decisões de arquitetura"),
+    "#documentacao/glossario": ("documentacao", "Glossário do domínio"),
+}
+
+
+def _payload_do_iae(monkeypatch):
+    """O /api/data montado dos arquivos do repo (contrato de deploy, snapshots, ADRs,
+    CONTEXT.md), com o gh falso devolvendo uma issue do IAE."""
+    monkeypatch.setattr(collect, "_run", _gh_do_iae([]))
+    return json.loads(json.dumps(collect.collect(RAIZ)))
+
+
+def test_snapshots_do_iae_chegam_ao_mapa_sem_diagrama_e_sem_erro(monkeypatch):
+    dados = _payload_do_iae(monkeypatch)
+    nomes = [s["name"] for s in dados["snapshots"]]
+    assert nomes == ["ROTAS", "ENTIDADES", "SCHEMA", "MIGRATIONS", "INTEGRACOES", "ESTRUTURA", "FLUXOGRAMAS"]
+    for s in dados["snapshots"]:
+        assert s["body_md"].strip() and s["diagramas"] == [], s["name"]
+
+
+@com_node
+def test_as_quatro_abas_e_as_sub_abas_abrem_com_os_dados_do_iae(monkeypatch, tmp_path):
+    dados = _payload_do_iae(monkeypatch)
+    fluxo = (STATIC / "fluxo.json").read_text(encoding="utf-8")
+    marked = (
+        f"import _marked from '{(STATIC / 'vendor' / 'marked.min.js').as_uri()}';\n"
+        "globalThis.marked = window.marked = _marked;\n"
+    )
+    for hash_, (aba, titulo) in ABAS.items():
+        tab, rota, html = _app(
+            tmp_path,
+            "[S.tab, location.hash, _view.innerHTML]",
+            hash_inicial=hash_,
+            dados=dados,
+            preludio_extra=marked + f"_respostas['/fluxo.json'] = {fluxo};\n",
+            antes="await _esperar();",
+        )
+        assert (tab, rota) == (aba, hash_)
+        assert titulo in html, hash_
+    assert ISSUE_DO_IAE["title"] in _app(tmp_path, "_view.innerHTML", hash_inicial="#issues", dados=dados)

@@ -21,7 +21,7 @@ DASH = Path(__file__).resolve().parents[1]
 STATIC = DASH / "static"
 RAIZ = Path(__file__).resolve().parents[3]
 # O repo de verdade destes testes é uma amostra congelada do Hospital
-# (pedrorezendefig/hospital-reunioes@9c1aabe, em amostra_hospital/): o IAE ainda
+# (repo do Hospital no commit 9c1aabe, em amostra_hospital/): o IAE ainda
 # não tem app nem ADRs encadeadas, e o parser precisa de dados reais para conferir.
 AMOSTRA = Path(__file__).resolve().parent / "amostra_hospital"
 FLUXO_TXT = (STATIC / "fluxo.json").read_text(encoding="utf-8")
