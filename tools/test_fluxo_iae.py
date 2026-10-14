@@ -119,6 +119,30 @@ def test_subida_sem_plataforma_termina_no_merge_mesmo_com_pr_do_app(monkeypatch,
     assert "sem build, health nem registro" in saida
 
 
+STATUS = RAIZ / ".claude" / "skills" / "deploy" / "scripts" / "status_deploy.py"
+
+
+def _status(raiz: Path) -> subprocess.CompletedProcess[str]:
+    return subprocess.run([sys.executable, str(STATUS), "--raiz", str(raiz)], check=False,
+                          capture_output=True, text=True, encoding="utf-8")
+
+
+def test_deploy_status_diz_que_o_projeto_ainda_nao_tem_deploy() -> None:
+    feito = _status(RAIZ)
+    assert feito.returncode == 0, feito.stderr
+    assert "O IAE ainda não tem deploy" in feito.stdout
+    assert "termina no merge" in feito.stdout
+
+
+def test_deploy_status_nao_diz_sem_deploy_quando_a_plataforma_chega(tmp_path: Path) -> None:
+    (tmp_path / "docs/spec/deploy").mkdir(parents=True)
+    com_servico = dict(SEM_PLATAFORMA, services=[{"id": "backend", "type": "node"}])
+    (tmp_path / "docs/spec/deploy/project.json").write_text(json.dumps(com_servico), encoding="utf-8")
+    feito = _status(tmp_path)
+    assert feito.returncode != 0
+    assert "ainda não tem deploy" not in feito.stdout
+
+
 def _textos(pastas, sufixos=(".md", ".py", ".sh", ".yml", ".txt")):
     """Arquivos de texto do repositório, sem os worktrees de agente que moram
     dentro de `.claude/worktrees/` na árvore principal."""
