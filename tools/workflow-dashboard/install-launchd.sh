@@ -35,7 +35,7 @@ fi
 PYTHON3="$(command -v python3)"
 GH_BIN="$(command -v gh || true)"
 if [[ -z "$GH_BIN" ]]; then
-  echo "⚠ gh não encontrado no PATH — a aba de issues ficará vazia." >&2
+  echo "⚠ gh não encontrado no PATH: a aba de issues ficará vazia." >&2
 fi
 # launchd nasce com PATH mínimo (/usr/bin:/bin); injeta python3/gh/git
 SVC_PATH="$(dirname "$PYTHON3"):${GH_BIN:+$(dirname "$GH_BIN"):}/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"

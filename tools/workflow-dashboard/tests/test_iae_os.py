@@ -1,9 +1,10 @@
 """O que a cópia do Hospital OS muda para virar o IAE OS (issue #2, PRD #1).
 
 Os outros arquivos desta pasta vieram do Hospital e guardam as asserções de
-lá. Aqui ficam os critérios que só existem no IAE: o nome na tela, a paleta,
-o repo de reserva, a pasta do app, o serviço na porta 8800 e os snapshots de
-um projeto que ainda não tem app.
+lá (a pasta do app, `plataforma/`, mora no test_coletor_fases.py, com a
+fixture adaptada). Aqui ficam os critérios que só existem no IAE: o nome na
+tela, a paleta, o repo de reserva, o serviço na porta 8800 e as 4 abas
+abrindo com os arquivos de um projeto que ainda não tem app.
 """
 
 import json
