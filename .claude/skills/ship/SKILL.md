@@ -17,7 +17,7 @@ Do código ao PR verde e, com os gates verdes, a subida (`fechar_onda.py`), sem 
 |---|---|
 | `--issue N` | Vincula a issue: `Closes #N` no PR, critérios de aceite como checklist. |
 | `--type` | Prefixo de branch e commit. Sem ele: "bug/corrigir/fix" → `fix`, "nova/adicionar" → `feature`, "refactor/limpar" → `refactor`, "doc/readme" → `docs`, senão `chore`. |
-| `--skip-review` | Pula Gates 1 e 2 e termina no PR aberto, sem a subida. Modo do `hr-implementador` da onda. |
+| `--skip-review` | Pula Gates 1 e 2 e termina no PR aberto, sem a subida. Modo do `iae-implementador` da onda. |
 | `--hotfix` | Roda Gate 2 e CI e termina no PR verde, sem a subida. |
 | `--draft` | PR como draft. |
 | `--from-diff` | O código já está no working tree: vai direto ao commit. |
@@ -31,10 +31,10 @@ Do código ao PR verde e, com os gates verdes, a subida (`fechar_onda.py`), sem 
 2. **Branch:** `<type>/<slug>[-<N>]` (slug minúsculo, ASCII, até 50 caracteres). Já na branch do `/pegar-issue`, pule.
 3. **Issue:** `gh issue view N --json title,body,labels`. "O que construir" vira o contexto do PR; os critérios de aceite, o checklist e a lista de testes do `/tdd`.
 4. **Código:** chame a Skill tool com `tdd`. Com `--from-diff`, pule.
-5. **Testes locais, o mesmo comando do CI:** PR de ferramenta roda `uv run --no-project --python ">=3.12" --with pytest --with pyyaml python -m pytest tools/ -q --ignore=tools/workflow-dashboard` (o job do `manual.yml`; o `python3` do macOS é velho e não tem `tomllib`) e, se tocou o painel, o mesmo `uv run` com `tools/workflow-dashboard/tests -q`; PR do app roda a suíte do backend ou do frontend que o diff toca. Vermelho local nunca vira PR: o CI inteiro é a prova, não a lista de arquivos que você lembrou de rodar (o #1046 caiu por trocar uma string que um teste de outro arquivo asserta).
+5. **Testes locais, o mesmo comando do CI:** PR de ferramenta roda `uv run --no-project --python ">=3.12" --with pytest --with pyyaml python -m pytest tools/ -q --ignore=tools/workflow-dashboard` (o job `ferramenta` do `ci.yml`; o `python3` do macOS é velho) e, se tocou uma skill, `python3 tools/lint_skills.py --dir .claude/skills` (o `lint-skills.yml`); PR do app roda a suíte de `plataforma/` que o diff toca. Vermelho local nunca vira PR: o CI inteiro é a prova, não a lista de arquivos que você lembrou de rodar (o #1046 caiu por trocar uma string que um teste de outro arquivo asserta).
 6. **Commit:** Conventional Commits, `git add` com lista explícita (nunca `-A` nem `.`), nada do `hard_excluded` do `project.json`. Sem versão no PR: o `package.json` do frontend fica congelado, a versão sai na subida.
 7. **Push:** `git push -u origin "$BRANCH"`. Falhou: reporte o erro bruto e pare.
-8. **PR:** `gh pr create --base main --title "$SUBJECT" --body-file <scratchpad>/pr-$BRANCH.md --label type:$TYPE --label area:<...>`. O arquivo do corpo leva o nome da branch: agentes paralelos na mesma sessão já se atropelaram num `pr.md` compartilhado (o #796 saiu com o `Closes` da issue errada). Corpo pelo `.github/PULL_REQUEST_TEMPLATE.md`: **Valor entregue** (um parágrafo `**O que muda:**` de 1 a 3 frases, escrito a partir da issue como quem explica a um colega do hospital o que ela entrega, sem jargão; passe o parágrafo pela skill `humanizer` em modo embutido antes de abrir o PR, ADR 0071; é o que o hover do card do PR mostra no Hospital OS, sozinho), contexto (sem `--issue`, o Contexto abre com "Decisão registrada neste PR" e o porquê da mudança: é a casa da decisão de ferramenta, ADR 0068, regra 12), critérios de aceite, **Evidência** (antes e depois: o teste que falhava e passa, a saída de comando que mudou ou o print; nunca só "testes verdes"), **Perigo do merge** (porta de uma ou duas vias pela lista do template, com o motivo, e o raio) e `Closes #N`. Com migration nova, a seção `## Migration NNN (conferência por hash)` com o `sha256` do arquivo (`shasum -a 256`) e o SQL completo: a subida confere e para se faltar ou divergir. Aberto o PR com `--issue N`, apague os prints da Demanda que o `anexos.py` baixou: `rm -rf local/anexos/<N>` na raiz do clone (ADR 0069, decisão 3: print do hospital não fica parado na máquina; sem a pasta, o comando não faz nada).
+8. **PR:** `gh pr create --base main --title "$SUBJECT" --body-file <scratchpad>/pr-$BRANCH.md`, mais `--label type:$TYPE --label area:<...>` só quando a label existe no repositório (`gh label list`): o `gh pr create` recusa label que não existe, e o IAE ainda não criou as `type:*` nem as `area:*`. O arquivo do corpo leva o nome da branch: agentes paralelos na mesma sessão já se atropelaram num `pr.md` compartilhado (o #796 saiu com o `Closes` da issue errada). Corpo pelo `.github/PULL_REQUEST_TEMPLATE.md`: **Valor entregue** (um parágrafo `**O que muda:**` de 1 a 3 frases, escrito a partir da issue como quem explica a um sócio do IAE o que ela entrega, sem jargão; passe o parágrafo pela skill `humanizer` em modo embutido antes de abrir o PR, ADR 0071), contexto (sem `--issue`, o Contexto abre com "Decisão registrada neste PR" e o porquê da mudança: é a casa da decisão de ferramenta, ADR 0068, regra 12), critérios de aceite, **Evidência** (antes e depois: o teste que falhava e passa, a saída de comando que mudou ou o print; nunca só "testes verdes"), **Perigo do merge** (porta de uma ou duas vias pela lista do template, com o motivo, e o raio) e `Closes #N`. Com migration nova, a seção `## Migration NNN (conferência por hash)` com o `sha256` do arquivo (`shasum -a 256`) e o SQL completo: a subida confere e para se faltar ou divergir. Aberto o PR com `--issue N`, apague os prints da Demanda que o `anexos.py` baixou: `rm -rf local/anexos/<N>` na raiz do clone (ADR 0069, decisão 3: print não fica parado na máquina; sem a pasta, o comando não faz nada).
 
 ## Passo 8: gates
 
@@ -43,12 +43,12 @@ Do código ao PR verde e, com os gates verdes, a subida (`fechar_onda.py`), sem 
 **PR do app**, na ordem:
 
 - **Gate 2, `sensivel.py`** (rode primeiro): `uv run --no-project --python ">=3.12" python .claude/skills/onda-enxuta/scripts/sensivel.py "$PR"`. Saída 0: o prompt do revisor leva `Sensível: <arquivos impressos>`. Saída 1: nada. Outra saída: rode de novo; na segunda falha, baixa.
-- **Gate 1, `hr-revisor`**, prompt de `.claude/skills/onda-enxuta/references/prompts.md`. Última linha do comentário: `VEREDITO: LIMPO` ou `VEREDITO: MUST-FIX (n)`. Com issue vinculada, o revisor também confere spec × diff.
+- **Gate 1, `iae-revisor`**, prompt de `.claude/skills/onda-enxuta/references/prompts.md`. Última linha do comentário: `VEREDITO: LIMPO` ou `VEREDITO: MUST-FIX (n)`. Com issue vinculada, o revisor também confere spec × diff.
 - **Gate 3, CI:** `gh pr checks "$PR" --watch`.
 
 Correção:
-- `MUST-FIX` → `hr-corretor` motivo `revisao` com o comentário inteiro. Uma revisão, uma correção, sem re-revisão: depois do corretor, quem confere é o CI. Corretor com `pendente` é baixa.
-- CI vermelho → `hr-corretor` motivo `ci` com as últimas 60 linhas de `gh run view <id> --log-failed`; a segunda falha da fatia vai com `effort: max`. Depois, `gh pr checks --watch` de novo.
+- `MUST-FIX` → `iae-corretor` motivo `revisao` com o comentário inteiro. Uma revisão, uma correção, sem re-revisão: depois do corretor, quem confere é o CI. Corretor com `pendente` é baixa.
+- CI vermelho → `iae-corretor` motivo `ci` com as últimas 60 linhas de `gh run view <id> --log-failed`; a segunda falha da fatia vai com `effort: max`. Depois, `gh pr checks --watch` de novo.
 - Cada falha conta uma tentativa; na terceira, baixa.
 
 **Baixa:** `gh issue edit N --remove-label in-progress --add-label ready-for-human`, comentário com `<!-- automacao -->` na primeira linha e o diagnóstico (gate, achado, hipótese) e `PushNotification` de uma linha. O PR fica aberto e a subida não roda.
@@ -66,10 +66,10 @@ python3 .claude/skills/onda-enxuta/scripts/fechar_onda.py --prs "$PR"
 ```
 
 Em segundo plano (builds levam minutos); leia só a saída. O que fazer em cada código de saída está na docstring do script. Os dois que pedem ação de quem rodou:
-- **Saída 2 com `conflito no merge de #N em: <arquivos>`:** `hr-corretor` motivo `conflito` com os arquivos, CI de novo, subida de novo. Conta tentativa.
+- **Saída 2 com `conflito no merge de #N em: <arquivos>`:** `iae-corretor` motivo `conflito` com os arquivos, CI de novo, subida de novo. Conta tentativa.
 - **Saídas 6, 7 e 8:** `PushNotification` com a linha que o script imprimiu. A 6 conta tentativa.
 
-**Migration nova:** a subida imprime `migration: cole no Studio <arquivo>:1` e espera o `/api/health` devolver o número dela (até 24 h). Repasse a linha por `PushNotification`. Quem aplica é o humano, no SQL Editor do Studio de produção; o `/ship` nunca aplica migration. Quando o humano disser "apliquei a migration N" (ou `/ondas aplicada N`), o mod hr-ondas grava em `~/.claude/hr-ondas/aplicadas` e o painel para de cobrar; a subida continua esperando o `/api/health`.
+**Sem plataforma:** enquanto o `services` do `docs/spec/deploy/project.json` estiver vazio (`/deploy status` diz), a subida trata todo PR como ferramenta e termina no merge: sem versão, tag, build, health, registro nem espera de migration. A saída 0 já é o PR mergeado com o CI verde.
 
 **Fatia de manual** (ADR 0057): sobe como qualquer outra, com o render final feito na fatia e o caminho do MP4 no corpo do PR. Nada de `PushNotification` pedindo OK no vídeo (emenda de 14/10/2026 à ADR 0068).
 

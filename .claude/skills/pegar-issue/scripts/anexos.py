@@ -3,7 +3,7 @@
 
 O print que o diretor anexa à Demanda vive só no app e nunca vai para o GitHub
 (o repositório é público). Quem desenvolve busca por aqui, a boca única: o
-`/pegar-issue`, o `hr-implementador` e o `hr-corretor` chamam este script quando
+`/pegar-issue`, o `iae-implementador` e o `iae-corretor` chamam este script quando
 o corpo da issue diz "Anexos".
 
 Uso:
