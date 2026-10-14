@@ -1,6 +1,6 @@
 """Aba Documentação: o fluxo de trabalho (static/fluxo.json) e as Decisões por tema.
 
-O fluxo é um JSON desenhado à mão, mantido junto com o /ask-pedro, e o
+O fluxo é um JSON desenhado à mão, mantido junto com o /ask-iae, e o
 diagramas.js desenha (tipo `fluxo`). Aqui mora o contrato do arquivo: JSON
 válido, grafo fechado (toda aresta aponta para nó que existe), todo passo de
 skill aponta para skill que existe em .claude/skills/<nome>/SKILL.md, nenhum
@@ -140,8 +140,8 @@ def test_renderer_desenha_o_fluxo_inteiro_e_cabe_em_1400px(tmp_path, fluxo):
     )
 
 
-def test_readme_avisa_que_o_fluxo_anda_junto_com_o_ask_pedro():
-    assert "fluxo.json" in README and "/ask-pedro" in README
+def test_readme_avisa_que_o_fluxo_anda_junto_com_o_ask_iae():
+    assert "fluxo.json" in README and "/ask-iae" in README
     assert "### Documentação" in README
 
 

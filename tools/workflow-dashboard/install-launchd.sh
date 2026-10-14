@@ -9,10 +9,10 @@
 # de issue são apagados depois do merge.
 set -euo pipefail
 
-LABEL="com.hospital-reunioes.workflow-dashboard"
+LABEL="com.iae.workflow-dashboard"
 PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
-LOG="$HOME/Library/Logs/workflow-dashboard.log"
-PORT=8799
+LOG="$HOME/Library/Logs/iae-workflow-dashboard.log"
+PORT=8800
 DOMAIN="gui/$(id -u)"
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"

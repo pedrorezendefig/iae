@@ -7,8 +7,10 @@ um projeto que ainda não tem app.
 """
 
 import json
+import os
 import re
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -123,3 +125,58 @@ def test_favicon_segue_a_paleta():
     fundo = re.search(r"%3Crect[^%]*fill='%23([0-9a-fA-F]{6})'", INDEX).group(1).lower()
     circulo = re.search(r"%3Ccircle[^%]*fill='%23([0-9a-fA-F]{6})'", INDEX).group(1).lower()
     assert ("#" + fundo, "#" + circulo) == (_token("navy"), _token("brand-light"))
+
+
+# ---------- serviço do macOS: porta 8800, ao lado do Hospital OS ----------
+
+PLIST_DO_HOSPITAL = "com.hospital-reunioes.workflow-dashboard.plist"
+
+
+def _rodar_instalador(tmp_path, *args):
+    """Roda o install-launchd.sh numa árvore principal falsa, com HOME e launchctl falsos.
+
+    O launchctl de verdade nunca roda: o falso vem antes no PATH e só anota os
+    argumentos. O HOME falso nasce com o plist do Hospital OS, que não pode mudar."""
+    repo = tmp_path / "repo"
+    (repo / ".git").mkdir(parents=True, exist_ok=True)  # árvore principal: .git é pasta, não arquivo
+    (repo / "tools" / "workflow-dashboard").mkdir(parents=True, exist_ok=True)
+    script = repo / "tools" / "workflow-dashboard" / "install-launchd.sh"
+    shutil.copy(DASH / "install-launchd.sh", script)
+    agentes = tmp_path / "home" / "Library" / "LaunchAgents"
+    if not agentes.exists():
+        agentes.mkdir(parents=True)
+        (agentes / PLIST_DO_HOSPITAL).write_text("plist do Hospital OS\n", encoding="utf-8")
+    bin_falso = tmp_path / "bin"
+    bin_falso.mkdir(exist_ok=True)
+    registro = tmp_path / "launchctl.txt"
+    registro.write_text("", encoding="utf-8")
+    launchctl = bin_falso / "launchctl"
+    launchctl.write_text(f'#!/bin/sh\necho "$@" >> "{registro}"\n', encoding="utf-8")
+    launchctl.chmod(0o755)
+    assert os.access(launchctl, os.X_OK)
+    env = {**os.environ, "HOME": str(tmp_path / "home"), "PATH": f"{bin_falso}:{os.environ['PATH']}"}
+    out = subprocess.run(["bash", str(script), *args], env=env, capture_output=True, text=True, check=False)
+    assert out.returncode == 0, out.stderr
+    return agentes, registro.read_text(encoding="utf-8").splitlines()
+
+
+def test_instalador_sobe_o_iae_os_na_porta_8800_sem_tocar_no_hospital(tmp_path):
+    agentes, chamadas = _rodar_instalador(tmp_path)
+
+    plist = (agentes / "com.iae.workflow-dashboard.plist").read_text(encoding="utf-8")
+    assert "<key>Label</key><string>com.iae.workflow-dashboard</string>" in plist
+    assert "<string>--port</string><string>8800</string>" in plist
+    # log próprio: o do Hospital OS é ~/Library/Logs/workflow-dashboard.log
+    assert "/Library/Logs/workflow-dashboard.log" not in plist
+    assert (agentes / PLIST_DO_HOSPITAL).read_text(encoding="utf-8") == "plist do Hospital OS\n"
+    assert chamadas and all("com.iae.workflow-dashboard" in c for c in chamadas), chamadas
+    assert not any("hospital" in c for c in chamadas), chamadas
+
+
+def test_desinstalar_tira_so_o_iae_os(tmp_path):
+    _rodar_instalador(tmp_path)
+    agentes, chamadas = _rodar_instalador(tmp_path, "uninstall")
+
+    assert not (agentes / "com.iae.workflow-dashboard.plist").exists()
+    assert (agentes / PLIST_DO_HOSPITAL).read_text(encoding="utf-8") == "plist do Hospital OS\n"
+    assert chamadas and not any("hospital" in c for c in chamadas), chamadas
