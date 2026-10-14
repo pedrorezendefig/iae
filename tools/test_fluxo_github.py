@@ -116,3 +116,32 @@ def test_fechar_issue_com_in_progress_tira_a_label(tmp_path: Path) -> None:
     chamadas = json.loads(saida)
     assert ["removeLabel", 7, "in-progress"] in chamadas
     assert ["removeLabel", 7, "fatia:M"] not in chamadas
+
+
+# Templates de issue: o GitHub só oferece o template cujo cabeçalho YAML tem
+# `name` e `about`; cabeçalho quebrado some da tela de "New issue" sem aviso.
+TEMPLATES = RAIZ / ".github" / "ISSUE_TEMPLATE"
+
+
+def _cabecalho(arquivo: Path) -> dict:
+    texto = arquivo.read_text(encoding="utf-8")
+    assert texto.startswith("---\n"), arquivo.name
+    return yaml.safe_load(texto.split("---\n", 2)[1])
+
+
+def test_nova_issue_oferece_os_templates_do_hospital() -> None:
+    nomes = {_cabecalho(t)["name"] for t in TEMPLATES.glob("*.md")}
+    assert nomes == {"Tarefa de agente (fatia vertical)", "Bug", "Feature / melhoria"}
+    for t in TEMPLATES.glob("*.md"):
+        assert _cabecalho(t)["about"], t.name
+
+
+def test_tarefa_de_agente_entra_na_fila_do_agente() -> None:
+    cabecalho = _cabecalho(TEMPLATES / "agent-task.md")
+    assert cabecalho["labels"] == ["ready-for-agent"]
+
+
+def test_templates_sem_travessao() -> None:
+    for t in TEMPLATES.glob("*.md"):
+        texto = t.read_text(encoding="utf-8")
+        assert TRAVESSAO not in texto and MEIA_RISCA not in texto, t.name
