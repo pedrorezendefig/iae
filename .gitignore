@@ -1,0 +1,6 @@
+.DS_Store
+.playwright-cli/
+*.tmp
+.env
+.env.*
+.claude/settings.local.json
