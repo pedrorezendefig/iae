@@ -192,7 +192,8 @@ from test_router import _app, com_node  # noqa: E402
 ABAS = {
     "#issues": ("issues", "Issues"),
     "#prs": ("prs", "PRs"),
-    "#producao": ("producao", "produção · versão no ar e serviços"),
+    # o history.json do IAE ainda não tem deploy (issue #8)
+    "#producao": ("producao", "sem deploy ainda"),
     "#documentacao/fluxo": ("documentacao", "Do pedido à produção"),
     "#documentacao/mapa": ("documentacao", "Mapa da app"),
     "#documentacao/decisoes": ("documentacao", "Decisões de arquitetura"),

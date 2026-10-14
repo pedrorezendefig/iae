@@ -1020,6 +1020,13 @@ function healthTxt(s) {
 
 function renderDeploys() {
   const dep = S.data.history;
+  // antes do primeiro deploy o state.json traz 0.0.0 e nenhum serviço: a aba diz isso
+  if (!dep.length) {
+    return `
+  <div class="tab-producao">
+    <div class="empty rv">sem deploy ainda: a versão no ar, a saúde dos serviços e a linha do tempo aparecem aqui depois do primeiro deploy</div>
+  </div>`;
+  }
   const durs = dep.map(x => x.duration_seconds).filter(x => x != null);
   const st = S.data.state || {};
   // faixa do topo: a versão no ar e cada serviço com o health, do state.json
