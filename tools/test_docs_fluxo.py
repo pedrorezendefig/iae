@@ -78,3 +78,22 @@ def test_readme_tem_o_mapa_de_pastas_no_formato_do_hospital() -> None:
     assert _pastas_do_git() - cobertura == set()
     for pasta in {p for p in cobertura if "/" not in p}:
         assert f"| `{pasta}/` |" in texto, f"{pasta}/ fora da tabela da raiz"
+
+
+# Coolify, Vercel e o Manual do usuário são do Hospital. Num doc do IAE eles só
+# aparecem como plano ou como ausência, nunca como algo que já existe aqui.
+# `docs/comercial/` fica de fora: é a proposta ao Cliente, escrita no futuro.
+# "manual" minúsculo é adjetivo ("passo manual"); o produto é "Manual" ou `docs/manual/`.
+DO_HOSPITAL = re.compile(r"(?i:coolify|vercel)|\bManual\b|docs/manual")
+PLANO_OU_AUSENCIA = re.compile(r"ainda não|não tem|não há|previst|quando (a|o) ", re.I)
+
+
+def test_nenhum_doc_diz_que_o_iae_ja_tem_coolify_vercel_ou_manual() -> None:
+    citam = [
+        f"{doc.relative_to(RAIZ)}:{n}"
+        for doc in sorted((RAIZ / "docs").rglob("*.md"))
+        if "comercial" not in doc.relative_to(RAIZ).parts
+        for n, linha in enumerate(doc.read_text(encoding="utf-8").splitlines(), 1)
+        if DO_HOSPITAL.search(linha) and not PLANO_OU_AUSENCIA.search(linha)
+    ]
+    assert citam == []
