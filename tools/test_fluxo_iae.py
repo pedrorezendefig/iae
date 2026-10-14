@@ -38,6 +38,13 @@ def test_lente_de_seguranca_do_revisor_protege_dado_de_aluno() -> None:
     assert not re.search(r"paciente|Facilitador", revisor)
 
 
+def test_nenhum_script_aponta_para_a_pasta_do_app_do_hospital() -> None:
+    pasta_do_hospital = "hospital" + "-reunioes"  # partido para este arquivo não se acusar
+    citam = [str(p.relative_to(RAIZ)) for p in _textos((".claude", "tools", ".github"), (".py", ".sh", ".yml"))
+             if pasta_do_hospital in p.read_text(encoding="utf-8", errors="replace")]
+    assert citam == []
+
+
 def _textos(pastas, sufixos=(".md", ".py", ".sh", ".yml", ".txt")):
     """Arquivos de texto do repositório, sem os worktrees de agente que moram
     dentro de `.claude/worktrees/` na árvore principal."""

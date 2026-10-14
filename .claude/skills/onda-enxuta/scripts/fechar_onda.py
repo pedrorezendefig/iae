@@ -18,9 +18,9 @@ squash (o unico metodo que o repositorio permite), no proprio numero, em ordem,
 como o PR avulso (ADR 0068). A onda e o avulso com mais PRs.
 
 Classe do lote, pelos arquivos (issue #965): "app" se algum esta em
-`hospital-reunioes/`, "ferramenta" se nenhum esta. Lote misto e app. Os
+`plataforma/`, "ferramenta" se nenhum esta. Lote misto e app. Os
 arquivos sao os do `git diff --no-renames` de cada PR, como no detector do CI:
-mover codigo para fora de `hospital-reunioes/` conta como app. Classe, versao
+mover codigo para fora de `plataforma/` conta como app. Classe, versao
 e servicos saem do lote inteiro, antes do primeiro merge.
   - app: a sequencia inteira abaixo.
   - ferramenta: so merge pela API depois do CI verde (passos 1 a 4 e 9). Sem
@@ -691,7 +691,7 @@ def preparar_pr(raiz: Path, wt: Path, info: dict) -> str:
 # --------------------------------------------------------------------- bump
 
 def classe_do_lote(caminhos) -> str:
-    """"app" se algum arquivo esta em hospital-reunioes/, "ferramenta" se nenhum
+    """"app" se algum arquivo esta em plataforma/, "ferramenta" se nenhum
     esta (issue #965). Lote misto e app."""
     return "app" if any(c.startswith(APP) for c in caminhos) else "ferramenta"
 
