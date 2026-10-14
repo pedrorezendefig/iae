@@ -9,8 +9,9 @@
 export const ABAS = ['issues', 'prs', 'producao', 'documentacao'];
 
 /* sub-pills da aba Documentação: o item da rota (#documentacao/decisoes);
-   o Glossário leva o termo depois da barra (#documentacao/glossario/ata) */
-export const SUBS_DOC = ['fluxo', 'mapa', 'decisoes', 'glossario'];
+   o Glossário leva o termo depois da barra (#documentacao/glossario/ata);
+   a Stack (docs/STACK.md) só existe no IAE */
+export const SUBS_DOC = ['fluxo', 'mapa', 'decisoes', 'glossario', 'stack'];
 
 /* hashes da navegação antiga (bookmarks) caem na aba que herdou o conteúdo;
    Plano, Pendências e Guia saíram (ADR 0062, decisão 3) e caem na home;
