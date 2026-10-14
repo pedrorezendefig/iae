@@ -1140,9 +1140,9 @@ function desenharDiagramas(root) {
   });
 }
 
-/* ---------- DOCUMENTAÇÃO (fluxo · mapa · decisões · glossário) ---------- */
+/* ---------- DOCUMENTAÇÃO (fluxo · mapa · decisões · glossário · stack) ---------- */
 
-const ROTULO_SUB = { fluxo: 'Fluxo', mapa: 'Mapa', decisoes: 'Decisões', glossario: 'Glossário' };
+const ROTULO_SUB = { fluxo: 'Fluxo', mapa: 'Mapa', decisoes: 'Decisões', glossario: 'Glossário', stack: 'Stack' };
 
 /* a sub-pill é o item da rota (#documentacao/decisoes); o Glossário leva o
    termo depois dela (#documentacao/glossario/ata); sem item, abre no Fluxo */
@@ -1153,7 +1153,7 @@ function subDoc() {
 
 function renderDocumentacao() {
   const sub = subDoc();
-  const corpo = { fluxo: renderFluxo, mapa: renderMapa, decisoes: renderDecisoes, glossario: renderGlossario }[sub]();
+  const corpo = { fluxo: renderFluxo, mapa: renderMapa, decisoes: renderDecisoes, glossario: renderGlossario, stack: renderStack }[sub]();
   return `
   <div class="docpills doc-subs rv" style="--i:0">
     ${SUBS_DOC.map(k => `<button class="fchip ${k === sub ? 'on' : ''}" data-act="docsub" data-sub="${k}">${ROTULO_SUB[k]}</button>`).join('')}
@@ -1471,6 +1471,19 @@ function renderGlossario() {
     <span class="tst-quote" aria-hidden="true">&ldquo;</span>
     <div class="md">${html}</div>
     <div class="tst-foot"><span class="tst-ref">CONTEXT.md · curado por humano</span></div>
+  </div>`;
+}
+
+/* ----- Stack: docs/STACK.md no mesmo componente do Glossário ----- */
+
+function renderStack() {
+  const src = S.data.stack_md || '';
+  return `
+  ${cabecalho('entender', 'Stack do projeto', 'docs/STACK.md · o que o projeto usa hoje e o que está previsto')}
+  <div class="card tst rv" style="--i:1">
+    <span class="tst-quote" aria-hidden="true">&ldquo;</span>
+    <div class="md">${src ? md(src) : '<p>A stack ainda não foi documentada. Crie o <code>docs/STACK.md</code> para ela aparecer aqui.</p>'}</div>
+    <div class="tst-foot"><span class="tst-ref">docs/STACK.md · peça nova entra no arquivo</span></div>
   </div>`;
 }
 
