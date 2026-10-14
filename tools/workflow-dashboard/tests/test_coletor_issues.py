@@ -81,7 +81,7 @@ def test_coletor_marca_a_issue_que_nasceu_de_uma_demanda(monkeypatch):
     """O marcador do Vinculo (ADR 0054) no corpo vira `demanda: True`; sem ele, False."""
     base = {"number": 1, "title": "t", "state": "OPEN", "labels": [], "assignees": [], "author": None}
     itens = [
-        {**base, "number": 1, "body": 'Para o diretor\n\n<!-- demanda-vitta id="abc-123" -->'},
+        {**base, "number": 1, "body": 'Para os sócios\n\n<!-- demanda-vitta id="abc-123" -->'},
         {**base, "number": 2, "body": "issue comum"},
     ]
     monkeypatch.setattr(collect, "_run", lambda cmd, cwd, timeout=None: json.dumps(itens))

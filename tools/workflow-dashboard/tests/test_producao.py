@@ -1,4 +1,4 @@
-"""Aba Produção do Hospital OS (issue #945, ADR 0062, decisões 2 e 8).
+"""Aba Produção do IAE OS (issue #945, ADR 0062, decisões 2 e 8).
 
 No topo, a versão no ar e os serviços com o health (`state.json` da
 `origin/main`); o semáforo do mast tem três estados (verde, âmbar, vermelho).
