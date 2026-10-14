@@ -58,9 +58,9 @@ def test_titulo_do_painel_e_iae_os():
 def test_tokens_definem_a_paleta_baseline():
     root = _root_block().lower()
     for hexa in (
-        "#0f2f63",  # navy profundo
-        "#2563c9",  # azul royal
-        "#5790e6",  # azul claro
+        "#081a3a",  # navy profundo
+        "#173a75",  # azul royal
+        "#578ce6",  # azul claro
         "#0b6e97",  # teal
         "#f4f4f4",  # superfície
         "#0a0a0a",  # tinta

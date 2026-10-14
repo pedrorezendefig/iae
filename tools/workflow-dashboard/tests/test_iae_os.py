@@ -7,6 +7,7 @@ um projeto que ainda não tem app.
 """
 
 import json
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -93,3 +94,32 @@ def test_coleta_sem_repo_no_state_le_as_issues_do_iae(monkeypatch, tmp_path):
     assert graphql, "a coleta não pediu sub-issues nem bloqueios"
     for c in graphql:
         assert "owner=pedrorezendefig" in c and "name=iae" in c, c
+
+
+# ---------- paleta: só o :root muda, e o favicon segue ----------
+
+CSS = (STATIC / "style.css").read_text(encoding="utf-8")
+INDEX = (STATIC / "index.html").read_text(encoding="utf-8")
+
+
+def _raiz():
+    return re.search(r":root\{(.*?)\}", CSS, re.S).group(1)
+
+
+def _token(nome):
+    m = re.search(rf"--{nome}:\s*(#[0-9a-fA-F]{{6}})", _raiz())
+    assert m, f"--{nome} fora do :root"
+    return m.group(1).lower()
+
+
+def test_paleta_navy_do_iae_no_root():
+    assert (_token("brand"), _token("navy")) == ("#173a75", "#081a3a")
+    # tints e sombras derivam do navy do IAE, não do navy do Hospital
+    assert "rgba(15,47,99" not in _raiz()
+    assert "--navy40:rgba(8,26,58,.40)" in _raiz()
+
+
+def test_favicon_segue_a_paleta():
+    fundo = re.search(r"%3Crect[^%]*fill='%23([0-9a-fA-F]{6})'", INDEX).group(1).lower()
+    circulo = re.search(r"%3Ccircle[^%]*fill='%23([0-9a-fA-F]{6})'", INDEX).group(1).lower()
+    assert ("#" + fundo, "#" + circulo) == (_token("navy"), _token("brand-light"))

@@ -8,14 +8,14 @@
 
 :root{
   /* paleta base */
-  --navy:#0f2f63; --brand:#2563c9; --brand-light:#5790e6; --teal:#0b6e97;
+  --navy:#081a3a; --brand:#173a75; --brand-light:#578ce6; --teal:#0b6e97;
   --bg:#ffffff; --surface:#f4f4f4; --ink:#0a0a0a; --ink-soft:#717784;
   --ghost:#d7dae1; --hairline:#e6e8ec; --on-navy:#ffffff;
   /* tints alpha: branco sobre navy (cards glassy, bordas, captions) e navy velado */
   --w10:rgba(255,255,255,.10); --w15:rgba(255,255,255,.15); --w20:rgba(255,255,255,.20);
   --w25:rgba(255,255,255,.25); --w40:rgba(255,255,255,.40); --w55:rgba(255,255,255,.55);
   --w65:rgba(255,255,255,.65); --w70:rgba(255,255,255,.70); --w80:rgba(255,255,255,.80);
-  --navy40:rgba(15,47,99,.40);
+  --navy40:rgba(8,26,58,.40);
   /* raios */
   --r-card:1.5rem; --r-card-lg:2rem; --r-pill:999px; --r-inner:.75rem;
   /* semânticas de status re-harmonizadas sobre a paleta (legíveis nos dois planos) */
@@ -30,9 +30,9 @@
   --paper:var(--bg); --paper-2:var(--surface); --card:#ffffff;
   --indigo:var(--brand); --indigo-2:var(--brand-light); --indigo-wash:var(--brand-wash);
   --line:var(--hairline); --line-2:var(--ghost);
-  --shadow:0 1px 0 rgba(15,47,99,.04), 0 18px 40px -28px rgba(15,47,99,.35);
-  --shadow-up:0 1px 0 rgba(15,47,99,.05), 0 24px 48px -26px rgba(15,47,99,.4);
-  --shadow-modal:0 30px 80px -20px rgba(15,47,99,.55);
+  --shadow:0 1px 0 rgba(8,26,58,.04), 0 18px 40px -28px rgba(8,26,58,.35);
+  --shadow-up:0 1px 0 rgba(8,26,58,.05), 0 24px 48px -26px rgba(8,26,58,.4);
+  --shadow-modal:0 30px 80px -20px rgba(8,26,58,.55);
   /* movimento */
   --ease-expo:cubic-bezier(.16,1,.3,1); --ease-quart:cubic-bezier(.25,1,.5,1);
   /* tipografia: Onest 400/500 como família única de texto; mono para shas e comandos */
