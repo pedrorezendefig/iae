@@ -38,7 +38,8 @@ Tudo que está na árvore é código, doc viva ou decisão. Estado de trabalho f
 | `agents/` | Protocolo do agente | Sessões paralelas precisam do mesmo contrato | `issue-tracker.md` (claim, worktrees, bloqueio, revisor), `triage-labels.md` (todas as labels do repo), `domain.md` (como ler glossário, ADRs e snapshots) | Ao pegar issue ou triar |
 | `onboarding/` | Setup humano | Máquina nova | `dev.md` (do clone ao painel aberto, e o dia a dia), `claude-setup.md` (Claude Code, plugins e permissões) | Primeiro dia. O `/setup-maquina` confere o mesmo conteúdo |
 | `spec/` | Contrato de deploy e mapa factual do app | O agente lê daqui, nunca de memória | `deploy/` (`project.json`, `state.json`, `history.json`; sem plataforma ainda) e `snapshots/` (rotas, tabelas e integrações, gerados pelo `/snapshot`; vazios até a plataforma ter código) | `/deploy status` e `/snapshot --check` |
-| `comercial/` | Material comercial para o Cliente | O plano de ação proposto ao IAE e a pesquisa que o sustenta | `plano-de-acao/` (o prompt, a pesquisa em `saida/pesquisa/` e as páginas HTML geradas) | Ao conversar com o Cliente sobre escopo e preço. O IAE OS não lê esta pasta |
+| `comercial/` | Material comercial para o Cliente | O plano de ação proposto ao IAE e a pesquisa que o sustenta | `plano-de-acao/` (o prompt, a pesquisa em `saida/pesquisa/` e as páginas HTML geradas) e `dimensionamento-iae-ponte-tecnica.pdf` (o dimensionamento que a Ponte técnica fez, base da ADR 0002) | Ao conversar com o Cliente sobre escopo e preço. O IAE OS não lê esta pasta |
+| `marca/` | Identidade visual do IAE | Telas e materiais precisam da marca certa | `manual-de-identidade-visual-iae.pdf` (o manual do Cliente) e referências de interface em imagem | Ao desenhar tela, PDF ou página com a marca do IAE |
 
 Na raiz de `docs/`, o `STACK.md` lista a stack de hoje e a prevista. Peça nova na stack entra nele, no mesmo PR que a traz; o IAE OS mostra o arquivo na Documentação, sub-aba Stack.
 
@@ -63,6 +64,7 @@ docs
 docs/adr
 docs/agents
 docs/comercial
+docs/marca
 docs/onboarding
 docs/spec
 tools
