@@ -188,7 +188,7 @@ def main() -> int:
 
         def fontes_do_head(caminhos: list[str]) -> dict[str, str]:
             subprocess.run(["git", "-C", str(RAIZ), "fetch", "--quiet", "--no-write-fetch-head", "origin", head],
-                           capture_output=True, text=True, check=True)
+                           capture_output=True, text=True, encoding="utf-8", check=True)
             return fontes_do_commit(head, caminhos)
 
         achados = sensiveis(arquivos, globs, fontes_do_head)

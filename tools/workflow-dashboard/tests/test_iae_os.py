@@ -156,8 +156,9 @@ def _rodar_instalador(tmp_path, *args):
     launchctl.write_text(f'#!/bin/sh\necho "$@" >> "{registro}"\n', encoding="utf-8")
     launchctl.chmod(0o755)
     assert os.access(launchctl, os.X_OK)
-    env = {**os.environ, "HOME": str(tmp_path / "home"), "PATH": f"{bin_falso}:{os.environ['PATH']}"}
-    out = subprocess.run(["bash", str(script), *args], env=env, capture_output=True, text=True, check=False)
+    env = {**os.environ, "HOME": str(tmp_path / "home"), "PATH": f"{bin_falso}{os.pathsep}{os.environ['PATH']}"}
+    # Windows: "bash" nu no subprocess cai no System32 (WSL) antes do PATH.
+    out = subprocess.run([shutil.which("bash") or "bash", str(script), *args], env=env, capture_output=True, text=True, check=False)
     assert out.returncode == 0, out.stderr
     return agentes, registro.read_text(encoding="utf-8").splitlines()
 

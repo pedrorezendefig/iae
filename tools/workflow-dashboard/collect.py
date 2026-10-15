@@ -97,7 +97,7 @@ _EVENTOS_DA_ISSUE = {"AssignedEvent": "designada", "ClosedEvent": "fechada", "Re
 
 
 def _run(cmd: list[str], cwd: Path, timeout: int = GH_TIMEOUT) -> str:
-    p = subprocess.run(cmd, cwd=str(cwd), capture_output=True, text=True, timeout=timeout)
+    p = subprocess.run(cmd, cwd=str(cwd), capture_output=True, text=True, encoding="utf-8", timeout=timeout)
     if p.returncode != 0:
         msg = (p.stderr or p.stdout).strip() or f"exit {p.returncode}"
         raise RuntimeError(msg[:400])
@@ -1076,6 +1076,8 @@ def collect_recorte(root: Path, prds: list[int], soltas: list[int] = ()) -> dict
 
 
 if __name__ == "__main__":
+    for fluxo in (sys.stdout, sys.stderr):  # Windows: o pipe sai em cp1252
+        fluxo.reconfigure(encoding="utf-8")
     root = Path(__file__).resolve().parents[2]
     if "--recorte" in sys.argv:
         alvo = sys.argv[sys.argv.index("--recorte") + 1]

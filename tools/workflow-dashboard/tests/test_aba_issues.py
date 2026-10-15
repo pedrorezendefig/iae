@@ -180,7 +180,7 @@ def _rodar(tmp_path, expr, antes="", dados=None):
     arq = tmp_path / "harness.mjs"
     arq.write_text(prog, encoding="utf-8")
     out = subprocess.run(
-        ["node", str(arq)], capture_output=True, text=True, check=False, env={**os.environ, "TZ": "UTC"}
+        ["node", str(arq)], capture_output=True, text=True, encoding="utf-8", check=False, env={**os.environ, "TZ": "UTC"}
     )
     assert out.returncode == 0, out.stderr
     linha = [x for x in out.stdout.splitlines() if x.startswith("@@")][-1]

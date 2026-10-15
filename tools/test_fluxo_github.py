@@ -8,6 +8,7 @@ literal neste arquivo.
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -15,6 +16,8 @@ import yaml
 
 RAIZ = Path(__file__).resolve().parent.parent
 CI = RAIZ / ".github" / "workflows" / "ci.yml"
+# Windows: "bash" nu no subprocess cai no System32 (WSL) antes do PATH.
+BASH = shutil.which("bash") or "bash"
 TRAVESSAO = "—"
 MEIA_RISCA = "–"
 
@@ -30,19 +33,19 @@ def _passo_travessao() -> str:
 
 def _rodar_lint(repo: Path) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        ["bash", "-e", "-c", _passo_travessao()],
+        [BASH, "-e", "-c", _passo_travessao()],
         cwd=repo,
         check=False,
         capture_output=True,
-        text=True,
+        text=True, encoding="utf-8",
     )
 
 
 def _repo_limpo(tmp_path: Path) -> Path:
     (tmp_path / "docs" / "adr").mkdir(parents=True)
-    (tmp_path / "docs" / "adr" / "0001-x.md").write_text("ok, sem traço\n")
-    (tmp_path / "CLAUDE.md").write_text("regras\n")
-    (tmp_path / "CONTEXT.md").write_text("glossário\n")
+    (tmp_path / "docs" / "adr" / "0001-x.md").write_text("ok, sem traço\n", encoding="utf-8")
+    (tmp_path / "CLAUDE.md").write_text("regras\n", encoding="utf-8")
+    (tmp_path / "CONTEXT.md").write_text("glossário\n", encoding="utf-8")
     return tmp_path
 
 
@@ -53,20 +56,20 @@ def test_repo_sem_travessao_passa_no_lint(tmp_path: Path) -> None:
 def test_travessao_em_qualquer_pasta_de_docs_fica_vermelho(tmp_path: Path) -> None:
     repo = _repo_limpo(tmp_path)
     (repo / "docs" / "agents").mkdir()
-    (repo / "docs" / "agents" / "x.md").write_text(f"a {TRAVESSAO} b\n")
+    (repo / "docs" / "agents" / "x.md").write_text(f"a {TRAVESSAO} b\n", encoding="utf-8")
     assert _rodar_lint(repo).returncode != 0
 
 
 def test_meia_risca_no_readme_fica_vermelho(tmp_path: Path) -> None:
     repo = _repo_limpo(tmp_path)
-    (repo / "README.md").write_text(f"1{MEIA_RISCA}2\n")
+    (repo / "README.md").write_text(f"1{MEIA_RISCA}2\n", encoding="utf-8")
     assert _rodar_lint(repo).returncode != 0
 
 
 def test_travessao_numa_skill_fica_vermelho(tmp_path: Path) -> None:
     repo = _repo_limpo(tmp_path)
     (repo / ".claude" / "skills" / "x").mkdir(parents=True)
-    (repo / ".claude" / "skills" / "x" / "SKILL.md").write_text(f"a {TRAVESSAO} b\n")
+    (repo / ".claude" / "skills" / "x" / "SKILL.md").write_text(f"a {TRAVESSAO} b\n", encoding="utf-8")
     assert _rodar_lint(repo).returncode != 0
 
 
@@ -111,7 +114,7 @@ def test_fechar_issue_com_in_progress_tira_a_label(tmp_path: Path) -> None:
     arquivo = tmp_path / "higiene.js"
     arquivo.write_text(ARNES_JS % script, encoding="utf-8")
     saida = subprocess.run(
-        ["node", str(arquivo)], check=True, capture_output=True, text=True
+        ["node", str(arquivo)], check=True, capture_output=True, text=True, encoding="utf-8"
     ).stdout
     chamadas = json.loads(saida)
     assert ["removeLabel", 7, "in-progress"] in chamadas

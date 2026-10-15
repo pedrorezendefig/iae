@@ -42,4 +42,6 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    for fluxo in (sys.stdout, sys.stderr):  # Windows: o pipe sai em cp1252
+        fluxo.reconfigure(encoding="utf-8")
     sys.exit(main())

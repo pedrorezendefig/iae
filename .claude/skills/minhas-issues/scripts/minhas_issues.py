@@ -289,11 +289,11 @@ def montar(d: dict) -> str:
 
 
 def gh(*args: str) -> str:
-    return subprocess.run(["gh", *args], capture_output=True, text=True, check=True).stdout
+    return subprocess.run(["gh", *args], capture_output=True, text=True, encoding="utf-8", check=True).stdout
 
 
 def git(*args: str) -> str:
-    return subprocess.run(["git", *args], capture_output=True, text=True, check=True).stdout
+    return subprocess.run(["git", *args], capture_output=True, text=True, encoding="utf-8", check=True).stdout
 
 
 CONSULTA_ISSUES = """
@@ -465,6 +465,8 @@ def coletar(login: str | None) -> dict:
 
 
 if __name__ == "__main__":
+    for fluxo in (sys.stdout, sys.stderr):  # Windows: o pipe sai em cp1252
+        fluxo.reconfigure(encoding="utf-8")
     alvo = sys.argv[1].lstrip("@") if len(sys.argv) > 1 else None
     try:
         print(montar(coletar(alvo)))

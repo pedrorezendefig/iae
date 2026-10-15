@@ -208,7 +208,7 @@ def _app(tmp_path, expr="_view.innerHTML", antes="", hash_inicial="#prs", dados=
     out = subprocess.run(
         ["node", str(arq)],
         capture_output=True,
-        text=True,
+        text=True, encoding="utf-8",
         check=False,
         env={**os.environ, "TZ": "UTC"},
     )

@@ -37,7 +37,7 @@ def _node(tmp_path, prog):
     out = subprocess.run(
         ["node", str(arq)],
         capture_output=True,
-        text=True,
+        text=True, encoding="utf-8",
         check=False,
         env={**os.environ, "TZ": "UTC"},
     )

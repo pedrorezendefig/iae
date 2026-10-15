@@ -81,7 +81,7 @@ Recoleta a cada request (cache de 60s; o botão ⟳ força). O painel recoleta s
 - `fases.py`: módulo puro das fases: fase por issue e por PR, linha do tempo, ondas por PRD e contagens do funil (o front não calcula nada).
 - `areas.py`: parse dos snapshots de área para as capas interativas (degrada para `None`, nunca quebra).
 - `diagramas.py`: parse do subset Mermaid dos snapshots (ADR 0025).
-- `tests/`: pytest dos módulos e do front (`uv run --no-project --python ">=3.12" --with pytest python -m pytest tools/workflow-dashboard/tests -q`; o front roda no Node). O CI não roda esta pasta (o `ci.yml` ignora o painel): o `/ship` roda local.
+- `tests/`: pytest dos módulos e do front (`uv run --no-project --python ">=3.12" --with pytest python -m pytest tools/workflow-dashboard/tests -q`; o front roda no Node). O CI roda esta pasta junto com o resto de `tools/`, com o Node do runner.
 - `static/`: front vanilla em ES modules (sem build):
   - `app.js`: SPA, render de cada aba.
   - `ui.js`: componentes (tooltip, copiar, recolhível).
