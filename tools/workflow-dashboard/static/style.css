@@ -64,21 +64,19 @@ h1,h2,h3{font-family:var(--sans); font-weight:500; letter-spacing:-.018em; line-
 ::-webkit-scrollbar-thumb{background:var(--line-2); border-radius:var(--r-pill)}
 ::-webkit-scrollbar-track{background:transparent}
 
-/* ---------- hero navy: faixa baixa da torre (nome, lema e estado numa linha; o
+/* ---------- hero navy: faixa baixa da torre (nome e estado numa linha; o
    trilho de abas sobe para dentro dela). Bloco, não flex: o .wrap ocupa a largura
    toda e alinha com o conteúdo, sem acompanhar a largura do "coletado há" ---------- */
 .hero{position:relative; z-index:1; background:var(--navy); color:var(--on-navy);
   border-radius:var(--r-card-lg); padding:20px 0 76px}
 .mast{display:flex; align-items:center; gap:10px 18px; flex-wrap:wrap}
-.eyebrow,.mast-lema{font-family:var(--mono); font-size:12px; font-weight:500; letter-spacing:.22em;
+.eyebrow{font-family:var(--mono); font-size:12px; font-weight:500; letter-spacing:.22em;
   text-transform:uppercase; color:var(--w70); display:inline-flex; align-items:center; gap:10px}
 .eyebrow::before{content:""; width:8px; height:8px; border-radius:var(--r-pill); background:var(--brand-light); flex:none}
-.mast-lema::before{content:""; width:8px; height:8px; border-radius:var(--r-pill); background:var(--brand-light); flex:none}
 .hero-title{font-size:28px; margin:0; font-weight:500; letter-spacing:-.02em; line-height:1.1; color:var(--on-navy)}
 .hero-title .accent{color:var(--brand-light)}
 
 .mast-status{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-left:auto}
-@media (max-width:640px){.mast-lema{display:none}}   /* no celular a faixa fica com nome e estado */
 .capsule{display:inline-flex; align-items:center; gap:9px; background:var(--w10);
   border:1px solid var(--w15); border-radius:var(--r-pill); padding:7px 14px;
   backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
