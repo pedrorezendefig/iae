@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protótipos da plataforma IAE</title>
+<meta name="description" content="Protótipos navegáveis da Plataforma de cursos do IAE, um por fase. Cada fase soma o que veio antes. Dados e vídeos fictícios.">
+<link rel="stylesheet" href="assets/fontes.css">
+<link rel="stylesheet" href="assets/app.css">
+<style>
+  body{background:var(--navy); color:#fff; min-height:100vh}
+  .capa{position:relative; overflow:hidden; min-height:100vh; display:flex; flex-direction:column}
+  .capa::after{content:""; position:absolute; right:-12%; bottom:-30%; width:min(1100px,90%); aspect-ratio:2/1; background:#fff; opacity:.04; -webkit-mask:var(--mark) center/contain no-repeat; mask:var(--mark) center/contain no-repeat; pointer-events:none}
+  .capa-in{position:relative; z-index:1; width:100%; max-width:1180px; margin:0 auto; padding:40px 28px 56px; display:flex; flex-direction:column; gap:48px; flex:1}
+  .capa-top{display:flex; justify-content:space-between; align-items:center; gap:20px}
+  .capa-top svg{width:170px; height:auto; fill:#fff}
+  .capa-top span{font-size:12.5px; color:var(--on-navy-2); font-weight:500; text-align:right}
+  .capa h1{font-size:clamp(34px,5vw,60px); line-height:1.04; font-weight:700; letter-spacing:-.022em; max-width:16ch}
+  .capa .lede{color:#C9D5E1; font-size:17px; line-height:1.6; max-width:58ch; margin-top:18px}
+  .soma{display:grid; gap:10px; max-width:720px}
+  .soma-bar{display:flex; height:10px; border-radius:6px; overflow:hidden; background:rgba(255,255,255,.08)}
+  .soma-bar i{display:block; height:100%}
+  .soma-leg{display:flex; gap:18px; flex-wrap:wrap; font-size:12.5px; color:var(--on-navy-2)}
+  .soma-leg b{color:#fff; font-weight:600}
+  .soma-leg i{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:7px; vertical-align:-1px}
+  .fases{display:grid; border-top:1px solid var(--navy-line)}
+  .fase{display:grid; grid-template-columns:64px minmax(0,1.1fr) minmax(0,1.3fr) auto; gap:28px; align-items:center; padding:26px 0; border-bottom:1px solid var(--navy-line); transition:background .25s var(--ease)}
+  .fase:hover{background:rgba(255,255,255,.03)}
+  .fase .n{width:52px; height:52px; border-radius:50%; border:1.5px solid rgba(255,255,255,.3); display:grid; place-items:center; font-size:20px; font-weight:700; font-variant-numeric:tabular-nums}
+  .fase:nth-child(1) .n{background:#fff; color:var(--navy); border-color:#fff}
+  .fase h2{font-size:21px; font-weight:700; color:#fff}
+  .fase .fq{font-size:13px; color:var(--on-navy-2); margin-top:4px}
+  .fase p{font-size:14.5px; color:#D3DDE7; line-height:1.55}
+  .fase .acts{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
+  .fase .acts .btn{height:38px}
+  .capa-foot{display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; font-size:12.5px; color:var(--on-navy-2); margin-top:auto}
+  @media (max-width:900px){
+    .fase{grid-template-columns:52px minmax(0,1fr); gap:14px 18px}
+    .fase p{grid-column:2}
+    .fase .acts{grid-column:2; justify-content:flex-start}
+  }
+  @media (max-width:560px){
+    .capa-in{padding:28px 16px 40px; gap:36px}
+    .capa-top span{display:none}
+    .fase{grid-template-columns:1fr}
+    .fase p,.fase .acts{grid-column:1}
+    .capa .lede{font-size:15.5px}
+  }
+</style>
+</head>
+<body>
+<div class="capa">
+  <div class="capa-in">
+    <div class="capa-top"><svg viewBox="0 0 776 290" aria-label="IAE, Instituto de Advocacia Empresarial" role="img"><use href="#assinatura"/></svg><span>Protótipos para a proposta<br>Dados e vídeos fictícios</span></div>
+    <div>
+      <h1>A plataforma de cursos do IAE, fase por fase</h1>
+      <p class="lede">Um protótipo navegável para cada fase do plano de ação. Cada fase soma o que veio antes: a fase 2 tem tudo da 1, a 3 tem tudo da 2, e assim por diante. Em todas dá para ver a plataforma como aluno e como o IAE, no painel.</p>
+    </div>
+    <div class="soma" id="soma"></div>
+    <div class="fases" id="fases"></div>
+    <div class="capa-foot"><span>Na barra de cima de cada protótipo: troque de fase sem perder a tela, ligue a marcação do que é novo e abra a lista do que entra na fase.</span><span>Instituto de Advocacia Empresarial · outubro de 2026</span></div>
+  </div>
+</div>
+<script src="assets/marca.js"></script>
+<script src="assets/dados.js"></script>
+<script>
+(function(){
+  document.body.insertAdjacentHTML('afterbegin', window.IAE_SPRITE);
+  var p = document.getElementById('p-mark');
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 484 240"><path fill-rule="evenodd" d="' + p.getAttribute('d') + '"/></svg>';
+  document.documentElement.style.setProperty('--mark', 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")');
+  var D = window.IAE, cores = ['#FFFFFF', '#CCBAB0', '#7F9DBA', '#B49D97'];
+  var conta = D.FASES.map(function(f){ return D.FEATS.filter(function(x){ return x.f === f.n; }).length; });
+  var total = conta.reduce(function(a, b){ return a + b; }, 0), acum = 0;
+  document.getElementById('soma').innerHTML = '<div class="soma-bar" role="img" aria-label="Funcionalidades acumuladas por fase">' + conta.map(function(c, i){ return '<i style="width:' + (c / total * 100) + '%; background:' + cores[i] + '"></i>'; }).join('') + '</div>' +
+    '<div class="soma-leg">' + conta.map(function(c, i){ acum += c; return '<span><i style="background:' + cores[i] + '"></i>Fase ' + (i + 1) + ': <b>' + c + ' novas</b>, ' + acum + ' no total</span>'; }).join('') + '</div>';
+  document.getElementById('fases').innerHTML = D.FASES.map(function(f){
+    return '<div class="fase"><span class="n">' + f.n + '</span><div><h2>' + f.nome + '</h2><div class="fq">' + f.quando + '</div></div><p>' + f.resumo + '</p><div class="acts">' +
+      '<a class="btn btn-w" href="fase-' + f.n + '.html#/aluno/inicio">Ver como aluno</a><a class="btn btn-wo" href="fase-' + f.n + '.html#/admin/inicio">Ver como admin</a></div></div>';
+  }).join('');
+})();
+</script>
+</body>
+</html>
