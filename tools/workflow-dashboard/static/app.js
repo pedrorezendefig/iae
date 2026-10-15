@@ -207,6 +207,16 @@ function renderMast() {
     ${chipMainLocal((S.data.git || {}).main_atras)}
     <button class="iconbtn" id="refresh" title="recoletar agora (gh + arquivos)">⟳</button>`;
   $('#refresh').addEventListener('click', () => load(true));
+  const gh = S.data.github || {};
+  contador('issues', (gh.issues || []).filter(i => i.state === 'OPEN').length);
+  contador('prs', (gh.prs || []).filter(p => p.state === 'OPEN').length);
+}
+
+/* bolinha vermelha na aba: quanto está aberto agora */
+function contador(aba, n) {
+  const el = $(`#badge-${aba}`);
+  el.hidden = !n;
+  el.textContent = n > 99 ? '99+' : String(n);
 }
 
 /* main local atrás da origin/main: só informa, o painel não puxa nada (#1081) */

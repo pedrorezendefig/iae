@@ -115,11 +115,11 @@ def _token(nome):
     return m.group(1).lower()
 
 
-def test_paleta_monocromatica_no_root():
-    # shadcn: o preenchimento escuro é tinta suave, sem azul de marca
-    assert (_token("brand"), _token("navy")) == ("#171717", "#171717")
+def test_paleta_da_marca_no_root():
+    # manual da marca IAE: o preenchimento escuro é o azul profundo
+    assert (_token("brand"), _token("navy")) == ("#01213d", "#01213d")
     assert "rgba(15,47,99" not in _raiz() and "rgba(8,26,58" not in _raiz()
-    assert "--navy40:rgba(23,23,23,.40)" in _raiz()
+    assert "--navy40:rgba(1,33,61,.40)" in _raiz()
 
 
 def test_favicon_segue_a_paleta():
