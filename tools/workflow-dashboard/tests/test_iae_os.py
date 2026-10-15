@@ -115,17 +115,17 @@ def _token(nome):
     return m.group(1).lower()
 
 
-def test_paleta_navy_do_iae_no_root():
-    assert (_token("brand"), _token("navy")) == ("#173a75", "#081a3a")
-    # tints e sombras derivam do navy do IAE, não do navy do Hospital
-    assert "rgba(15,47,99" not in _raiz()
-    assert "--navy40:rgba(8,26,58,.40)" in _raiz()
+def test_paleta_monocromatica_no_root():
+    # shadcn: o preenchimento escuro é tinta suave, sem azul de marca
+    assert (_token("brand"), _token("navy")) == ("#171717", "#171717")
+    assert "rgba(15,47,99" not in _raiz() and "rgba(8,26,58" not in _raiz()
+    assert "--navy40:rgba(23,23,23,.40)" in _raiz()
 
 
 def test_favicon_segue_a_paleta():
     fundo = re.search(r"%3Crect[^%]*fill='%23([0-9a-fA-F]{6})'", INDEX).group(1).lower()
     circulo = re.search(r"%3Ccircle[^%]*fill='%23([0-9a-fA-F]{6})'", INDEX).group(1).lower()
-    assert ("#" + fundo, "#" + circulo) == (_token("navy"), _token("brand-light"))
+    assert ("#" + fundo, "#" + circulo) == (_token("navy"), _token("on-navy"))
 
 
 # ---------- serviço do macOS: porta 8800, ao lado do Hospital OS ----------

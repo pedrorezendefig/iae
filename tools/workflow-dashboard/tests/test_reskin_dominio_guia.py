@@ -110,12 +110,12 @@ def test_guia_saiu_e_o_conteudo_foi_apagado():
     assert "guia-flow" not in CSS and ".flx" not in CSS
 
 
-def test_pesos_de_fonte_so_400_e_500():
-    # Onest e IBM Plex Mono carregam só 400/500: qualquer outro peso
+def test_pesos_de_fonte_so_os_carregados():
+    # Geist carrega 400/500/600: qualquer outro peso
     # renderiza sintetizado (o 800 do título antigo do Guia, por exemplo)
     pesos = set(re.findall(r"font-weight:\s*(\d+)", CSS))
     pesos |= {m for m in re.findall(r"font:\s*(\d{3})\b", CSS)}
-    assert pesos <= {"400", "500"}, f"pesos fora dos carregados: {sorted(pesos)}"
+    assert pesos <= {"400", "500", "600"}, f"pesos fora dos carregados: {sorted(pesos)}"
 
 
 # ---------- tooltips e recolhíveis no estilo novo ----------

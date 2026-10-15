@@ -699,23 +699,24 @@ def _regra(css: str, seletor: str) -> str:
     return m.group(0)
 
 
-# ---------- faixa navy (padrão Baseline, issue 259) ----------
+# ---------- faixa do topo em cartão claro (reskin shadcn) ----------
 
 
-def test_faixa_do_topo_em_fundo_navy():
+def test_faixa_do_topo_em_cartao_claro():
     banda = _regra(_bloco_producao(), ".prod-band")
-    assert "var(--navy)" in banda, "faixa do topo sem fundo navy"
+    assert "var(--card)" in banda, "faixa do topo fora do cartão branco"
+    assert "var(--navy)" not in banda, "faixa do topo voltou ao fundo escuro"
 
 
-def test_celula_com_borda_superior_translucida_valor_gigante_e_rotulo_65():
+def test_celula_com_hairline_valor_gigante_e_rotulo_cinza():
     bloco = _bloco_producao()
     celula = _regra(bloco, ".prod-cell")
-    assert "border-top" in celula and "var(--w20)" in celula, "célula sem borda superior branca translúcida a 20%"
+    assert "border-top" in celula and "var(--hairline)" in celula, "célula sem hairline superior"
     valor = _regra(bloco, ".prod-v")
-    assert "font-weight:500" in valor, "valor da célula fora do peso 500"
+    assert "font-weight:600" in valor, "valor da célula fora do peso 600"
     assert "clamp(" in valor, "valor da célula sem escala gigante"
     rotulo = _regra(bloco, ".prod-k")
-    assert "var(--w65)" in rotulo, "rótulo da célula fora do branco a 65%"
+    assert "var(--ink-soft)" in rotulo, "rótulo da célula fora do cinza médio"
 
 
 def test_celulas_com_reveal_escalonado_por_indice():
@@ -756,14 +757,13 @@ def test_sparkline_usa_somente_cores_de_token():
 # ---------- semânticas nos dois planos ----------
 
 
-def test_verde_vermelho_ambar_legiveis_sobre_navy():
-    """Sobre o navy os status clareiam por color-mix a partir dos tokens
-    (nenhuma cor nova); no plano claro valem os washes da fundação."""
+def test_verde_vermelho_ambar_no_numero_do_cartao():
+    """No cartão claro a cor do status vai direto do token (nenhuma cor nova)."""
     bloco = _bloco_producao()
-    for cor in ("green", "red", "amber"):
-        assert re.search(r"color-mix\([^)]*var\(--" + cor + r"\)[^)]*\)", bloco), (
-            f"status {cor} sem variante legível sobre navy"
-        )
+    for classe, cor in ((".prod-ok", "green"), (".prod-bad", "red"), (".prod-warn", "amber")):
+        regra = _regra(bloco, classe + " .prod-v")
+        assert f"var(--{cor})" in regra, f"status {cor} fora do número"
+
 
 
 def test_washes_da_fundacao_seguem_disponiveis_no_plano_claro():
