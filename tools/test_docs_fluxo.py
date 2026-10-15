@@ -58,7 +58,7 @@ CABECALHO_DOCS = "| Pasta | O que é | Por que existe | O que tem | Quando abrir
 def _pastas_do_git() -> set[str]:
     """Pastas de nível 1 e 2 que o git conhece, sem cache de Python."""
     arquivos = subprocess.run(["git", "ls-files"], cwd=RAIZ, check=True, capture_output=True,
-                              text=True).stdout.splitlines()
+                              text=True, encoding="utf-8").stdout.splitlines()
     pastas = set()
     for arquivo in arquivos:
         partes = arquivo.split("/")[:-1]

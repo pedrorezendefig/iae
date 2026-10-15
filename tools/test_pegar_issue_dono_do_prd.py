@@ -25,6 +25,8 @@ QUEM_PEGA = "lucassampaioc1"
 
 def rodar(tmp_path: Path, resposta: dict, *args: str) -> subprocess.CompletedProcess:
     """Roda o script com um `gh` falso que devolve `resposta` ao GraphQL."""
+    if sys.platform == "win32":
+        pytest.skip("o gh falso é script sh no PATH, e o Windows não o executa; o CI roda em Linux")
     falso = tmp_path / "bin"
     falso.mkdir(exist_ok=True)
     (tmp_path / "resposta.json").write_text(json.dumps(resposta), encoding="utf-8")
@@ -48,7 +50,7 @@ def rodar(tmp_path: Path, resposta: dict, *args: str) -> subprocess.CompletedPro
     return subprocess.run(
         [sys.executable, str(SCRIPT), *args],
         capture_output=True,
-        text=True,
+        text=True, encoding="utf-8",
         env=ambiente,
     )
 

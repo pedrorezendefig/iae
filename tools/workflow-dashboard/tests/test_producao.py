@@ -45,8 +45,8 @@ com_node = pytest.mark.skipif(not shutil.which("node"), reason="node ausente")
 def test_coletor_le_da_origin_main_so_o_history_e_o_state_e_nao_tem_changelog(monkeypatch, tmp_path):
     deploy = tmp_path / "docs" / "spec" / "deploy"
     deploy.mkdir(parents=True)
-    (deploy / "history.json").write_text(json.dumps({"deploys": [{"app_version": "0.163.4"}]}))
-    (deploy / "state.json").write_text(json.dumps({"last_app_version": "0.163.4", "services": []}))
+    (deploy / "history.json").write_text(json.dumps({"deploys": [{"app_version": "0.163.4"}]}), encoding="utf-8")
+    (deploy / "state.json").write_text(json.dumps({"last_app_version": "0.163.4", "services": []}), encoding="utf-8")
     pedidos = []
 
     def run(cmd, cwd, timeout=None):
@@ -311,7 +311,7 @@ def _app(tmp_path, expr, antes="", hash_inicial="#producao", dados=None):
     arq = tmp_path / "harness.mjs"
     arq.write_text(prog, encoding="utf-8")
     out = subprocess.run(
-        ["node", str(arq)], capture_output=True, text=True, check=False, env={**os.environ, "TZ": "UTC"}
+        ["node", str(arq)], capture_output=True, text=True, encoding="utf-8", check=False, env={**os.environ, "TZ": "UTC"}
     )
     assert out.returncode == 0, out.stderr
     linha = [x for x in out.stdout.splitlines() if x.startswith("@@")][-1]

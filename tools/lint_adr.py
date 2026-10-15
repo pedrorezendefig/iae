@@ -92,7 +92,7 @@ def main() -> int:
     # README.md é o índice por tema: toda ADR numerada precisa estar linkada nele.
     indice = adr_dir / "README.md"
     if indice.exists():
-        texto = indice.read_text()
+        texto = indice.read_text(encoding="utf-8")
         for num, adr in adrs.items():
             if adr["path"].name not in texto:
                 errors.append(f"README.md: falta a linha da ADR {num} ({adr['path'].name}) no índice por tema.")
@@ -107,4 +107,6 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    for fluxo in (sys.stdout, sys.stderr):  # Windows: o pipe sai em cp1252
+        fluxo.reconfigure(encoding="utf-8")
     sys.exit(main())

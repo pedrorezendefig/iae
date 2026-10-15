@@ -4,5 +4,5 @@
 .env
 .env.*
 .claude/settings.local.json
-tools/workflow-dashboard/**/__pycache__/
+__pycache__/
 .pytest_cache/

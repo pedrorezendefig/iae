@@ -104,7 +104,7 @@ def _rodar(tmp_path, expr, antes=""):
     arq = tmp_path / "harness.mjs"
     arq.write_text(prog, encoding="utf-8")
     out = subprocess.run(
-        ["node", str(arq)], capture_output=True, text=True, check=False, env={**os.environ, "TZ": "UTC"}
+        ["node", str(arq)], capture_output=True, text=True, encoding="utf-8", check=False, env={**os.environ, "TZ": "UTC"}
     )
     assert out.returncode == 0, out.stderr
     linha = [x for x in out.stdout.splitlines() if x.startswith("@@")][-1]
@@ -257,7 +257,7 @@ def _rodar_com(tmp_path, dados, expr):
     arq = tmp_path / "harness.mjs"
     arq.write_text(prog, encoding="utf-8")
     out = subprocess.run(
-        ["node", str(arq)], capture_output=True, text=True, check=False, env={**os.environ, "TZ": "UTC"}
+        ["node", str(arq)], capture_output=True, text=True, encoding="utf-8", check=False, env={**os.environ, "TZ": "UTC"}
     )
     assert out.returncode == 0, out.stderr
     return json.loads([x for x in out.stdout.splitlines() if x.startswith("@@")][-1][2:])
@@ -372,7 +372,7 @@ def test_modulo_proprio_entra_no_app_por_um_gancho_so_no_card_do_prd():
     assert "import { renderOndas } from './ondas.js';" in APP_JS
     assert len(re.findall(r"\brenderOndas\(", APP_JS)) == 1
     assert "${prd ? renderOndas(i, S.data, FASES) : ''}" in _funcao(APP_JS, "issueCard")
-    outros = [p.name for p in (DASH / "static").glob("*.js") if p.name != "app.js" and "ondas.js" in p.read_text()]
+    outros = [p.name for p in (DASH / "static").glob("*.js") if p.name != "app.js" and "ondas.js" in p.read_text(encoding="utf-8")]
     assert outros == []
 
 

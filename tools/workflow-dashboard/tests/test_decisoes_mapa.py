@@ -127,7 +127,7 @@ def _mapa(tmp_path, opcoes):
     )
     arq = tmp_path / "m.mjs"
     arq.write_text(prog, encoding="utf-8")
-    out = subprocess.run(["node", str(arq)], capture_output=True, text=True, check=False)
+    out = subprocess.run(["node", str(arq)], capture_output=True, text=True, encoding="utf-8", check=False)
     assert out.returncode == 0, out.stderr
     return json.loads([x for x in out.stdout.splitlines() if x.startswith("@@")][-1][2:])
 

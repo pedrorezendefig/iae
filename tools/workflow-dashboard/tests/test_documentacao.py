@@ -128,7 +128,7 @@ def test_renderer_desenha_o_fluxo_inteiro_e_cabe_em_1400px(tmp_path, fluxo):
     arq = tmp_path / "h.mjs"
     arq.write_text(prog, encoding="utf-8")
     out = subprocess.run(
-        ["node", str(arq)], capture_output=True, text=True, check=False
+        ["node", str(arq)], capture_output=True, text=True, encoding="utf-8", check=False
     )
     assert out.returncode == 0, out.stderr
     svg = json.loads([x for x in out.stdout.splitlines() if x.startswith("@@")][-1][2:])
@@ -394,7 +394,7 @@ def test_marcar_termos_o_mais_longo_ganha_uma_vez_so_com_caixa_e_escape(tmp_path
     arq = tmp_path / "t.mjs"
     arq.write_text(prog, encoding="utf-8")
     out = subprocess.run(
-        ["node", str(arq)], capture_output=True, text=True, check=False
+        ["node", str(arq)], capture_output=True, text=True, encoding="utf-8", check=False
     )
     assert out.returncode == 0, out.stderr
     longo, caixa, pedaco = json.loads(
