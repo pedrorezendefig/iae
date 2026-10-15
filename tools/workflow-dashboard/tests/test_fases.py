@@ -216,7 +216,18 @@ def test_bloqueada_vence_claim():
 
 
 def test_em_andamento_vence_fila():
+    issue = _issue(28, labels=["ready-for-agent", "in-progress"], assignees=["bia"])
+    assert _fase(issue)["fase"] == "em_andamento"
+
+
+def test_designada_sem_claim_continua_na_fila():
+    """Designar alguém não é claim: só o in-progress tira a issue da fila."""
     issue = _issue(28, labels=["ready-for-agent"], assignees=["bia"])
+    assert _fase(issue)["fase"] == "fila"
+
+
+def test_designada_fora_da_fila_continua_em_andamento():
+    issue = _issue(38, labels=["needs-triage"], assignees=["bia"])
     assert _fase(issue)["fase"] == "em_andamento"
 
 
