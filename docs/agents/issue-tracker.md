@@ -123,8 +123,8 @@ Protocolo para a skill `/wayfinder` (planejamento multi-sessão de esforços com
 - **Mapa** = uma issue com a label `wayfinder:map`. O corpo guarda a *destination* (o que encerra o mapa: uma spec, uma decisão, uma mudança), a seção **Not yet specified** (a névoa) e **Decisions so far** (índice de uma linha por decisão; a decisão vive no ticket, o mapa é índice, não depósito).
 - **Tickets** = sub-issues nativas do mapa (mesmo `gh api .../sub_issues` do vínculo PRD → fatias). Cada ticket resolve **uma** decisão ou investigação, com label `wayfinder:<type>` (`research` AFK, `prototype`/`grilling` HITL, `task` conforme marcado).
 - **Bloqueio entre tickets** = dependência nativa "blocked by" (mesma mecânica da seção acima).
-- **Frontier** (o que está pegável) = filhas abertas e desbloqueadas, com ou sem assignee. Liste as filhas com `gh api "repos/$REPO/issues/<mapa>/sub_issues"` e filtre por estado aberto e sem bloqueio nativo aberto.
-- **Claim** = o mesmo do protocolo de paralelismo: a troca de `ready-for-agent` por `in-progress` é o lock; o assignee só registra quem pegou.
+- **Frontier** (o que está pegável) = filhas abertas, desbloqueadas e **sem assignee**. Liste as filhas com `gh api "repos/$REPO/issues/<mapa>/sub_issues"` e filtre por estado aberto, sem assignee e sem bloqueio nativo aberto.
+- **Claim** = assignee apenas (no wayfinder a atribuição é o lock, porque ticket wayfinder não tem a label `ready-for-agent`).
 - **Tickets wayfinder NUNCA recebem `ready-for-agent`** nem entram na máquina de estados do `/triage`: a fila de execução (`/pegar-issue`, `/onda-enxuta`) enxerga só issues de build. As duas filas não colidem.
 - **Resolução:** a resposta vira comentário no ticket, o ticket fecha, e o mapa ganha uma linha em "Decisions so far". Tickets tipo `grilling` usam `/grill-with-docs` (decisões atualizam `CONTEXT.md`/ADR inline).
 - **Idioma:** corpo e comentários em pt-BR; os labels técnicos (`wayfinder:map`, `wayfinder:<type>`) ficam em inglês, como commit e merge.
