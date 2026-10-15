@@ -119,8 +119,16 @@ class Handler(BaseHTTPRequestHandler):
                 pass
 
 
+def console_utf8() -> None:
+    """Saída em UTF-8: no Windows o console vem em cp1252, sem o ✓ e o ✗ das mensagens."""
+    for fluxo in (sys.stdout, sys.stderr):
+        if hasattr(fluxo, "reconfigure"):
+            fluxo.reconfigure(encoding="utf-8", errors="replace")
+
+
 def main():
     global FIXTURE
+    console_utf8()
     args = sys.argv[1:]
     FIXTURE = fixture_dos_args(args)
     port = 8765
