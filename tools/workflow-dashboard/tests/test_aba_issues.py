@@ -545,6 +545,22 @@ def test_card_expandido_mostra_a_linha_do_tempo_com_eventos_datados(tmp_path):
     assert "corpo da 902" in card
 
 
+def _dados_com_corpo(n, corpo):
+    issues = [{**i, "body": corpo} if i["number"] == n else i for i in DADOS["github"]["issues"]]
+    return {**DADOS, "github": {**DADOS["github"], "issues": issues}}
+
+
+@com_node
+def test_corpo_longo_abre_no_resumo_e_o_resto_fica_atras_do_botao(tmp_path):
+    corpo = "## Para os sócios\n\nresumo curto\n\n---\n\n## Problema\n\n" + "x " * 700 + "\n\n## Solução\n\nfim do corpo"
+    dados = _dados_com_corpo(902, corpo)
+    fechado = _rodar(tmp_path, _card_expr(902), antes="S.expIss.add(902);", dados=dados)
+    assert "resumo curto" in fechado and "fim do corpo" not in fechado
+    assert re.search(r'data-act="corpo" data-n="902" aria-expanded="false">ler o corpo inteiro \(2 seções\)<', fechado)
+    lido = _rodar(tmp_path, _card_expr(902), antes="S.expIss.add(902); S.expCorpo.add(902);", dados=dados)
+    assert "fim do corpo" in lido and ">recolher o corpo<" in lido
+
+
 @com_node
 def test_issue_aberta_usa_a_linha_do_tempo_da_coleta(tmp_path):
     buscas, card = _rodar(

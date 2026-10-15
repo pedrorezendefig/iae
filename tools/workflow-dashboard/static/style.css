@@ -53,6 +53,9 @@ body{
 .wrap{position:relative; z-index:1; max-width:1180px; margin:0 auto; padding:0 28px}
 a{color:var(--indigo); text-underline-offset:3px; text-decoration-thickness:1.5px}
 ::selection{background:var(--indigo-wash)}
+/* foco de teclado: anel de 2px em tinta no plano claro, em azul sinal sobre o navy */
+:focus-visible{outline:2px solid var(--ink); outline-offset:2px}
+.hero :focus-visible,.tabs :focus-visible{outline-color:var(--brand-light)}
 
 h1,h2,h3{font-family:var(--sans); font-weight:500; letter-spacing:-.018em; line-height:1.04; color:var(--ink); margin:0}
 .mono,code,kbd{font-family:var(--mono); font-feature-settings:"ss01"}
@@ -61,19 +64,21 @@ h1,h2,h3{font-family:var(--sans); font-weight:500; letter-spacing:-.018em; line-
 ::-webkit-scrollbar-thumb{background:var(--line-2); border-radius:var(--r-pill)}
 ::-webkit-scrollbar-track{background:transparent}
 
-/* ---------- hero navy ---------- */
+/* ---------- hero navy: faixa baixa da torre (nome, lema e estado numa linha; o
+   trilho de abas sobe para dentro dela). Bloco, não flex: o .wrap ocupa a largura
+   toda e alinha com o conteúdo, sem acompanhar a largura do "coletado há" ---------- */
 .hero{position:relative; z-index:1; background:var(--navy); color:var(--on-navy);
-  border-radius:var(--r-card-lg); padding:34px 0 92px; min-height:24vh;
-  display:flex; flex-direction:column; justify-content:center}
-.mast-top{display:flex; align-items:center; justify-content:space-between; gap:18px; flex-wrap:wrap}
-.eyebrow{font-family:var(--mono); font-size:12px; font-weight:500; letter-spacing:.22em;
+  border-radius:var(--r-card-lg); padding:20px 0 76px}
+.mast{display:flex; align-items:center; gap:10px 18px; flex-wrap:wrap}
+.eyebrow,.mast-lema{font-family:var(--mono); font-size:12px; font-weight:500; letter-spacing:.22em;
   text-transform:uppercase; color:var(--w70); display:inline-flex; align-items:center; gap:10px}
 .eyebrow::before{content:""; width:8px; height:8px; border-radius:var(--r-pill); background:var(--brand-light); flex:none}
-.hero-title{font-size:clamp(28px,4vw,46px); margin:14px 0 4px; max-width:20ch;
-  font-weight:500; letter-spacing:-.02em; line-height:1.1; color:var(--on-navy)}
+.mast-lema::before{content:""; width:8px; height:8px; border-radius:var(--r-pill); background:var(--brand-light); flex:none}
+.hero-title{font-size:28px; margin:0; font-weight:500; letter-spacing:-.02em; line-height:1.1; color:var(--on-navy)}
 .hero-title .accent{color:var(--brand-light)}
 
-.mast-status{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.mast-status{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-left:auto}
+@media (max-width:640px){.mast-lema{display:none}}   /* no celular a faixa fica com nome e estado */
 .capsule{display:inline-flex; align-items:center; gap:9px; background:var(--w10);
   border:1px solid var(--w15); border-radius:var(--r-pill); padding:7px 14px;
   backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
@@ -92,7 +97,7 @@ main .capsule b{color:var(--ink)}
 
 /* ---------- tabs em pills (trilho navy colado no hero, gruda no scroll) ---------- */
 .tabs{position:sticky; top:.5rem; z-index:40; display:flex; justify-content:center;
-  margin:-62px 16px 26px}
+  margin:-58px 16px 26px}
 .tabs-row{display:flex; gap:4px; overflow-x:auto; scrollbar-width:none; max-width:100%;
   background:color-mix(in srgb, var(--navy) 92%, transparent); border:1px solid var(--w15);
   border-radius:var(--r-pill); padding:5px;
@@ -210,12 +215,22 @@ main.wrap{background:var(--surface); border-radius:var(--r-card-lg);
   margin:10px 0 0 24px; color:var(--ink-soft)}
 .fatias-toggle:hover{border-color:var(--indigo); color:var(--indigo)}
 .ft-caret{display:inline-block; width:1em; color:var(--brand)}
-.iss-head{display:flex; align-items:center; gap:11px; padding:13px 18px; flex-wrap:wrap}
+.iss-head{display:flex; align-items:center; gap:11px; padding:13px 18px; flex-wrap:wrap;
+  appearance:none; width:100%; margin:0; background:none; border:0; border-radius:var(--r-inner);
+  font:inherit; color:inherit; text-align:left}
 .iss-head:hover{background:color-mix(in srgb, var(--paper-2) 45%, transparent)}
 .inum{font-family:var(--mono); font-size:13px; font-weight:500; color:var(--indigo); flex:none}
 .ititle{font-weight:500; font-size:14.5px; flex:1; min-width:200px}
 .iss-body{border-top:1px solid var(--line); padding:18px; background:color-mix(in srgb, var(--paper) 35%, var(--card))}
 .iss-body .ghlink{font-family:var(--mono); font-size:11.5px}
+/* corpo dentro do card: títulos na escala do card, não da página */
+.iss-body .md{margin-top:16px}
+.iss-body .md > :first-child{margin-top:0}
+.iss-body .md h1{font-size:17px; margin:22px 0 8px}
+.iss-body .md h2{font-size:16px; margin:20px 0 6px}
+.iss-body .md h3{font-size:15px; margin:16px 0 6px}
+.corpo-mais{margin-top:6px}
+.comments .ago{color:var(--ink-soft)}   /* o .ago nasceu para o navy; no card ele some */
 .comments{margin-top:16px}
 .comment{border-left:2px solid var(--indigo-wash); padding:8px 14px; margin:10px 0}
 .comment .who{font-family:var(--mono); font-size:11.5px; color:var(--indigo); font-weight:500}
@@ -459,7 +474,6 @@ main.wrap{background:var(--surface); border-radius:var(--r-card-lg);
 /* ---------- responsivo ---------- */
 @media (max-width:1024px){
   .g12 > *{grid-column:span 12 !important}
-  .hero-title{font-size:clamp(24px,6vw,34px)}
   .children{margin-left:8px; padding-left:14px}
 }
 
@@ -907,7 +921,8 @@ body.er-lock main{z-index:130}
 .onda-seta .onda-ponta{fill:var(--red); stroke:none}
 .onda-fluxo path{fill:none; stroke:var(--ghost); stroke-width:1.6}
 .onda-fluxo .onda-ponta{fill:var(--ghost); stroke:none}
-.onda-no{cursor:pointer}
+.onda-no{cursor:pointer; outline:none}
+.onda-no:focus-visible .onda-anel{stroke:var(--ink); stroke-width:3}
 .onda-anel{fill:var(--card); stroke:var(--fase); stroke-width:2.5}
 .onda-dot{fill:var(--pessoa)}
 .onda-num{font:500 12px var(--mono); fill:var(--ink)}
