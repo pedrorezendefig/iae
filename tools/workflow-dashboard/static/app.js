@@ -34,6 +34,8 @@ const S = {
   fPrs: filtrosPrsVazios(),
   fProd: { resp: '' },   // filtro da linha do tempo da aba Produção (filtrosProdVazios)
   expIss: new Set(),
+  expCorpo: new Set(),   // corpo longo lido inteiro (sobrevive à coleta de 5 s)
+  expCmt: new Set(),     // comentários longos abertos
   expPrd: new Map(),
   expDep: new Set(),
   adrHist: false,   // Decisões: mostrar também as superseded (esmaecidas)
@@ -194,9 +196,13 @@ function renderMast() {
   const svcs = st.services || [];
   const okCount = svcs.filter(checado).length;
   const estado = estadoDaProducao(svcs);
+  // antes do primeiro deploy não há versão nem serviço: a cápsula diz isso, sem semáforo
+  const capsula = (S.data.history || []).length
+    ? `<span class="capsule"><span class="dot ${{ ok: 'ok pulse', warn: 'warn', bad: 'bad' }[estado]}"></span>
+      <b>v${esc(st.last_app_version || '?')}</b>&nbsp;· prod ${estado === 'ok' ? 'healthy' : `${okCount}/${svcs.length} ok`}</span>`
+    : '<span class="capsule" title="a subida termina no merge; a versão e a saúde dos serviços aparecem depois do primeiro deploy">sem deploy ainda</span>';
   $('#mast-status').innerHTML = `
-    <span class="capsule"><span class="dot ${{ ok: 'ok pulse', warn: 'warn', bad: 'bad' }[estado]}"></span>
-      <b>v${esc(st.last_app_version || '?')}</b>&nbsp;· prod ${estado === 'ok' ? 'healthy' : `${okCount}/${svcs.length} ok`}</span>
+    ${capsula}
     <span class="ago" id="ago">coletado ${ago(S.data.generated_at)}</span>
     ${chipMainLocal((S.data.git || {}).main_atras)}
     <button class="iconbtn" id="refresh" title="recoletar agora (gh + arquivos)">⟳</button>`;
@@ -290,7 +296,25 @@ function abrirItem() {
   }
 }
 
-function render() {
+/* teclado: redesenhar a aba (clique, coleta nova, comentários que chegam) troca
+   os elementos e o foco cairia no body; ele volta ao controle de mesmo endereço */
+function manterFoco(redesenhar) {
+  const a = document.activeElement;
+  const d = a && a !== document.body && typeof view.contains === 'function' && view.contains(a)
+    && a.dataset && a.dataset.act ? { ...a.dataset } : null;
+  redesenhar();
+  if (!d || a.isConnected) return;
+  const q = v => String(v).replace(/["\\]/g, '\\$&');
+  const sel = d.n != null ? `[data-act="${d.act}"][data-n="${q(d.n)}"]`
+    : d.i != null ? `[data-act="${d.act}"][data-i="${q(d.i)}"]`
+    : d.v != null ? `[data-act="${d.act}"][data-v="${q(d.v)}"]` : `[data-act="${d.act}"]`;
+  const alvo = view.querySelector(sel);
+  if (alvo) alvo.focus({ preventScroll: true });
+}
+
+function render() { manterFoco(desenhar); }
+
+function desenhar() {
   if (!S.data) return;
   const fn = {
     issues: renderIssues, prs: renderPrs, producao: renderProducao, documentacao: renderDocumentacao,
@@ -605,12 +629,19 @@ function commentsHtml(n) {
   if (c.loading) return '<div class="comments"><span class="ago">carregando comentários…</span></div>';
   if (c.error) return `<div class="comments"><span class="ago">comentários indisponíveis: ${esc(c.error)}</span></div>`;
   if (!c.list.length) return '<div class="comments"><span class="ago">sem comentários</span></div>';
+  // comentários longos (os relatórios de onda) ficam atrás de um botão, como o corpo
+  const longos = c.list.reduce((t, cm) => t + (cm.body_md || '').length, 0) >= CORPO_LONGO;
+  if (longos && !S.expCmt.has(n)) {
+    return `<div class="comments"><button type="button" class="fchip corpo-mais" data-act="cmt" data-n="${n}" aria-expanded="false">ver os comentários (${c.list.length})</button></div>`;
+  }
   return `<div class="comments"><div class="k-label" style="margin-bottom:6px">comentários (${c.list.length})</div>` +
     c.list.map(cm => `
       <div class="comment">
         <div class="who">${esc(cm.author || '?')} <span class="ago">· ${ago(cm.created_at)}</span></div>
         <div class="md">${md(cm.body_md)}</div>
-      </div>`).join('') + '</div>';
+      </div>`).join('')
+    + (longos ? `<button type="button" class="fchip corpo-mais" data-act="cmt" data-n="${n}" aria-expanded="true">recolher os comentários</button>` : '')
+    + '</div>';
 }
 
 /* card compacto (ADR 0062, decisão 6): fase, pessoa, idade, critérios, PR e
@@ -632,11 +663,11 @@ function issueCard(i, idx, prd = false) {
   <article class="nrow ${prd ? 'prd-row' : ''} rv" style="--i:${idx}"${destaque(i.number)}>
     <span class="nrow-idx">${String(idx + 1).padStart(2, '0')}</span>
     <div class="nrow-main">
-      <div class="iss-head" data-act="iss" data-n="${i.number}">
+      <button type="button" class="iss-head" data-act="iss" data-n="${i.number}" aria-expanded="${open}">
         ${prd ? '<span class="prd-tag">PRD</span>' : ''}
         <span class="inum">#${i.number}</span>
         <span class="ititle">${esc(i.title)}</span>
-      </div>
+      </button>
       <div class="iss-chips">${chips}</div>
       ${prd ? renderOndas(i, S.data, FASES) : ''}
       ${open ? `
@@ -644,12 +675,31 @@ function issueCard(i, idx, prd = false) {
         ${linhaDoTempoHtml(i.number)}
         ${i.labels.length ? `<div class="iss-labels">${i.labels.map(labelBadge).join('')}</div>` : ''}
         <a class="ghlink" href="${issUrl(i.number)}" target="_blank" rel="noopener">abrir no GitHub ↗</a>
-        <div class="md" style="margin-top:10px">${md(i.body)}</div>
+        <div class="md">${corpoHtml(i)}</div>
         ${commentsHtml(i.number)}
       </div>` : ''}
     </div>
     <a class="nrow-go" href="${issUrl(i.number)}" target="_blank" rel="noopener" aria-label="abrir a issue #${i.number} no GitHub"><span class="nrow-arrow">↗</span></a>
   </article>`;
+}
+
+/* corpo longo (o PRD) abre no resumo: o trecho até o primeiro "---" ou, sem
+   ele, até o segundo título; o resto fica atrás de um botão (S.expCorpo) */
+const CORPO_LONGO = 1200;
+function corpoHtml(i) {
+  const body = i.body || '';
+  const aberto = S.expCorpo.has(i.number);
+  let corte = body.search(/\n-{3,}[ \t]*\n/);
+  if (corte <= 0) {
+    const titulos = [...body.matchAll(/^#{1,3} /gm)];
+    corte = titulos.length > 1 ? titulos[1].index : -1;
+  }
+  if (body.length < CORPO_LONGO || corte <= 0) return md(body);
+  const botao = (txt, exp) =>
+    `<button type="button" class="fchip corpo-mais" data-act="corpo" data-n="${i.number}" aria-expanded="${exp}">${txt}</button>`;
+  if (aberto) return md(body) + botao('recolher o corpo', true);
+  const secoes = (body.slice(corte).match(/^#{1,3} /gm) || []).length;
+  return md(body.slice(0, corte)) + botao(`ler o corpo inteiro${secoes ? ` (${secoes} seções)` : ''}`, false);
 }
 
 function issueListHtml() {
@@ -744,11 +794,11 @@ function fecharMenu() {
 
 function refreshIssueList() {
   const el = $('#ilist');
-  if (el) {
+  if (el) manterFoco(() => {
     el.innerHTML = issueListHtml();
     if (_ioList) _ioList.disconnect();
     _ioList = revealOnScroll(el, '.rv');
-  }
+  });
 }
 
 async function ensureComments(n) {
@@ -824,20 +874,30 @@ function wirePrs() {
   pop.className = 'st-pop pr-pop';
   pop.hidden = true;
   box.appendChild(pop);
-  box.addEventListener('mouseover', e => {
+  // o card é alcançável pelo teclado: Tab chega nele, Enter/Espaço fixa o resumo
+  box.querySelectorAll('[data-act="pr"]').forEach(card => {
+    card.tabIndex = 0;
+    card.setAttribute('role', 'button');
+    card.setAttribute('aria-expanded', String(S.item === card.dataset.n));
+  });
+  const mostrar = e => {
     const card = e.target.closest('[data-act="pr"]');
     if (!card || (fixo && fixo.dataset.n === card.dataset.n)) return;
     pop.innerHTML = popDoPr(card.dataset.n, S.data, { fmtDT, depVer });
     if (!pop.innerHTML) return;
     if (fixo) fixo.hidden = true;
     posicionarPrPop(pop, card, box);
-  });
-  box.addEventListener('mouseout', e => {
+  };
+  const esconder = e => {
     const card = e.target.closest('[data-act="pr"]');
     if (!card || card.contains(e.relatedTarget)) return;
     pop.hidden = true;
     if (fixo) fixo.hidden = false;
-  });
+  };
+  box.addEventListener('mouseover', mostrar);
+  box.addEventListener('mouseout', esconder);
+  box.addEventListener('focusin', mostrar);
+  box.addEventListener('focusout', esconder);
 }
 
 /* ---------- PRODUÇÃO: linha do tempo do repositório (merges + deploys) ---------- */
@@ -958,7 +1018,7 @@ function deployCardHtml(ev, pos, mergePorPr, alvo) {
   return `
   <li class="lt-no lt-deploy rv ${ok ? '' : 'bad'}" style="--i:${Math.min(pos, 12)}">
     <article class="card pd-card lift"${alvo ? ' aria-current="true"' : ''}>
-      <div class="pd-head" data-act="dep" data-i="${i}">
+      <div class="pd-head" data-act="dep" data-i="${i}" role="button" tabindex="0" aria-expanded="${open}">
         <span class="pd-ver ${ver ? '' : 'unversioned'}">${esc(ver || shaCurto(ev.sha))}</span>
         <span class="pd-subject">${esc(ev.subject || '')}</span>
         <span class="pd-when">${esc(fmtDT(ev.at))}</span>
@@ -1496,6 +1556,15 @@ function renderStack() {
 
 /* ---------- eventos ---------- */
 
+/* Enter/Espaço num card que não é <button> (nó da onda, card de PR, deploy) clica nele */
+view.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const t = e.target.closest('[data-act="onda"],[data-act="pr"],[data-act="dep"]');
+  if (!t || t !== e.target) return;
+  e.preventDefault();
+  t.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+});
+
 view.addEventListener('click', e => {
   const t = e.target.closest('[data-act]');
   if (!t) return;
@@ -1513,12 +1582,22 @@ view.addEventListener('click', e => {
     if (S.expIss.has(n)) { S.expIss.delete(n); if (S.item === String(n)) S.item = null; }
     else { S.expIss.add(n); S.item = String(n); ensureComments(n); ensureTimeline(n); }
     refreshIssueList();
+  } else if (act === 'cmt') {
+    const n = Number(t.dataset.n);
+    if (!S.expCmt.delete(n)) S.expCmt.add(n);
+    refreshIssueList();
+  } else if (act === 'corpo') {
+    const n = Number(t.dataset.n);
+    if (!S.expCorpo.delete(n)) S.expCorpo.add(n);
+    refreshIssueList();
   } else if (act === 'prd') {
     const n = Number(t.dataset.n);
     S.expPrd.set(n, t.dataset.open !== '1');
     refreshIssueList();
   } else if (act === 'onda') {
     abrirFatia(Number(t.dataset.n), Number(t.dataset.prd));
+    const head = view.querySelector(`.iss-head[data-n="${t.dataset.n}"]`);
+    if (head) head.focus({ preventScroll: true });   // teclado: segue para a fatia aberta
   } else if (act === 'pr') {
     S.item = S.item === t.dataset.n ? null : t.dataset.n;
     render();

@@ -581,6 +581,15 @@ def test_mast_vermelho_so_com_servico_fora_ou_http_fora_de_2xx(tmp_path, ruim):
     assert _mast(tmp_path, ruim, _servico("frontend", "healthy"), _supabase("healthy", True)) == ("bad", "2/3 ok")
 
 
+@com_node
+def test_mast_sem_deploy_diz_sem_deploy_ainda_sem_versao_e_sem_semaforo(tmp_path):
+    dados = {**DADOS, "history": [], "state": {**DADOS["state"], "last_app_version": "0.0.0", "services": []}}
+    html = _app(tmp_path, "_els['#mast-status'].innerHTML", dados=dados)
+    assert "sem deploy ainda" in html
+    assert 'class="dot' not in html
+    assert "v0.0.0" not in html and "prod 0/0" not in html
+
+
 def test_dot_warn_na_cor_ambar_do_badge_warning():
     assert "var(--amber)" in _regra(CSS, ".dot.warn")
     assert "var(--amber)" in _regra(CSS, ".b-amber")

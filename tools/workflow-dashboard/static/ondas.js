@@ -101,7 +101,7 @@ export function renderOndas(prd, dados, fases) {
   const linhas = [...pos].map(([n, p]) => {
     const i = porN[n], fase = faseDe(n), fs = fasesIssue[n] || {}, ym = p.y + H / 2;
     const quem = i.assignees.length ? i.assignees.join(', ') : 'ninguém assumiu';
-    const partes = [`<g class="onda-no onda-f-${esc(fase)}" data-act="onda" data-n="${n}" data-prd="${prd.number}" data-col="${p.c}" style="--pessoa:${corDaPessoa(i.assignees[0] || null)};--i:${idx++}">
+    const partes = [`<g class="onda-no onda-f-${esc(fase)}" data-act="onda" data-n="${n}" data-prd="${prd.number}" data-col="${p.c}" tabindex="0" role="button" style="--pessoa:${corDaPessoa(i.assignees[0] || null)};--i:${idx++}">
       <title>#${n} ${esc(i.title)} · ${esc(nomeDaFase(fase))} · ${esc(quem)}</title>
       <rect class="onda-anel" x="${X_FATIA}" y="${p.y}" width="${WF}" height="${H}" rx="10"/>
       <circle class="onda-dot" cx="${X_FATIA + 15}" cy="${ym}" r="5"/>
