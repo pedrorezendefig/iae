@@ -428,12 +428,12 @@ def test_painel_do_passo_mostra_como_funciona_e_por_que_existe_com_termos(
         hash_inicial="#documentacao/fluxo",
         dados={**DADOS_DOC, "context_md": CONTEXTO},
         preludio_extra=f"_respostas['/fluxo.json'] = {json.dumps(fluxo)};\n",
-        antes="await _esperar(); _clicar({ act: 'fluxono', id: 'rollback' });",
+        antes="await _esperar(); _clicar({ act: 'fluxono', id: 'gates' });",
     )
     assert "como funciona" in painel and "por que existe" in painel
-    # o porquê do rollback (os termos dele viram span, por isso o trecho sem termo)
-    assert "cobre o caso comum" in painel and "0064, emenda da decisão 6a" in painel
-    assert '<span class="gl-termo" tabindex="0">rollback<' in painel
+    # o porquê dos gates, em linguagem de quem chega agora (sem citar ADR)
+    assert "uma conferência a mais" in painel and "ADR" not in painel
+    assert '<span class="gl-termo" tabindex="0">CI<' in painel
 
 
 def test_dica_do_fluxo_fala_do_hover_e_do_clique():

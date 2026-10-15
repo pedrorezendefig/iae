@@ -4,9 +4,10 @@ O comportamento dinâmico (aba inicial, render das ondas, copiáveis) é
 verificado via Chrome headless contra o serve.py; aqui mora só o que é
 contrato estático do painel: barato de checar e imune a refactor do JS.
 
-Reskin shadcn: tokens de design como bloco único, hero claro, tabs em pills,
-canvas cinza com cartões brancos, footer com hairline, Geist 400/500/600 e
-primitivas de reveal.
+Identidade IAE (manual da marca): tokens de design como bloco único, trilho
+azul-marinho com o monograma na esquerda, topo branco com a logo, abas com ícone
+e contador, canvas branco com cartões de borda fina, footer com hairline,
+Montserrat 400 a 700 e primitivas de reveal.
 """
 
 import re
@@ -56,16 +57,17 @@ def test_titulo_do_painel_e_iae_os():
 # ---------- tokens de design (bloco único) ----------
 
 
-def test_tokens_definem_a_paleta_shadcn():
+def test_tokens_definem_a_paleta_da_marca():
     root = _root_block().lower()
     for hexa in (
-        "#f5f5f5",  # canvas
-        "#ffffff",  # papel
-        "#0a0a0a",  # tinta
-        "#171717",  # tinta suave (preenchimento escuro)
-        "#737373",  # cinza médio
-        "#e5e5e5",  # hairline
-        "#e7000b",  # vermelho, só erro
+        "#ffffff",  # canvas e cartão
+        "#01213d",  # azul profundo do trilho e do estado ligado
+        "#e8edf3",  # lavado azul da aba ativa
+        "#1d1d1d",  # tinta, o cinza escuro do manual
+        "#6b625f",  # tinta suave, quente
+        "#e8e2de",  # hairline quente
+        "#ccbab0",  # areia do manual
+        "#c4282c",  # vermelho do erro e do contador
     ):
         assert hexa in root, f"token {hexa} fora do bloco :root"
 
@@ -85,9 +87,9 @@ def test_tokens_definem_tints_alpha_e_raios():
         "--navy40",
     ):
         assert f"{tok}:" in root, f"tint {tok} ausente do bloco de tokens"
-    assert "--r-card:24px" in root
-    assert "--r-card-lg:24px" in root
-    assert "--r-inner:10px" in root
+    assert "--r-card:6px" in root
+    assert "--r-card-lg:8px" in root
+    assert "--r-inner:5px" in root
     assert "--r-pill:" in root
 
 
@@ -101,16 +103,15 @@ def test_nenhuma_cor_fixa_fora_do_bloco_de_tokens():
     assert "%23" not in resto, "cor codificada em data-uri fora dos tokens"
 
 
-def test_fonte_geist_400_500_600_e_geist_mono():
+def test_fonte_montserrat_e_geist_mono():
     m = re.search(r"@import url\('([^']+)'\)", CSS)
     assert m, "style.css sem @import de fontes"
     assert "fonts.googleapis.com" in m.group(1)
-    assert "family=Geist:wght@400;500;600" in m.group(1)
+    assert "family=Montserrat:wght@400;500;600;700" in m.group(1)
     assert "family=Geist+Mono" in m.group(1)
     root = _root_block()
-    assert re.search(r"--sans:\s*\"Geist\"", root)
+    assert re.search(r"--sans:\s*\"Montserrat\"", root)
     assert re.search(r"--mono:\s*\"Geist Mono\"", root)
-    assert re.search(r"--mono:[^;]*[Mm]ono", root), "fonte mono sumiu dos tokens"
 
 
 def test_identidade_papel_coral_serifada_removida():
@@ -125,16 +126,17 @@ def test_identidade_papel_coral_serifada_removida():
 # ---------- casca: hero, pills, inset, footer ----------
 
 
-def test_hero_claro_compacto_com_titulo_em_caixa_normal():
-    # issue 268: caps forçado cortava o til de "Reuniões" no clip do reveal
-    assert '<header class="hero' in INDEX
+def test_barra_lateral_com_a_logo_e_titulo_em_caixa_normal():
+    # a navegação inteira mora na barra lateral azul; o meio da tela é só conteúdo
+    assert '<header class="hero side">' in INDEX
     hero = re.search(r"\.hero\{[^}]*\}", CSS)
-    assert hero and "var(--navy)" not in hero.group(0), ".hero voltou ao fundo escuro"
-    assert "color:var(--ink)" in hero.group(0), ".hero sem texto em tinta"
+    assert hero and "position:fixed" in hero.group(0) and "var(--rail)" in hero.group(0)
+    assert "var(--brand)" in hero.group(0), "barra lateral fora do azul da marca"
     titulo = re.search(r"\.hero-title\{[^}]*\}", CSS)
     assert titulo, ".hero-title sumiu"
     assert "text-transform:uppercase" not in titulo.group(0), "título não pode forçar caixa alta (corta o til)"
     assert "IAE OS" in INDEX, "título perdeu o texto"
+    assert 'href="#logo-iae"' in INDEX, "barra sem a logo"
 
 
 def test_clip_protege_diacriticos_em_cima_e_embaixo():
@@ -158,27 +160,37 @@ def test_tabs_sem_caixa_alta_forcada():
     assert "text-transform:uppercase" not in btn.group(0), "tabs não precisam de caixa alta"
 
 
-def test_capsula_de_saude_em_cartao_com_hairline():
+def test_capsula_de_saude_translucida_na_barra():
     caps = re.search(r"\.capsule\{[^}]*\}", CSS)
     assert caps, "cápsula de saúde sumiu"
-    bloco = caps.group(0)
-    assert "var(--card)" in bloco, "cápsula fora do cartão branco"
-    assert "var(--hairline)" in bloco, "cápsula sem borda hairline"
+    assert "var(--w10)" in caps.group(0) and "var(--w15)" in caps.group(0), "cápsula fora do tint da barra"
+    # o estado fica no pé da barra, dentro do header
+    assert INDEX.index('id="mast-status"') < INDEX.index("</header>")
 
 
-def test_abas_em_pills():
+def test_abas_so_na_barra_com_icone_e_contador():
     btn = re.search(r"\.tabs-row button\{[^}]*\}", CSS)
-    assert btn and "var(--r-pill)" in btn.group(0), "abas sem formato de pílula"
+    assert btn and "var(--r-inner)" in btn.group(0), "abas sem o canto arredondado"
+    on = re.search(r"\.tabs-row button\.on\{[^}]*\}", CSS)
+    assert on and "var(--card)" in on.group(0), "aba ativa fora do branco"
+    assert INDEX.count('class="ico"') == 4, "cada aba leva um ícone, e só existe um menu"
+    assert INDEX.index('id="tabs"') < INDEX.index("</header>"), "abas fora da barra lateral"
+    assert ".tab-badge" in CSS and "contador(" in APP_JS, "abas sem o contador de abertos"
 
 
-def test_canvas_cinza_com_secoes_cartao():
+def test_sem_trilho_duplicado():
+    # o trilho de ícones virou a barra lateral: um menu só
+    assert "data-rail" not in INDEX and "data-rail" not in APP_JS
+    assert ".rail{" not in CSS
+
+
+def test_canvas_branco_com_secoes_cartao():
     body = re.search(r"(?<![\w-])body\{[^}]*\}", CSS)
     assert body and "var(--canvas)" in body.group(0), "página sem fundo canvas"
-    assert "padding:.5rem" in body.group(0), "inset de 0.5rem ausente no body"
-    assert ".75rem" in re.search(r"@media \(min-width:640px\)\{[^}]*\}+", CSS).group(0)
+    assert "var(--rail)" in body.group(0), "conteúdo sem o recuo da barra lateral"
     card = re.search(r"\.card\{[^}]*\}", CSS)
-    assert card and "var(--r-card)" in card.group(0), "cartões fora do raio 24px"
-    assert "var(--shadow)" in card.group(0), "cartão sem a sombra hairline"
+    assert card and "var(--r-card)" in card.group(0), "cartões fora do raio de contêiner"
+    assert "var(--shadow)" in card.group(0), "cartão sem a sombra de base"
 
 
 def test_footer_claro_com_hairline():
