@@ -120,12 +120,13 @@ function parse(){
 
 var ROTAS = {
   aluno:{ inicio:[1,vInicio], cursos:[1,vCursos], curso:[1,vCurso], checkout:[1,vCheckout], confirmado:[1,vConfirmado], aula:[1,vAula], 'ao-vivo':[1,vAoVivo], perfil:[1,vPerfil], entrar:[1,vEntrar],
-    clube:[2,vClube], assinar:[2,vAssinar], 'aulas-curtas':[2,vCurtas], beneficios:[2,vBeneficios],
-    turma:[3,vTurma], comunidade:[3,vComunidade], certificados:[3,vCertificados], sala:[3,vSala], trilha:[4,vTrilha] },
-  publico:{ 'aula-aberta':[3,vAulaAberta], validar:[3,vValidar] },
+    'aulas-curtas':[2,vCurtas], turma:[2,vTurma], certificados:[2,vCertificados],
+    clube:[3,vClube], assinar:[3,vAssinar], beneficios:[3,vBeneficios], comunidade:[3,vComunidade], sala:[3,vSala], trilha:[4,vTrilha] },
+  publico:{ 'aula-aberta':[3,vAulaAberta], validar:[2,vValidar] },
   admin:{ inicio:[1,aInicio], cursos:[1,aCursos], curso:[1,aCurso], 'ao-vivo':[1,aAoVivo], alunos:[1,aAlunos], vendas:[1,aVendas], cupons:[1,aCupons], emails:[1,aEmails],
-    clube:[2,aClube], 'aulas-curtas':[2,aCurtas], beneficios:[2,aBeneficios],
-    numeros:[3,aNumeros], turmas:[3,aTurmas], escritorios:[3,aEscritorios], comunidade:[3,aComunidade], assistente:[3,aAssistente], certificados:[3,aCertificados], funil:[3,aFunil], integracoes:[3,aIntegracoes],
+    'aulas-curtas':[2,aCurtas], turmas:[2,aTurmas], certificados:[2,aCertificados],
+    clube:[3,aClube], beneficios:[3,aBeneficios],
+    numeros:[3,aNumeros], escritorios:[3,aEscritorios], comunidade:[3,aComunidade], assistente:[3,aAssistente], funil:[3,aFunil], integracoes:[3,aIntegracoes],
     trilhas:[4,aTrilhas], edicao:[4,aEdicao], video:[4,aVideo] },
   escritorio:{ painel:[3,eEscritorio] }
 };
@@ -176,13 +177,13 @@ function drawerHTML(){
 /* ---------- casca do aluno ---------- */
 function shellAluno(ativo, inner, opt){
   opt = opt || {};
-  var items = [['inicio','Início','home',1,'#/aluno/inicio'],['cursos','Cursos','book',1,'#/aluno/cursos'],['ao-vivo','Ao vivo','live',1,'#/aluno/ao-vivo'],['clube','Clube','star',2,'#/aluno/clube'],['trilha','Trilha','route',4,'#/aluno/trilha']].filter(function(i){ return has(i[3]); });
+  var items = [['inicio','Início','home',1,'#/aluno/inicio'],['cursos','Cursos','book',1,'#/aluno/cursos'],['ao-vivo','Ao vivo','live',1,'#/aluno/ao-vivo'],['clube','Clube','star',3,'#/aluno/clube'],['trilha','Trilha','route',4,'#/aluno/trilha']].filter(function(i){ return has(i[3]); });
   var nav = items.map(function(i){ return '<a href="' + i[4] + '"' + (ativo === i[0] ? ' aria-current="page"' : '') + '>' + i[1] + novo(i[3]) + '</a>'; }).join('');
   var tab = items.filter(function(i){ return i[0] !== 'trilha'; }).concat([['perfil','Perfil','user',1,'#/aluno/perfil']]).map(function(i){ return '<a href="' + i[4] + '"' + (ativo === i[0] ? ' aria-current="page"' : '') + '>' + ic(i[2]) + '<span>' + i[1] + '</span></a>'; }).join('');
   var a = D.ALUNA;
   var menu = '<div class="menu" id="meMenu"><div class="who"><b>' + a.nome + '</b><small>' + a.email + '</small></div>' +
     '<a href="#/aluno/perfil">' + ic('user') + 'Perfil e dados</a><a href="#/aluno/perfil?aba=pagamentos">' + ic('card') + 'Pagamentos</a>' +
-    (has(3) ? '<a href="#/aluno/certificados">' + ic('award') + 'Certificados' + novo(3) + '</a>' : '') +
+    (has(2) ? '<a href="#/aluno/certificados">' + ic('award') + 'Certificados' + novo(2) + '</a>' : '') +
     (has(4) ? '<a href="#/aluno/trilha">' + ic('route') + 'Histórico' + novo(4) + '</a>' : '') +
     '<a href="#/aluno/entrar">' + ic('logout') + 'Sair</a></div>';
   var search = has(3) ? '<label class="search">' + ic('search','sm') + '<input placeholder="Buscar curso, professor ou tema" data-act="buscaTop" aria-label="Buscar no catálogo"></label>' : '';
@@ -204,12 +205,12 @@ function vInicio(){
   var meus = D.CURSOS.filter(function(x){ return x.comprado || x.id === 'fornecedores' || x.id === 'transicao'; });
   var mine = '<div class="card">' + meus.map(function(x){
     var p = x.id === 'orcamento' ? 46 : x.id === 'fornecedores' ? 25 : 100;
-    var sub = x.id === 'orcamento' ? 'Módulo 2 de 3 · faltam 2h41' : x.id === 'fornecedores' ? 'Encontro 3 de 8 hoje às 19h' : 'Concluído em 30/10/2026' + (has(3) ? ' · certificado disponível' : '');
+    var sub = x.id === 'orcamento' ? 'Módulo 2 de 3 · faltam 2h41' : x.id === 'fornecedores' ? 'Encontro 3 de 8 hoje às 19h' : 'Concluído em 30/10/2026' + (has(2) ? ' · certificado disponível' : '');
     return '<a class="my" href="#/aluno/curso/' + x.id + '">' + cover(x) + '<div><h3>' + x.titulo + '</h3><div class="sub">' + sub + '</div><div class="meter"><i style="--w:' + p + '%"></i></div></div></a>';
   }).join('<div class="hr" style="margin:0"></div>') + '</div>';
   var ag = '<div class="card agenda">' + D.AO_VIVO.slice(0, 3).map(agRow).join('') + '</div>';
   var curtas = has(2) ? '<section class="sec"><div class="sec-h"><h2>Aulas curtas' + novo(2) + '</h2><a href="#/aluno/aulas-curtas">Ver todas</a></div><div class="grid-c">' + D.CURTAS.slice(0, 4).map(curtaCard).join('') + '</div></section>' : '';
-  var turma = has(3) ? '<section class="sec"><div class="sec-h"><h2>Sua turma online' + novo(3) + '</h2><a href="#/aluno/turma">Ver o calendário</a></div><div class="card pad row wrap" style="gap:20px"><span class="chip navy">' + ic('calendar','sm') + 'Turma online 2027.1</span><div class="grow"><b>Contratos com fornecedores</b><div class="muted small">Encontro 3 libera hoje às 19h. O encontro 4 libera em 25/11.</div></div><div style="min-width:200px"><div class="row between small muted"><span>3 de 8 encontros</span><span>37%</span></div><div class="meter" style="margin-top:6px"><i style="--w:37%"></i></div></div></div></section>' : '';
+  var turma = has(2) ? '<section class="sec"><div class="sec-h"><h2>Sua turma online' + novo(2) + '</h2><a href="#/aluno/turma">Ver o calendário</a></div><div class="card pad row wrap" style="gap:20px"><span class="chip navy">' + ic('calendar','sm') + 'Turma online 2027.1</span><div class="grow"><b>Contratos com fornecedores</b><div class="muted small">Encontro 3 libera hoje às 19h. O encontro 4 libera em 25/11.</div></div><div style="min-width:200px"><div class="row between small muted"><span>3 de 8 encontros</span><span>37%</span></div><div class="meter" style="margin-top:6px"><i style="--w:37%"></i></div></div></div></section>' : '';
   return shellAluno('inicio', live + hero + turma +
     '<div class="cols-2 sec"><section><div class="sec-h"><h2>Meus cursos</h2><a href="#/aluno/cursos">Catálogo</a></div>' + mine + '</section>' +
     '<section><div class="sec-h"><h2>Agenda ao vivo</h2><a href="#/aluno/ao-vivo">Ver tudo</a></div>' + ag + '</section></div>' + curtas);
@@ -220,7 +221,7 @@ function agRow(x){
   return '<div class="ag"><div class="d"><b>' + x.dia + '</b><small>' + x.mes + '</small></div><div><h3>' + x.t + '</h3><p>' + x.hora + ' · ' + x.profs.map(function(p){ return prof(p).nome; }).join(' e ') + '</p></div>' + btn + '</div>';
 }
 function curtaCard(c){
-  var p = prof(c.prof), inclu = c.id !== 'c1' && c.id !== 'c3', dono = c.comprada || S.oneClick[c.id];
+  var p = prof(c.prof), inclu = has(3) && c.id !== 'c1' && c.id !== 'c3', dono = c.comprada || S.oneClick[c.id];
   var act = dono || inclu ? '<span class="chip good">' + ic('check','sm') + (dono ? 'Sua' : 'No seu clube') + '</span>' : '<span class="price">' + c.preco + '</span>';
   return '<a class="ccard" href="#/aluno/aulas-curtas">' + cover({cv:c.cv, titulo:c.titulo, d:c.d}, {short:true}) + '<div><h3>' + c.titulo + '</h3><div class="meta" style="margin-top:6px"><span>' + c.d + '</span><span>·</span><span>' + p.nome + '</span></div></div><div class="row between">' + act + '</div></a>';
 }
@@ -236,7 +237,7 @@ function vCursos(r){
   }).join('') || '<div class="empty card" style="grid-column:1/-1">' + ic('search','lg') + '<b>Nada com "' + esc(q) + '"</b><span>Tente o nome de um professor ou um tema, como contratos.</span></div>';
   var busca = has(3) ? '<label class="search" style="min-width:280px">' + ic('search','sm') + '<input value="' + esc(r.q.q || '') + '" placeholder="Título, professor ou tema" data-act="busca" aria-label="Buscar">' + '</label>' + novo(3) : '';
   var aberta = has(3) ? '<a class="live-banner" href="#/publico/aula-aberta" style="text-decoration:none; color:inherit; margin-top:28px"><span class="chip sand">Gratuita</span><div class="grow"><b>Aula aberta: o que faz um jurídico interno</b><span>02/12, 19h, com Gustavo Costa e Ana Luiza Lima. Para quem ainda não conhece a advocacia in-house.</span></div>' + ic('chev') + '</a>' : '';
-  var clube = has(2) ? '<a class="live-banner" href="#/aluno/assinar" style="text-decoration:none; color:inherit; background:var(--sand-3); border-color:var(--sand-2)">' + ic('star','lg') + '<div class="grow"><b>Clube IAE' + novo(2) + '</b><span>Aulas curtas, benefícios dos parceiros e o acervo do clube por R$ 99 por mês. Seus cursos comprados continuam seus.</span></div><span class="btn btn-s btn-sm">Conhecer</span></a>' : '';
+  var clube = has(3) ? '<a class="live-banner" href="#/aluno/assinar" style="text-decoration:none; color:inherit; background:var(--sand-3); border-color:var(--sand-2)">' + ic('star','lg') + '<div class="grow"><b>Clube IAE' + novo(3) + '</b><span>Aulas curtas, benefícios dos parceiros e o acervo do clube por R$ 99 por mês. Seus cursos comprados continuam seus.</span></div><span class="btn btn-s btn-sm">Conhecer</span></a>' : '';
   return shellAluno('cursos', '<div class="ph"><div><h1>Cursos</h1><p>Prática de quem viveu o jurídico por dentro da empresa. Sempre com dois professores.</p></div>' + busca + '</div>' + clube +
     '<div class="toolbar"><div class="filter" role="group" aria-label="Para quem">' + pubs.filter(function(p){ return p !== 'Escritórios' || has(3); }).map(function(p){ return '<button data-act="filtro" data-v="' + p + '" aria-pressed="' + (filtro === p) + '">' + p + '</button>'; }).join('') + '</div></div>' +
     '<div class="grid-c">' + cards + '</div>' + aberta +
@@ -248,14 +249,14 @@ function vCurso(r){
   var c = curso(r.a), dono = c.comprado || c.id === 'transicao';
   var ps = c.profs.map(function(id){ var p = prof(id); return '<div class="prof">' + av(p) + '<div><b>' + p.nome + '</b><small>' + p.bio + '</small></div></div>'; }).join('');
   var buy = dono ? '<aside class="buy"><div><div class="p-big" style="font-size:22px">Você já tem este curso</div><div class="p-sub">' + (c.id === 'orcamento' ? 'Aula 3 de 5, minuto 23:14' : c.id === 'transicao' ? 'Concluído em 30/10/2026' : 'Encontro 3 hoje às 19h') + '</div></div>' +
-      '<a class="btn btn-p btn-lg" href="' + (c.id === 'fornecedores' ? (has(3) ? '#/aluno/turma' : '#/aluno/ao-vivo') : c.id === 'transicao' ? '#/aluno/aula/orcamento/1' : '#/aluno/aula/orcamento/3') + '">' + ic(c.id === 'fornecedores' ? 'live' : 'play') + (c.id === 'transicao' ? 'Rever as aulas' : c.id === 'fornecedores' ? 'Ver a agenda da turma' : 'Continuar') + '</a>' +
-      (c.id === 'transicao' && has(3) ? '<a class="btn btn-s" href="#/aluno/certificados">' + ic('award') + 'Ver certificado</a>' : '') + '</aside>' :
+      '<a class="btn btn-p btn-lg" href="' + (c.id === 'fornecedores' ? (has(2) ? '#/aluno/turma' : '#/aluno/ao-vivo') : c.id === 'transicao' ? '#/aluno/aula/orcamento/1' : '#/aluno/aula/orcamento/3') + '">' + ic(c.id === 'fornecedores' ? 'live' : 'play') + (c.id === 'transicao' ? 'Rever as aulas' : c.id === 'fornecedores' ? 'Ver a agenda da turma' : 'Continuar') + '</a>' +
+      (c.id === 'transicao' && has(2) ? '<a class="btn btn-s" href="#/aluno/certificados">' + ic('award') + 'Ver certificado</a>' : '') + '</aside>' :
     '<aside class="buy"><div><div class="p-big num">' + c.preco + '</div><div class="p-sub">' + c.parcelas + ' no cartão, ou Pix à vista</div></div>' +
       '<a class="btn btn-p btn-lg" href="#/aluno/checkout/' + c.id + '">Comprar o curso</a>' +
-      (has(2) ? '<a class="btn btn-s" href="#/aluno/assinar">' + ic('star') + 'Ou assine o clube' + novo(2) + '</a>' : '') +
+      (has(3) ? '<a class="btn btn-s" href="#/aluno/assinar">' + ic('star') + 'Ou assine o clube' + novo(3) + '</a>' : '') +
       (c.b2b && has(3) ? '<a class="btn btn-s" href="#/escritorio/painel">' + ic('building') + 'Comprar para o escritório' + novo(3) + '</a>' : '') +
-      '<ul><li>' + ic('check') + 'Acesso vitalício, em qualquer tela</li><li>' + ic('check') + 'Aulas ao vivo com gravação no curso</li><li>' + ic('check') + 'Legenda em português em todas as aulas</li>' +
-      (has(3) ? '<li>' + ic('check') + 'Certificado de conclusão de curso livre' + novo(3) + '</li>' : '') + '<li>' + ic('check') + 'Bolsa de 50% para alunos e ex-alunos da UERJ</li></ul></aside>';
+      '<ul><li>' + ic('check') + 'Acesso vitalício, em qualquer tela</li><li>' + ic('check') + 'Aulas ao vivo com gravação no curso</li><li>' + ic('check') + (has(3) ? 'Legenda em português em todas as aulas' : 'Qualidade que se ajusta à sua internet') + '</li>' +
+      (has(2) ? '<li>' + ic('check') + 'Certificado de conclusão de curso livre' + novo(2) + '</li>' : '') + '<li>' + ic('check') + 'Bolsa de 50% para alunos e ex-alunos da UERJ</li></ul></aside>';
   var mods = '<div class="card syll">' + c.modulos.map(function(m, i){
     return '<div class="mod' + (S.mods[i] ? ' open' : '') + '"><button data-act="mod" data-i="' + i + '" aria-expanded="' + !!S.mods[i] + '"><span class="mn">' + (i + 1) + '</span><span class="grow"><h3>' + m.t + '</h3><span class="mm">' + m.aulas.length + (m.aulas.length > 1 ? ' aulas' : ' aula') + '</span></span>' + ic('chev','chev') + '</button><ol>' +
       m.aulas.map(function(a){ return '<li>' + (dono && a.st === 'done' ? ic('check','sm') : ic(dono ? 'play' : 'lock','sm')) + '<span>' + a.t + (a.gravada ? ' <span class="chip sand" style="margin-left:6px">' + a.gravada + '</span>' : '') + '</span><span class="t num">' + a.d + '</span></li>'; }).join('') + '</ol></div>';
@@ -270,7 +271,7 @@ function vCurso(r){
     '<div class="row" style="align-items:flex-start">' + ic('check') + '<span>Um jeito de pensar o jurídico como área de negócio, com orçamento, metas e clientes internos.</span></div>' +
     '<div class="row" style="align-items:flex-start">' + ic('check') + '<span>Modelos de planilha e roteiros usados por quem dirige jurídicos de grandes empresas.</span></div>' +
     '<div class="row" style="align-items:flex-start">' + ic('check') + '<span>Casos reais discutidos por dois professores, cada um com uma visão.</span></div>' +
-    (has(3) ? '<div class="cert-mini">' + ic('award','lg') + '<span>Certificado de conclusão com código de verificação e QR Code.' + novo(3) + '</span></div>' : '') + '</div></section></div>' +
+    (has(2) ? '<div class="cert-mini">' + ic('award','lg') + '<span>Certificado de conclusão com código de verificação e QR Code.' + novo(2) + '</span></div>' : '') + '</div></section></div>' +
     '<section class="sec"><div class="sec-h"><h2>Quem já fez</h2><p>O IAE envia os depoimentos reais dos alunos atuais.</p></div>' + deps + '</section></main>', {full:true});
 }
 
@@ -339,7 +340,7 @@ function sidePane(aba, c, n){
       var st = a.st === 'done' ? '<span class="st done">' + ic('check') + '</span>' : a.n === n ? '<span class="st cur">' + ic('play') + '</span>' : '<span class="st"></span>';
       return '<a class="ls" href="#/aluno/aula/orcamento/' + a.n + '"' + (a.n === n ? ' aria-current="true"' : '') + '>' + st + '<span class="lt">' + a.t + (a.gravada ? '<small>' + a.gravada + ', da aula ao vivo</small>' : '') + (a.n === 3 && n !== 3 ? '<small>Parou em 23:14</small>' : '') + '</span><span class="ld num">' + a.d + '</span></a>';
     }).join('');
-  }).join('') + '<div class="ls-mod" style="padding-bottom:16px"><span class="muted" style="font-weight:500; letter-spacing:0">Faltam 2 aulas para concluir o curso' + (has(3) ? ' e liberar o certificado' : '') + '.</span></div>';
+  }).join('') + '<div class="ls-mod" style="padding-bottom:16px"><span class="muted" style="font-weight:500; letter-spacing:0">Faltam 2 aulas para concluir o curso' + (has(2) ? ' e liberar o certificado' : '') + '.</span></div>';
 }
 function trList(q){
   q = (q || '').toLowerCase();
@@ -363,7 +364,7 @@ function bubble(m){
 function mountPlayer(t0, n, aula){
   var st = $('#stage'); if (!st) return;
   var A = D.AULA, dur = n === 3 ? A.dur : 3132;
-  P = { t:t0, dur:dur, playing:false, speed:1, cc:true, q:'Automática', menu:false, si:-1, n:n, aula:aula, tipShown:false, lastSave:0 };
+  P = { t:t0, dur:dur, playing:false, speed:1, cc:has(3), q:'Automática', menu:false, si:-1, n:n, aula:aula, tipShown:false, lastSave:0 };
   var chaps = has(3) ? A.slides.slice(1).map(function(s){ return '<span class="chap" style="left:' + (s.at / dur * 100) + '%"></span>'; }).join('') : '';
   st.innerHTML = '<div class="slide" id="slide"></div><div class="lower3"><span class="avatar" aria-hidden="true">GC</span><span><b>Gustavo Costa</b><small>com Ana Luiza Lima</small></span></div>' +
     '<div class="wm" id="wm">' + D.ALUNA.marca + '</div><div class="caption" id="cap"></div>' +
@@ -371,7 +372,7 @@ function mountPlayer(t0, n, aula){
     '<div class="ctrl"><div class="seek" id="seek"><span class="track"></span><span class="buf" id="buf"></span><span class="fill" id="fill"></span>' + chaps + '<span class="knob" id="knob"></span><span class="hov" id="hov"></span></div>' +
     '<div class="cbar"><button class="cb" data-act="pp" id="ppBtn" aria-label="Tocar">' + ic('play') + '</button><button class="cb hide-m" data-act="skip" data-v="-10" aria-label="Voltar 10 segundos">' + ic('back') + '</button><button class="cb hide-m" data-act="skip" data-v="10" aria-label="Avançar 10 segundos">' + ic('fwd') + '</button>' +
     '<button class="cb hide-m" aria-label="Volume">' + ic('vol') + '</button><span class="ctime" id="ctime"></span><span style="flex:1"></span>' +
-    '<button class="cb" data-act="speedQuick" id="spBtn" aria-label="Velocidade">1x</button><button class="cb" data-act="cc" aria-pressed="true" aria-label="Legenda em português">' + ic('cc') + '</button>' +
+    '<button class="cb" data-act="speedQuick" id="spBtn" aria-label="Velocidade">1x</button>' + (has(3) ? '<button class="cb" data-act="cc" aria-pressed="true" aria-label="Legenda em português">' + ic('cc') + '</button>' : '') +
     '<button class="cb" data-act="menu" aria-label="Qualidade e velocidade">' + ic('gear') + '<span class="hide-m" id="qLbl" style="font-weight:500">1080p</span></button><button class="cb" data-act="fs" aria-label="Tela cheia">' + ic('max') + '</button></div></div>' +
     '<div class="cmenu" id="cmenu"></div>';
   var seek = $('#seek');
@@ -416,10 +417,10 @@ function upd(){
   if (Math.floor(t) - P.lastSave >= 5){ P.lastSave = Math.floor(t); var sv = $('#saved'); if (sv) sv.textContent = 'progresso salvo em ' + fmt(t); }
 }
 function menuHTML(){
-  var qs = ['Automática','1080p','720p','540p','360p'], sp = [.75, 1, 1.25, 1.5, 1.75, 2];
+  var qs = ['Automática','1080p','720p','360p'], sp = [.75, 1, 1.25, 1.5, 1.75, 2];
   return '<h4>Qualidade</h4>' + qs.map(function(q){ return '<button data-act="q" data-v="' + q + '" aria-pressed="' + (P.q === q) + '"><span>' + q + (q === 'Automática' ? ' (1080p)' : '') + '</span>' + (P.q === q ? ic('check','sm') : '') + '</button>'; }).join('') +
     '<h4>Velocidade</h4><div class="two">' + sp.map(function(s){ return '<button data-act="sp" data-v="' + s + '" aria-pressed="' + (P.speed === s) + '">' + String(s).replace('.', ',') + 'x</button>'; }).join('') + '</div>' +
-    '<h4>Legenda</h4><button data-act="cc" aria-pressed="' + P.cc + '"><span>Português (automática)</span>' + (P.cc ? ic('check','sm') : '') + '</button>';
+    (has(3) ? '<h4>Legenda</h4><button data-act="cc" aria-pressed="' + P.cc + '"><span>Português</span>' + (P.cc ? ic('check','sm') : '') + '</button>' : '');
 }
 
 /* ---------- aluno: ao vivo ---------- */
@@ -447,8 +448,8 @@ function vSala(){
 function vPerfil(r){
   var a = D.ALUNA, pag = r.q.aba === 'pagamentos';
   var vendas = D.VENDAS.filter(function(v){ return v.quem === a.nome || (v.quem === 'Luíza Fontes' && false); });
-  var linhas = [['12/11/2026','Clube IAE anual','Cartão 12x','R$ 990,00',2],['20/10/2026','Do escritório para a empresa','Pix','R$ 1.200,00',1],['02/10/2026','Contratos com fornecedores','Cartão 12x','R$ 2.000,00',1],['28/09/2026','Orçamento e gestão do jurídico interno','Pix','R$ 690,00',1]].filter(function(l){ return has(l[4]); });
-  var assin = has(2) ? '<div class="card pad stack"><div class="row between"><b>Clube IAE' + novo(2) + '</b><span class="chip good">Ativo</span></div><span class="muted small">Plano anual, R$ 990 em 12x no cartão final 4821. Renova em 12/11/2027.</span><div class="row wrap"><button class="btn btn-s btn-sm">Trocar para mensal</button><button class="btn btn-g btn-sm" data-act="cancelar">Cancelar assinatura</button></div><span class="muted tiny">Se cancelar, o clube fica ativo até o fim do período pago. Seus cursos comprados continuam seus.</span></div>' : '';
+  var linhas = [['12/11/2026','Clube IAE anual','Cartão 12x','R$ 990,00',3],['20/10/2026','Do escritório para a empresa','Pix','R$ 1.200,00',1],['02/10/2026','Contratos com fornecedores','Cartão 12x','R$ 2.000,00',1],['28/09/2026','Orçamento e gestão do jurídico interno','Pix','R$ 690,00',1]].filter(function(l){ return has(l[4]); });
+  var assin = has(3) ? '<div class="card pad stack"><div class="row between"><b>Clube IAE' + novo(3) + '</b><span class="chip good">Ativo</span></div><span class="muted small">Plano anual, R$ 990 em 12x no cartão final 4821. Renova em 12/11/2027.</span><div class="row wrap"><button class="btn btn-s btn-sm">Trocar para mensal</button><button class="btn btn-g btn-sm" data-act="cancelar">Cancelar assinatura</button></div><span class="muted tiny">Se cancelar, o clube fica ativo até o fim do período pago. Seus cursos comprados continuam seus.</span></div>' : '';
   return shellAluno('perfil', '<div class="ph"><div><h1>Perfil</h1><p>Seus dados, pagamentos e privacidade.</p></div></div><div class="cols-2"><div class="stack-l">' +
     (pag ? '' : '<div class="card pad stack-l"><div class="row">' + av({ini:a.ini}, 'lg') + '<div><b style="font-size:17px">' + a.nome + '</b><div class="muted small">' + a.cargo + '</div></div></div><div class="cols-2e"><div class="field"><label>Nome</label><input class="inp" value="' + a.nome + '"></div><div class="field"><label>E-mail</label><input class="inp" value="' + a.email + '"></div></div><div class="cols-2e"><div class="field"><label>Cargo</label><input class="inp" value="Advogada"></div><div class="field"><label>Empresa</label><input class="inp" value="Indústria de embalagens"></div></div><div><button class="btn btn-p" data-act="salvar">Salvar</button></div></div>') +
     '<div class="card"><div class="pad" style="padding-bottom:6px"><b>Pagamentos</b></div><div class="tbl"><table class="t"><thead><tr><th>Data</th><th>O quê</th><th>Meio</th><th class="r">Valor</th>' + (has(3) ? '<th>Nota fiscal</th>' : '<th>Recibo</th>') + '</tr></thead><tbody>' +
@@ -461,10 +462,10 @@ function vEntrar(r){
   var sent = r.q.ok === '1';
   var form = sent ? '<form onsubmit="return false"><span class="avatar lg" style="background:var(--good-wash); color:var(--good)">' + ic('mail','lg') + '</span><h1>Confira seu e-mail</h1><p class="muted">Enviamos um link de acesso para <b>mar***@gmail.com</b>. Ele vale por 15 minutos e abre no celular ou no computador.</p><a class="btn btn-p btn-lg" href="#/aluno/inicio">Abrir o link (demonstração)</a><a class="btn btn-g" href="#/aluno/entrar">Usar outro e-mail</a></form>' :
     '<form data-act="login"><div>' + logo('assinatura', '') + '</div><h1>Entrar</h1><p class="muted" style="margin-top:-8px">Sem senha: mandamos um link para o seu e-mail.</p><div class="field"><label for="em">E-mail</label><input id="em" class="inp" type="email" value="' + D.ALUNA.email + '"></div><button class="btn btn-p btn-lg">Receber link de acesso</button><div class="or">ou</div><a class="btn btn-s btn-lg" href="#/aluno/inicio">' + ic('google') + 'Entrar com Google</a><span class="muted tiny">Ainda não é aluno? <a href="#/aluno/cursos">Veja os cursos</a>.</span></form>';
-  return '<div class="login"><div class="login-art">' + logo('assinatura') + '<blockquote>Advocacia in-house na prática, de quem viveu 30 anos dentro de empresa.<cite>Instituto de Advocacia Empresarial</cite></blockquote><span class="muted small" style="color:var(--on-navy-2)">Rio de Janeiro e online</span></div><div class="login-f">' + form + '</div></div>';
+  return '<div class="login"><div class="login-art">' + logo('assinatura') + '<blockquote>Advocacia in-house na prática, de quem viveu quase 30 anos dentro de empresa.<cite>Instituto de Advocacia Empresarial</cite></blockquote><span class="muted small" style="color:var(--on-navy-2)">Rio de Janeiro e online</span></div><div class="login-f">' + form + '</div></div>';
 }
 
-/* ---------- aluno: clube (fase 2) ---------- */
+/* ---------- aluno: clube (fase 3) ---------- */
 function vClube(){
   var parc = benef();
   return shellAluno('clube', '<div class="hero-c" style="min-height:0"><div class="hc-copy"><span class="hc-k">Clube IAE · membro desde 12/11/2026</span><h2>Bem-vinda ao clube, Mariana</h2><span class="hc-sub">Seu plano anual inclui as aulas curtas do acervo, os benefícios dos parceiros' + (has(3) ? ', a comunidade dos membros' : '') + ' e desconto em cursos novos.</span><div class="hc-act"><a class="btn btn-w" href="#/aluno/aulas-curtas">Ver as aulas curtas</a><a class="btn btn-wo" href="#/aluno/beneficios">Benefícios</a></div></div><div class="hc-frame" style="place-items:center"><div class="card pad" style="width:100%; max-width:340px; background:var(--sand); border:0; color:var(--cocoa); aspect-ratio:1.6/1; display:flex; flex-direction:column; justify-content:space-between"><div class="row between">' + logo('marca', '') .replace('class=""', 'style="width:62px;height:30px;fill:var(--cocoa)"') + '<b style="font-size:12px; letter-spacing:.12em">MEMBRO</b></div><div><b style="font-size:18px">Mariana Teixeira</b><div class="small">Plano anual · válido até 11/2027</div></div></div></div></div>' +
@@ -481,14 +482,14 @@ function benef(){ return [
   {n:'Coworking no Centro do Rio', d:'Diária com 30% de desconto perto da sede do IAE.', st:'Ativo', i:'building', cor:'sand', code:'IAE30'}
 ]; }
 function vBeneficios(){
-  return shellAluno('clube', '<div class="ph"><div><h1>Benefícios' + novo(2) + '</h1><p>Parcerias do IAE para membros do clube. Os parceiros abaixo, fora UERJ e OAB Rio, são exemplos.</p></div></div><div class="cols-2e">' + benef().map(function(p, i){
+  return shellAluno('clube', '<div class="ph"><div><h1>Benefícios' + novo(3) + '</h1><p>Parcerias do IAE para membros do clube. Os parceiros abaixo, fora UERJ e OAB Rio, são exemplos.</p></div></div><div class="cols-2e">' + benef().map(function(p, i){
     return '<div class="card pad stack"><div class="row"><span class="avatar ' + p.cor + '" style="border-radius:8px; width:44px; height:44px">' + ic(p.i) + '</span><div class="grow"><b>' + p.n + '</b><div class="muted small">' + p.d + '</div></div><span class="chip ' + (p.st === 'Ativo' ? 'good' : 'warn') + '">' + p.st + '</span></div>' +
       (p.code ? (S.codes[i] ? '<div class="row between" style="padding:10px 12px; background:var(--surface-2); border:1px dashed var(--line-strong); border-radius:6px"><b class="num" style="letter-spacing:.06em">' + p.code + '</b><button class="btn btn-g btn-sm" data-act="copiar">' + ic('copy','sm') + 'Copiar</button></div>' : '<button class="btn btn-s" data-act="code" data-i="' + i + '" style="justify-self:start">Mostrar código</button>') : '<span class="muted small">Avisamos por e-mail quando o convênio for assinado.</span>') + '</div>';
   }).join('') + '</div>');
 }
 function vCurtas(){
   var list = D.CURTAS.map(function(c){
-    var p = prof(c.prof), inclu = c.id !== 'c1' && c.id !== 'c3', dono = c.comprada || S.oneClick[c.id], conf = S.oneClick['?' + c.id];
+    var p = prof(c.prof), inclu = has(3) && c.id !== 'c1' && c.id !== 'c3', dono = c.comprada || S.oneClick[c.id], conf = S.oneClick['?' + c.id];
     var act = dono || inclu ? '<a class="btn btn-p btn-sm" href="#/aluno/aula/orcamento/3">' + ic('play','sm') + 'Assistir</a>' :
       conf ? '<div class="row wrap"><span class="small">Comprar por <b>' + c.preco + '</b> no cartão final 4821?</span><button class="btn btn-p btn-sm" data-act="oneOk" data-id="' + c.id + '">Confirmar</button><button class="btn btn-g btn-sm" data-act="oneNo" data-id="' + c.id + '">Agora não</button></div>' :
       '<button class="btn btn-s btn-sm" data-act="one" data-id="' + c.id + '">Comprar em 1 clique · ' + c.preco + '</button>';
@@ -497,20 +498,20 @@ function vCurtas(){
   return shellAluno('cursos', '<div class="ph"><div><h1>Aulas curtas' + novo(2) + '</h1><p>De 30 a 40 minutos, para resolver uma dúvida de trabalho de uma vez. Quem já é aluno compra em 1 clique.</p></div></div><div class="stack">' + list + '</div>');
 }
 function vAssinar(){
-  return shellAluno('clube', '<div class="ph" style="justify-content:center; text-align:center"><div style="max-width:640px; margin:0 auto"><h1>Clube IAE' + novo(2) + '</h1><p style="margin-inline:auto">Assinatura para quem quer continuar aprendendo com o IAE o ano inteiro. Convive com os cursos que você compra: o que é comprado continua seu, com ou sem o clube.</p></div></div>' +
+  return shellAluno('clube', '<div class="ph" style="justify-content:center; text-align:center"><div style="max-width:640px; margin:0 auto"><h1>Clube IAE' + novo(3) + '</h1><p style="margin-inline:auto">Assinatura para quem quer continuar aprendendo com o IAE o ano inteiro. Convive com os cursos que você compra: o que é comprado continua seu, com ou sem o clube.</p></div></div>' +
     '<div class="cols-2e" style="max-width:860px; margin:0 auto">' + [['Mensal','R$ 99','por mês, no cartão ou Pix Automático',false],['Anual','R$ 990','em até 12x no cartão, dois meses de economia',true]].map(function(p){
       return '<div class="card pad-l stack-l" style="' + (p[3] ? 'border-color:var(--navy); box-shadow:0 0 0 1px var(--navy)' : '') + '"><div class="row between"><b style="font-size:18px">' + p[0] + '</b>' + (p[3] ? '<span class="chip navy">Mais escolhido</span>' : '') + '</div><div><div class="p-big num" style="font-size:34px; font-weight:700; color:var(--navy)">' + p[1] + '</div><div class="muted small">' + p[2] + '</div></div><ul class="stack small" style="list-style:none; padding:0; margin:0; color:var(--fg-2)">' +
         ['Aulas curtas do acervo do clube','Benefícios dos parceiros, como a bolsa da UERJ','15% de desconto em cursos de 24 h','Cancele quando quiser, pela própria plataforma'].map(function(x){ return '<li class="row" style="align-items:flex-start">' + ic('check') + '<span>' + x + '</span></li>'; }).join('') + '</ul><a class="btn ' + (p[3] ? 'btn-p' : 'btn-s') + ' btn-lg" href="#/aluno/clube" data-act="assinou">Assinar o plano ' + p[0].toLowerCase() + '</a></div>';
     }).join('') + '</div><p class="muted small" style="text-align:center; margin-top:18px">Valores de exemplo. Preço final definido pelo IAE.</p>');
 }
 
-/* ---------- aluno: fase 3 ---------- */
+/* ---------- aluno: fases 2 e 3 (turma e certificado na 2; comunidade e aula aberta na 3) ---------- */
 function vTurma(){
   var enc = [['04/11','Do pedido de compra ao contrato','done'],['11/11','Negociação com suprimentos','done'],['18/11','Cláusulas de preço e reajuste','live'],['25/11','Garantias e penalidades','lock'],['02/12','Gestão do contrato vivo','lock'],['09/12','Rescisão e transição','lock'],['16/12','Fornecedor único e estratégico','lock'],['13/01','Encerramento e caso final','lock']];
-  return shellAluno('inicio', '<div class="ph"><div><h1>Contratos com fornecedores' + novo(3) + '</h1><p>Turma online 2027.1 · quartas, 19h às 22h · Gustavo Costa e Beatriz Carvalho. Cada encontro libera no dia da aula, e a gravação fica no curso.</p></div><a class="btn btn-s" href="#/aluno/comunidade">' + ic('message') + 'Conversa da turma</a></div>' +
+  return shellAluno('inicio', '<div class="ph"><div><h1>Contratos com fornecedores' + novo(2) + '</h1><p>Turma online 2027.1 · quartas, 19h às 22h · Gustavo Costa e Beatriz Carvalho. Cada encontro libera no dia da aula, e a gravação fica no curso.</p></div>' + (has(3) ? '<a class="btn btn-s" href="#/aluno/comunidade">' + ic('message') + 'Conversa da turma</a>' : '') + '</div>' +
     '<div class="card">' + enc.map(function(e, i){
-      var st = e[2] === 'done' ? '<span class="chip good">' + ic('check','sm') + 'Assistido</span>' : e[2] === 'live' ? '<a class="btn btn-p btn-sm" href="#/aluno/sala">Hoje, 19h · Entrar</a>' : '<span class="chip">' + ic('lock','sm') + 'Libera em ' + e[0] + '</span>';
-      return '<div class="ag"><div class="d"><b>' + e[0].split('/')[0] + '</b><small>' + ['','JAN','','','','','','','','','','NOV','DEZ'][+e[0].split('/')[1]] + '</small></div><div><h3>Encontro ' + (i + 1) + ': ' + e[1] + '</h3><p>' + (e[2] === 'done' ? 'Gravação no curso · presença registrada' : e[2] === 'live' ? 'Ao vivo hoje, depois gravado' : '3 h ao vivo, depois gravado') + '</p></div>' + st + '</div>';
+      var st = e[2] === 'done' ? '<span class="chip good">' + ic('check','sm') + 'Assistido</span>' : e[2] === 'live' ? (has(3) ? '<a class="btn btn-p btn-sm" href="#/aluno/sala">Hoje, 19h · Entrar</a>' : '<a class="btn btn-p btn-sm" href="#/aluno/ao-vivo">Hoje, 19h · Zoom</a>') : '<span class="chip">' + ic('lock','sm') + 'Libera em ' + e[0] + '</span>';
+      return '<div class="ag"><div class="d"><b>' + e[0].split('/')[0] + '</b><small>' + ['','JAN','','','','','','','','','','NOV','DEZ'][+e[0].split('/')[1]] + '</small></div><div><h3>Encontro ' + (i + 1) + ': ' + e[1] + '</h3><p>' + (e[2] === 'done' ? 'Gravação no curso' + (has(3) ? ' · presença registrada' : '') : e[2] === 'live' ? 'Ao vivo hoje, depois gravado' : '3 h ao vivo, depois gravado') + '</p></div>' + st + '</div>';
     }).join('') + '</div>');
 }
 function vComunidade(){
@@ -523,7 +524,7 @@ function vComunidade(){
     '<div class="card">' + tops[esp].map(function(t){ return '<div class="ag" style="grid-template-columns:40px minmax(0,1fr) auto">' + av({ini:t[1].split(' ').map(function(x){ return x[0]; }).join('').slice(0, 2), cor:'sand'}, 'sm') + '<div><h3>' + t[0] + '</h3><p>' + t[1] + ' · ' + t[3] + '</p></div><span class="row small muted">' + (t[4] ? '<span class="chip navy">Professor respondeu</span>' : '') + ic('message','sm') + t[2] + '</span></div>'; }).join('') + '</div>');
 }
 function vCertificados(){
-  return shellAluno('perfil', '<div class="ph"><div><h1>Certificados' + novo(3) + '</h1><p>Certificado de conclusão de curso livre, com carga horária e código de verificação.</p></div></div><div class="cols-2"><div>' + certHTML() + '</div><div class="stack-l"><div class="card pad stack"><b>Do escritório para a empresa</b><span class="muted small">12 h · concluído em 30/10/2026 · código IAE-2026-7K4P-0193</span><div class="row wrap"><button class="btn btn-p btn-sm" data-act="pdf">' + ic('file','sm') + 'Baixar PDF</button><a class="btn btn-s btn-sm" href="#/publico/validar">' + ic('link','sm') + 'Página de validação</a><button class="btn btn-g btn-sm" data-act="copiar">Compartilhar no LinkedIn</button></div></div>' +
+  return shellAluno('perfil', '<div class="ph"><div><h1>Certificados' + novo(2) + '</h1><p>Certificado de conclusão de curso livre, com carga horária e código de verificação.</p></div></div><div class="cols-2"><div>' + certHTML() + '</div><div class="stack-l"><div class="card pad stack"><b>Do escritório para a empresa</b><span class="muted small">12 h · concluído em 30/10/2026 · código IAE-2026-7K4P-0193</span><div class="row wrap"><button class="btn btn-p btn-sm" data-act="pdf">' + ic('file','sm') + 'Baixar PDF</button><a class="btn btn-s btn-sm" href="#/publico/validar">' + ic('link','sm') + 'Página de validação</a><button class="btn btn-g btn-sm" data-act="copiar">Compartilhar no LinkedIn</button></div></div>' +
     '<div class="card pad stack"><b>Orçamento e gestão do jurídico interno</b><span class="muted small">Faltam 2 aulas para o seu certificado.</span><div class="meter"><i style="--w:46%"></i></div><a class="btn btn-s btn-sm" href="#/aluno/aula/orcamento/3" style="justify-self:start">Continuar</a></div></div></div>');
 }
 function certHTML(){
@@ -532,7 +533,7 @@ function certHTML(){
 }
 function vValidar(r){
   var ok = r.q.c !== '0';
-  return '<div class="top"><div class="top-in"><a class="brand" href="#/aluno/inicio">' + logo('marca') + '</a><span class="muted small">Validação de certificado</span></div></div><main class="page narrow fade-in"><div class="ph"><div><h1>Validar certificado' + novo(3) + '</h1><p>Digite o código impresso no certificado ou leia o QR Code.</p></div></div>' +
+  return '<div class="top"><div class="top-in"><a class="brand" href="#/aluno/inicio">' + logo('marca') + '</a><span class="muted small">Validação de certificado</span></div></div><main class="page narrow fade-in"><div class="ph"><div><h1>Validar certificado' + novo(2) + '</h1><p>Digite o código impresso no certificado ou leia o QR Code.</p></div></div>' +
     '<div class="card pad stack-l"><div class="row" style="align-items:flex-end"><div class="field grow"><label>Código</label><input class="inp num" value="IAE-2026-7K4P-0193"></div><a class="btn btn-p" href="#/publico/validar">Validar</a></div>' +
     (ok ? '<div class="ok-band">' + ic('check','lg') + '<span>Certificado válido.</span></div><dl class="facts" style="border-top-color:var(--line); color:var(--ink); margin-top:0"><div><dt class="muted">Aluno</dt><dd>Mariana Teixeira</dd></div><div><dt class="muted">Curso livre</dt><dd>Do escritório para a empresa</dd></div><div><dt class="muted">Carga horária</dt><dd>12 h</dd></div><div><dt class="muted">Conclusão</dt><dd>30/10/2026</dd></div></dl>' : '') + '</div></main>';
 }
@@ -557,9 +558,9 @@ function vTrilha(){
 /* ---------- casca do admin ---------- */
 var RAIL = [
   [null, [['inicio','Hoje','home',1],['numeros','Números','chart',3]]],
-  ['CONTEÚDO', [['cursos','Cursos','book',1],['aulas-curtas','Aulas curtas','clock',2],['ao-vivo','Ao vivo','live',1],['turmas','Turmas','calendar',3],['trilhas','Trilhas','route',4],['edicao','Edição automática','scissors',4]]],
-  ['ALUNOS E VENDAS', [['alunos','Alunos','users',1],['vendas','Vendas','card',1],['cupons','Cupons e bolsas','tag',1],['clube','Clube','star',2],['beneficios','Benefícios','gift',2],['escritorios','Escritórios','building',3]]],
-  ['RELACIONAMENTO', [['emails','E-mails automáticos','mail',1],['comunidade','Comunidade e dúvidas','message',3],['assistente','Assistente de IA','spark',3],['certificados','Certificados','award',3],['funil','Aula aberta','play',3]]],
+  ['CONTEÚDO', [['cursos','Cursos','book',1],['aulas-curtas','Aulas curtas','clock',2],['ao-vivo','Ao vivo','live',1],['turmas','Turmas','calendar',2],['trilhas','Trilhas','route',4],['edicao','Edição automática','scissors',4]]],
+  ['ALUNOS E VENDAS', [['alunos','Alunos','users',1],['vendas','Vendas','card',1],['cupons','Cupons e bolsas','tag',1],['clube','Clube','star',3],['beneficios','Benefícios','gift',3],['escritorios','Escritórios','building',3]]],
+  ['RELACIONAMENTO', [['emails','E-mails automáticos','mail',1],['comunidade','Comunidade e dúvidas','message',3],['assistente','Assistente de IA','spark',3],['certificados','Certificados','award',2],['funil','Aula aberta','play',3]]],
   ['SISTEMA', [['integracoes','Integrações','plug',3],['video','Vídeo e proteção','server',4]]]
 ];
 function shellAdmin(ativo, titulo, inner, acoes){
@@ -579,11 +580,11 @@ function aInicio(){
   var strip = has(3) ? '<a href="#/admin/numeros" style="text-decoration:none; color:inherit; display:block; margin-bottom:28px">' + stats() + '</a>' : '';
   var pend = [
     ['live','Aula ao vivo hoje, 19h','Contratos com fornecedores, encontro 3 · 42 alunos com link','#/admin/ao-vivo','Ver',1],
-    has(3) ? ['refresh','Gravação publicada sozinha','Encontro 2 entrou no curso às 23:41 de ontem','#/admin/ao-vivo','Conferir',3] : ['upload','1 gravação esperando publicação','Encontro 2 de Contratos com fornecedores, 2h58','#/admin/ao-vivo','Publicar',1],
-    ['layers','1 aula convertendo','Aula 4 de Orçamento do jurídico, legenda sendo gerada','#/admin/curso/orcamento','Abrir',1],
+    has(2) ? ['refresh','Gravação publicada sozinha','Encontro 2 entrou no curso às 23:41 de ontem','#/admin/ao-vivo','Conferir',2] : ['upload','1 gravação esperando publicação','Encontro 2 de Contratos com fornecedores, 2h58','#/admin/ao-vivo','Publicar',1],
+    ['layers','1 aula nova do Operador','Aula 4 de Orçamento do jurídico, pronta para conferir e publicar','#/admin/curso/orcamento','Abrir',1],
     has(3) ? ['message','1 dúvida sem resposta','Caio Ramos, aula 3 de Orçamento do jurídico','#/admin/comunidade','Responder',3] : null,
     has(3) ? ['play','12 inscritos na aula aberta','Todos já enviados ao CRM Nexoris','#/admin/funil','Ver',3] : null,
-    has(2) ? ['star','2 assinaturas com pagamento em atraso','Avisadas por e-mail; o acesso pausa em 5 dias','#/admin/clube','Ver',2] : null
+    has(3) ? ['star','2 assinaturas com pagamento em atraso','Avisadas por e-mail; o acesso pausa em 5 dias','#/admin/clube','Ver',3] : null
   ].filter(Boolean);
   var vendas = D.VENDAS.filter(function(v){ return !v.f || has(v.f); }).slice(0, 5);
   return shellAdmin('inicio', 'Hoje', head('Bom dia, Helena', 'Quarta, 18 de novembro. O que pede atenção no IAE hoje.') + strip +
@@ -599,34 +600,34 @@ function stats(){
 function aCursos(){
   var rows = D.CURSOS.filter(function(c){ return !c.b2b || has(3); }).map(function(c, i){
     return '<tr><td><a class="who" href="#/admin/curso/' + c.id + '" style="text-decoration:none; color:inherit"><span style="width:72px; flex:0 0 auto">' + cover(c).replace('class="cover', 'class="cover" style="padding:6px; aspect-ratio:16/10" data-x="') + '</span><span><b>' + c.titulo + '</b><small>' + profsLine(c) + '</small></span></a></td><td>' + c.horas + '</td><td class="r num">' + [23, 41, 38, 19, 10][i] + '</td>' +
-      (has(2) ? '<td>' + (i === 0 || i === 3 ? '<span class="chip navy">No clube</span>' : '<span class="muted">Só compra</span>') + '</td>' : '') + '<td>' + stChip(i === 4 && !has(3) ? 'Rascunho' : 'Publicada') + '</td><td class="r"><a class="btn btn-s btn-sm" href="#/admin/curso/' + c.id + '">Editar</a></td></tr>';
+      (has(3) ? '<td>' + (i === 0 || i === 3 ? '<span class="chip navy">No clube</span>' : '<span class="muted">Só compra</span>') + '</td>' : '') + '<td>' + stChip(i === 4 && !has(3) ? 'Rascunho' : 'Publicada') + '</td><td class="r"><a class="btn btn-s btn-sm" href="#/admin/curso/' + c.id + '">Editar</a></td></tr>';
   });
   return shellAdmin('cursos', 'Cursos', head('Cursos', 'Tudo o que o aluno vê: textos, módulos, aulas, vídeos e preço.', '<button class="btn btn-p" data-act="toastNovo">' + ic('plus') + 'Novo curso</button>') +
-    tbl([{t:'Curso'},{t:'Carga'},{t:'Alunos',r:1}].concat(has(2) ? [{t:'Clube'}] : []).concat([{t:'Situação'},{t:'',r:1}]), rows));
+    tbl([{t:'Curso'},{t:'Carga'},{t:'Alunos',r:1}].concat(has(3) ? [{t:'Clube'}] : []).concat([{t:'Situação'},{t:'',r:1}]), rows));
 }
 function aCurso(r){
   var c = curso(r.a), tab = S.edTab || 'conteudo';
   var tabs = '<div class="tabs" style="padding:0; margin-bottom:22px">' + [['conteudo','Conteúdo'],['pagina','Página de venda'],['preco','Preço e acesso']].map(function(t){ return '<button data-act="edTab" data-v="' + t[0] + '" aria-selected="' + (tab === t[0]) + '">' + t[1] + '</button>'; }).join('') + '</div>';
   var body;
   if (tab === 'pagina'){
-    body = '<div class="card pad stack-l"><div class="field"><label>Título</label><input class="inp" value="' + c.titulo + '"></div><div class="field"><label>Descrição curta</label><textarea class="inp">' + c.lede + '</textarea></div><div class="cols-2e"><div class="field"><label>Professores</label><input class="inp" value="' + profsLine(c) + '"></div><div class="field"><label>Para quem</label><select class="inp"><option>' + c.publico + '</option></select></div></div><div class="field"><label>Vídeo de apresentação</label><div class="drop">' + ic('upload','lg') + '<b>Arraste o vídeo ou clique para escolher</b><span class="small">Vai direto para o Mux, sem passar pelo servidor</span></div></div><div><button class="btn btn-p" data-act="salvar">Salvar</button></div></div>';
+    body = '<div class="card pad stack-l"><div class="field"><label>Título</label><input class="inp" value="' + c.titulo + '"></div><div class="field"><label>Descrição curta</label><textarea class="inp">' + c.lede + '</textarea></div><div class="cols-2e"><div class="field"><label>Professores</label><input class="inp" value="' + profsLine(c) + '"></div><div class="field"><label>Para quem</label><select class="inp"><option>' + c.publico + '</option></select></div></div><div class="field"><label>Vídeo de apresentação</label><div class="drop">' + ic('upload','lg') + '<b>Escolher entre os vídeos enviados pelo Operador</b><span class="small">Já convertido em 360p, 720p e 1080p e guardado no R2</span></div></div><div><button class="btn btn-p" data-act="salvar">Salvar</button></div></div>';
   } else if (tab === 'preco'){
     body = '<div class="card pad stack-l"><div class="cols-2e"><div class="field"><label>Preço à vista</label><input class="inp num" value="' + c.preco + '"></div><div class="field"><label>Parcelas no cartão</label><select class="inp"><option>Até 12x</option><option>Até 6x</option></select></div></div><label class="row small"><button class="switch" role="switch" aria-checked="true" data-act="sw" aria-label="Acesso vitalício"></button><span><b>Acesso vitalício</b><br><span class="muted">Quem compra não perde o acesso.</span></span></label>' +
-      (has(2) ? '<label class="row small"><button class="switch" role="switch" aria-checked="' + (c.id === 'orcamento') + '" data-act="sw" aria-label="Incluir no clube"></button><span><b>Incluir no clube' + novo(2) + '</b><br><span class="muted">Assinantes assistem sem comprar.</span></span></label>' : '') +
+      (has(3) ? '<label class="row small"><button class="switch" role="switch" aria-checked="' + (c.id === 'orcamento') + '" data-act="sw" aria-label="Incluir no clube"></button><span><b>Incluir no clube' + novo(3) + '</b><br><span class="muted">Assinantes assistem sem comprar.</span></span></label>' : '') +
       (has(3) ? '<label class="row small"><button class="switch" role="switch" aria-checked="true" data-act="sw" aria-label="Venda para escritórios"></button><span><b>Vender por assentos para escritórios' + novo(3) + '</b><br><span class="muted">R$ 720 por assento, com fatura por boleto.</span></span></label>' : '') + '<div><button class="btn btn-p" data-act="salvar">Salvar</button></div></div>';
   } else {
     var upPanel = S.novaAula ? '<div class="card pad stack-l" style="margin-bottom:14px; border-color:var(--navy-3)"><div class="row between"><b>Nova aula no módulo 3</b><button class="btn btn-g btn-sm" data-act="fecharNova">Cancelar</button></div><div class="field"><label>Título da aula</label><input class="inp" value="Indicadores que a diretoria lê, parte 2"></div>' +
-      (!S.uploading ? '<div class="drop" data-act="upload">' + ic('upload','lg') + '<b>Arraste o arquivo da aula ou clique para escolher</b><span class="small">MP4 ou MOV, até 1080p. O vídeo vai do seu navegador direto para o Mux.</span></div><div class="help">' + ic('info','sm') + '<span>A primeira vez aqui: depois do envio, a plataforma converte o vídeo e gera a legenda em português sozinha. Você pode fechar a página.</span></div>' :
+      (!S.uploading ? '<div class="drop" data-act="upload">' + ic('upload','lg') + '<b>Escolher o vídeo enviado pelo Operador</b><span class="small">O Operador converte a gravação no computador dele e sobe para o R2. Aqui você só escolhe.</span></div><div class="help">' + ic('info','sm') + '<span>A primeira vez aqui: o vídeo já chega em 360p, 720p e 1080p. Você escolhe, confere e publica.</span></div>' :
       '<div class="up-steps" id="upSteps">' + upSteps() + '</div>') + '</div>' : '';
     body = upPanel + c.modulos.map(function(m, i){
       return '<div class="mod-ed"><div class="mod-ed-h">' + ic('grip','sm') + '<b class="grow">Módulo ' + (i + 1) + ': ' + m.t + '</b><span class="muted small">' + m.aulas.length + (m.aulas.length > 1 ? ' aulas' : ' aula') + '</span><button class="btn btn-g btn-sm" aria-label="Mais opções">' + ic('more') + '</button></div>' +
-        m.aulas.map(function(a){ var conv = c.id === 'orcamento' && a.n === 4 && !S.convOk; return '<div class="lrow"><span class="grip">' + ic('grip','sm') + '</span><span>' + a.t + '<small>' + (a.gravada ? a.gravada + ', da aula ao vivo' : 'Legenda em português') + '</small></span><span class="num muted hide-m">' + a.d + '</span><span class="hide-m">' + (conv ? '<span class="chip warn">Convertendo</span>' : stChip('Publicada')) + '</span><button class="btn btn-g btn-sm" aria-label="Editar">' + ic('edit','sm') + '</button></div>'; }).join('') +
+        m.aulas.map(function(a){ var conv = c.id === 'orcamento' && a.n === 4 && !S.convOk; return '<div class="lrow"><span class="grip">' + ic('grip','sm') + '</span><span>' + a.t + '<small>' + (a.gravada ? a.gravada + ', da aula ao vivo' : (has(3) ? 'Com legenda em português' : '360p, 720p e 1080p')) + '</small></span><span class="num muted hide-m">' + a.d + '</span><span class="hide-m">' + (conv ? '<span class="chip warn">Para conferir</span>' : stChip('Publicada')) + '</span><button class="btn btn-g btn-sm" aria-label="Editar">' + ic('edit','sm') + '</button></div>'; }).join('') +
         (i === c.modulos.length - 1 ? '<div class="lrow" style="grid-template-columns:1fr"><button class="btn btn-s btn-sm" style="justify-self:start" data-act="novaAula">' + ic('plus','sm') + 'Nova aula</button></div>' : '') + '</div>';
     }).join('');
   }
   return shellAdmin('cursos', c.titulo, '<div class="ph"><div><div class="muted small"><a href="#/admin/cursos">Cursos</a> / editar</div><h1 style="margin-top:6px">' + c.titulo + '</h1></div><div class="row"><span class="small muted">Publicado</span><button class="switch" role="switch" aria-checked="true" data-act="sw" aria-label="Publicado"></button><a class="btn btn-s" href="#/aluno/curso/' + c.id + '">' + ic('eye','sm') + 'Ver a página</a></div></div>' + tabs + body);
 }
-function upList(){ var st = ['Enviando para o Mux','Convertendo em 360p, 540p, 720p e 1080p','Gerando a legenda em português']; if (has(4)) st.push('Edição automática: 14 sugestões de corte para revisar'); st.push('Pronta para publicar'); return st; }
+function upList(){ var st = ['Buscando o vídeo no R2','Conferindo 360p, 720p e 1080p']; if (has(3)) st.push('Legenda em português gerada pelo Operador'); if (has(4)) st.push('Edição automática: 14 sugestões de corte para revisar'); st.push('Pronta para publicar'); return st; }
 function upSteps(){
   var st = upList(), k = S.upStage, last = st.length - 1;
   return st.map(function(s, i){
@@ -654,12 +655,12 @@ function runUpload(){
 
 /* ---------- admin: ao vivo ---------- */
 function aAoVivo(){
-  var auto = has(3);
+  var auto = has(2);
   var rows = D.AO_VIVO.map(function(x, i){ return '<tr><td><b>' + x.t + '</b><div class="muted tiny">' + x.profs.map(function(p){ return prof(p).nome; }).join(' e ') + '</div></td><td class="num">' + x.dia + '/' + (x.mes === 'NOV' ? '11' : '12') + ' · ' + x.hora + '</td><td>' + (has(3) && S.sala !== 'zoom' ? '<span class="chip navy">' + ic('live','sm') + 'Sala do IAE</span>' : '<span class="chip">' + ic('link','sm') + 'Zoom, link por aluno</span>') + '</td><td class="r num">' + [42, 40, 118, 23][i] + '</td></tr>'; });
   var pub = S.pubOk.e2;
-  var grav = auto ? '<div class="card"><div class="pad row between wrap" style="gap:14px"><div class="row" style="align-items:flex-start">' + ic('refresh','lg') + '<div><b>Publicação automática' + novo(3) + '</b><div class="muted small">O Zoom avisa a plataforma quando a gravação fica pronta. Ela entra no curso certo, com legenda, em até 1 hora.</div></div></div><button class="switch" role="switch" aria-checked="true" data-act="sw" aria-label="Publicação automática"></button></div>' +
+  var grav = auto ? '<div class="card"><div class="pad row between wrap" style="gap:14px"><div class="row" style="align-items:flex-start">' + ic('refresh','lg') + '<div><b>Publicação automática' + novo(2) + '</b><div class="muted small">O Zoom avisa quando a gravação fica pronta. O script do Operador baixa, converte e publica no curso certo' + (has(3) ? ', com legenda' : '') + '.</div></div></div><button class="switch" role="switch" aria-checked="true" data-act="sw" aria-label="Publicação automática"></button></div>' +
       [['Encontro 2: negociação com suprimentos','Contratos com fornecedores · módulo 2','Publicada sozinha ontem às 23:41'],['Indicadores que a diretoria lê','Orçamento do jurídico · módulo 3','Publicada sozinha em 12/11 às 22:58']].map(function(g){ return '<div class="ag" style="grid-template-columns:minmax(0,1fr) auto"><div><h3>' + g[0] + '</h3><p>' + g[1] + ' · ' + g[2] + '</p></div>' + stChip('Publicada') + '</div>'; }).join('') + '</div>' :
-    '<div class="card">' + '<div class="ag" style="grid-template-columns:minmax(0,1fr) auto"><div><h3>Encontro 2: negociação com suprimentos</h3><p>Gravada no Zoom em 11/11 · 2h58 · baixada para o Mux</p></div>' +
+    '<div class="card">' + '<div class="ag" style="grid-template-columns:minmax(0,1fr) auto"><div><h3>Encontro 2: negociação com suprimentos</h3><p>Gravada no Zoom em 11/11 · 2h58 · convertida pelo Operador</p></div>' +
       (pub ? stChip('Publicada') : '<div class="row"><select class="inp" style="height:32px; width:auto; font-size:13px"><option>Contratos com fornecedores, módulo 2</option></select><button class="btn btn-p btn-sm" data-act="pubGrav" data-id="e2">Publicar no curso</button></div>') + '</div>' +
       '<div class="ag" style="grid-template-columns:minmax(0,1fr) auto"><div><h3>Indicadores que a diretoria lê</h3><p>Orçamento do jurídico · módulo 3 · publicada em 12/11</p></div>' + stChip('Publicada') + '</div></div>';
   var onde = has(3) ? '<div class="toolbar"><span class="small strong">Onde acontece a aula</span><div class="filter">' + [['sala','Sala do IAE'],['zoom','Zoom']].map(function(o){ return '<button data-act="sala" data-v="' + o[0] + '" aria-pressed="' + ((S.sala || 'sala') === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div>' + novo(3) + '</div>' : '';
@@ -669,10 +670,10 @@ function aAoVivo(){
 
 /* ---------- admin: alunos, vendas, cupons, e-mails ---------- */
 function aAlunos(){
-  var cols = [{t:'Aluno'},{t:'Cursos'},{t:'Último acesso'},{t:'Progresso'}].concat(has(2) ? [{t:'Clube'}] : []).concat(has(3) ? [{t:'Turma ou escritório'}] : []);
-  var rows = D.ALUNOS.filter(function(a){ return (!a.empresa && !a.turma) || has(3); }).map(function(a){
+  var cols = [{t:'Aluno'},{t:'Cursos'},{t:'Último acesso'},{t:'Progresso'}].concat(has(3) ? [{t:'Clube'}] : []).concat(has(2) ? [{t:has(3) ? 'Turma ou escritório' : 'Turma'}] : []);
+  var rows = D.ALUNOS.filter(function(a){ return (!a.empresa || has(3)) && (!a.turma || has(2)); }).map(function(a){
     return '<tr><td><div class="who">' + av({ini:a.nome.split(' ').map(function(x){ return x[0]; }).join('').slice(0, 2), cor:'sand'}, 'sm') + '<span><b>' + a.nome + '</b><small>' + a.email + (a.bolsa ? ' · bolsa ' + a.bolsa : '') + '</small></span></div></td><td>' + a.cursos + '</td><td>' + a.ult + '</td><td style="min-width:140px"><div class="row"><div class="meter grow"><i style="--w:' + a.prog + '%"></i></div><span class="num small">' + a.prog + '%</span></div></td>' +
-      (has(2) ? '<td>' + (a.clube ? '<span class="chip navy">' + a.clube + '</span>' : '<span class="muted">-</span>') + '</td>' : '') + (has(3) ? '<td class="small">' + (a.empresa || a.turma || '<span class="muted">-</span>') + '</td>' : '') + '</tr>';
+      (has(3) ? '<td>' + (a.clube ? '<span class="chip navy">' + a.clube + '</span>' : '<span class="muted">-</span>') + '</td>' : '') + (has(2) ? '<td class="small">' + ((has(3) && a.empresa) || a.turma || '<span class="muted">-</span>') + '</td>' : '') + '</tr>';
   });
   return shellAdmin('alunos', 'Alunos', head('Alunos', D.ALUNOS.length + ' alunos nesta demonstração. Libere acesso, veja o progresso e fale com cada um.', '<button class="btn btn-s" data-act="toastNovo">' + ic('plus') + 'Liberar acesso manual</button>') +
     '<div class="toolbar"><label class="search">' + ic('search','sm') + '<input placeholder="Nome ou e-mail" aria-label="Buscar aluno"></label></div>' + tbl(cols, rows));
@@ -684,7 +685,7 @@ function aVendas(){
     tbl([{t:'Quando'},{t:'Quem'},{t:'O quê'},{t:'Meio'},{t:'Valor',r:1},{t:'Situação'}].concat(has(3) ? [{t:'Nota fiscal'}] : []), rows));
 }
 function aCupons(){
-  var rows = [['UERJ','Bolsa por e-mail @uerj.br','50%','Sem validade','Sem limite','6','Ativo',1],['BOASVINDAS10','Cupom','10%','até 31/12/2026','40 usos','3','Ativo',1],['OABRIO','Bolsa por lista da OAB Rio','30%','Sem validade','Sem limite','0','Rascunho',1],['CLUBE15','Desconto de membro do clube','15%','Sem validade','Sem limite','9','Ativo',2]].filter(function(r){ return has(r[7]); })
+  var rows = [['UERJ','Bolsa por e-mail @uerj.br','50%','Sem validade','Sem limite','6','Ativo',1],['BOASVINDAS10','Cupom','10%','até 31/12/2026','40 usos','3','Ativo',1],['OABRIO','Bolsa por lista da OAB Rio','30%','Sem validade','Sem limite','0','Rascunho',1],['CLUBE15','Desconto de membro do clube','15%','Sem validade','Sem limite','9','Ativo',3]].filter(function(r){ return has(r[7]); })
     .map(function(r){ return '<tr><td><b class="num">' + r[0] + '</b></td><td>' + r[1] + '</td><td class="num">' + r[2] + '</td><td>' + r[3] + '</td><td>' + r[4] + '</td><td class="r num">' + r[5] + '</td><td>' + stChip(r[6]) + (r[7] > 1 ? novo(r[7]) : '') + '</td></tr>'; });
   var form = S.novoCupom ? '<div class="card pad stack-l" style="margin-bottom:16px"><b>Novo cupom</b><div class="cols-3"><div class="field"><label>Código</label><input class="inp" value="BLACKIAE"></div><div class="field"><label>Desconto</label><input class="inp" value="20%"></div><div class="field"><label>Validade</label><input class="inp" value="30/11/2026"></div></div><div class="cols-3"><div class="field"><label>Limite de usos</label><input class="inp" value="50"></div><div class="field"><label>Vale para</label><select class="inp"><option>Todos os cursos</option></select></div></div><div class="row"><button class="btn btn-p" data-act="salvarCupom">Criar cupom</button><button class="btn btn-g" data-act="cupomForm">Cancelar</button></div></div>' : '';
   return shellAdmin('cupons', 'Cupons e bolsas', head('Cupons e bolsas', 'A bolsa da UERJ confere o e-mail institucional na hora da compra.', '<button class="btn btn-p" data-act="cupomForm">' + ic('plus') + 'Novo cupom</button>') + form +
@@ -695,30 +696,30 @@ function aEmails(){
     ['Compra confirmada','Quando o pagamento cai',1,'Pagamento confirmado: Contratos com fornecedores','Recebemos o seu pagamento de R$ 2.000,00 por Pix. O recibo está anexo.','Ver meus pagamentos'],
     ['Acesso liberado','Junto com a compra',1,'Seu acesso está liberado','O curso Contratos com fornecedores já está na sua conta. O botão abaixo leva direto à primeira aula, sem pedir senha.','Assistir à aula 1'],
     ['Lembrete de aula ao vivo','Na véspera, às 18h',1,'Amanhã, 19h: encontro 3 de Contratos com fornecedores','Com Gustavo Costa e Beatriz Carvalho. O seu link é pessoal. Se não puder ir, a gravação entra no curso.','Ver na agenda'],
-    ['Assinatura do clube confirmada','Quando a assinatura começa',2,'Você agora é membro do Clube IAE','Seu plano anual começou hoje. As aulas curtas do clube e os benefícios dos parceiros já estão liberados.','Abrir o clube'],
-    ['Pagamento da assinatura recusado','Quando a cobrança falha',2,'Não conseguimos cobrar sua assinatura','O cartão final 4821 recusou a cobrança de hoje. Atualize o cartão em até 5 dias para não pausar o clube.','Atualizar cartão'],
+    ['Assinatura do clube confirmada','Quando a assinatura começa',3,'Você agora é membro do Clube IAE','Seu plano anual começou hoje. As aulas curtas do clube e os benefícios dos parceiros já estão liberados.','Abrir o clube'],
+    ['Pagamento da assinatura recusado','Quando a cobrança falha',3,'Não conseguimos cobrar sua assinatura','O cartão final 4821 recusou a cobrança de hoje. Atualize o cartão em até 5 dias para não pausar o clube.','Atualizar cartão'],
     ['Resposta à sua dúvida','Quando o professor responde',3,'Gustavo Costa respondeu sua dúvida','Na aula 3 de Orçamento do jurídico, no minuto 21:19. Clique para ver a resposta no ponto exato da aula.','Ver resposta'],
-    ['Certificado disponível','Quando o curso é concluído',3,'Seu certificado está pronto','Parabéns por concluir Do escritório para a empresa. O certificado tem código de verificação e pode ir para o LinkedIn.','Baixar certificado']].filter(function(t){ return has(t[2]); });
+    ['Certificado disponível','Quando o curso é concluído',2,'Seu certificado está pronto','Parabéns por concluir Do escritório para a empresa. O certificado tem código de verificação e pode ir para o LinkedIn.','Baixar certificado']].filter(function(t){ return has(t[2]); });
   var i = Math.min(S.mail || 0, T.length - 1), m = T[i];
   return shellAdmin('emails', 'E-mails automáticos', head('E-mails automáticos', 'Saem sozinhos, na marca do IAE, pelo Resend.') + '<div class="cols-2" style="grid-template-columns:minmax(0,.9fr) minmax(0,1.2fr)"><div class="card list-sel">' + T.map(function(t, k){ return '<button data-act="mail" data-i="' + k + '" aria-pressed="' + (k === i) + '"><span class="grow"><b>' + t[0] + novo(t[2]) + '</b><small>' + t[1] + '</small></span><span class="switch" role="switch" aria-checked="true" aria-label="Ligado"></span></button>'; }).join('') + '</div>' +
     '<div class="mail"><div class="mail-h">' + logo('assinatura') + '</div><div class="mail-b"><span class="muted tiny">Assunto: ' + m[3] + '</span><h3>' + m[3] + '</h3><p>' + m[4] + '</p><a class="btn btn-p" style="justify-self:start" href="#/admin/emails">' + m[5] + '</a><p class="small">Equipe do IAE</p></div><div class="mail-f">Instituto de Advocacia Empresarial · Rio de Janeiro. Você recebe este e-mail porque tem conta na plataforma.</div></div></div>');
 }
 
-/* ---------- admin: fase 2 ---------- */
+/* ---------- admin: clube (fase 3) e aulas curtas (fase 2) ---------- */
 function aClube(){
   var rows = [['Mariana Teixeira','Anual','12/11/2026','Cartão 12x','Ativa'],['Pedro Albuquerque','Mensal','03/11/2026','Pix Automático','Ativa'],['Caio Ramos','Mensal','15/10/2026','Cartão','Ativa'],['Júlia Andrade','Anual','28/09/2026','Cartão 12x','Ativa'],['Felipe Nogueira','Mensal','10/09/2026','Cartão','Em atraso'],['Sofia Barreto','Mensal','02/09/2026','Pix Automático','Cancelada']].map(function(r){ return '<tr><td><b>' + r[0] + '</b></td><td>' + r[1] + '</td><td class="num">' + r[2] + '</td><td>' + r[3] + '</td><td>' + stChip(r[4]) + '</td></tr>'; });
-  return shellAdmin('clube', 'Clube', head('Clube' + novo(2), 'Assinatura mensal e anual, convivendo com a compra vitalícia dos cursos.', '<button class="btn btn-s" data-act="salvar">Editar planos</button>') +
+  return shellAdmin('clube', 'Clube', head('Clube' + novo(3), 'Assinatura mensal e anual, convivendo com a compra vitalícia dos cursos.', '<button class="btn btn-s" data-act="salvar">Editar planos</button>') +
     '<dl class="stat-strip" style="margin-bottom:28px"><div><dt>Assinantes ativos</dt><dd>64</dd><span class="d up">+9 no mês</span></div><div><dt>Receita recorrente</dt><dd>R$ 5.094</dd><span class="small muted">por mês</span></div><div><dt>Mensal e anual</dt><dd>41 · 23</dd><span class="small muted">planos</span></div><div><dt>Em atraso</dt><dd>2</dd><span class="d dn">avisados por e-mail</span></div></dl>' +
     '<div class="cols-2"><section><div class="sec-h"><h2>Assinantes</h2></div>' + tbl([{t:'Membro'},{t:'Plano'},{t:'Desde'},{t:'Pagamento'},{t:'Situação'}], rows) + '</section>' +
     '<section><div class="sec-h"><h2>O que o clube inclui</h2></div><div class="card">' + [['Aulas curtas do acervo do clube',true],['Orçamento e gestão do jurídico interno',true],['Do escritório para a empresa',true],['Advocacia in-house na prática',false],['Contratos com fornecedores',false]].map(function(x){ return '<div class="ag" style="grid-template-columns:minmax(0,1fr) auto"><div><h3>' + x[0] + '</h3><p>' + (x[1] ? 'Incluído na assinatura' : 'Só compra, com 15% para membros') + '</p></div><button class="switch" role="switch" aria-checked="' + x[1] + '" data-act="sw" aria-label="Incluir"></button></div>'; }).join('') + '</div></section></div>');
 }
 function aCurtas(){
-  var rows = D.CURTAS.map(function(c, i){ return '<tr><td><b>' + c.titulo + '</b></td><td>' + prof(c.prof).nome + '</td><td class="num">' + c.d + '</td><td class="num">' + c.preco + '</td><td><button class="switch" role="switch" aria-checked="' + (c.id !== 'c1' && c.id !== 'c3') + '" data-act="sw" aria-label="No clube"></button></td><td class="r num">' + [14, 22, 9, 17, 11][i] + '</td></tr>'; });
-  return shellAdmin('aulas-curtas', 'Aulas curtas', head('Aulas curtas' + novo(2), 'Conteúdos de 30 a 40 minutos com compra avulsa em 1 clique.', '<button class="btn btn-p" data-act="toastNovo">' + ic('plus') + 'Nova aula curta</button>') + tbl([{t:'Aula'},{t:'Professor'},{t:'Duração'},{t:'Preço avulso'},{t:'No clube'},{t:'Vendas',r:1}], rows));
+  var rows = D.CURTAS.map(function(c, i){ return '<tr><td><b>' + c.titulo + '</b></td><td>' + prof(c.prof).nome + '</td><td class="num">' + c.d + '</td><td class="num">' + c.preco + '</td>' + (has(3) ? '<td><button class="switch" role="switch" aria-checked="' + (c.id !== 'c1' && c.id !== 'c3') + '" data-act="sw" aria-label="No clube"></button></td>' : '') + '<td class="r num">' + [14, 22, 9, 17, 11][i] + '</td></tr>'; });
+  return shellAdmin('aulas-curtas', 'Aulas curtas', head('Aulas curtas' + novo(2), 'Conteúdos de 30 a 40 minutos com compra avulsa em 1 clique.', '<button class="btn btn-p" data-act="toastNovo">' + ic('plus') + 'Nova aula curta</button>') + tbl([{t:'Aula'},{t:'Professor'},{t:'Duração'},{t:'Preço avulso'}].concat(has(3) ? [{t:'No clube' + novo(3)}] : []).concat([{t:'Vendas',r:1}]), rows));
 }
 function aBeneficios(){
   var rows = benef().map(function(p){ return '<tr><td><div class="who"><span class="avatar ' + p.cor + ' sm" style="border-radius:6px">' + ic(p.i, 'sm') + '</span><b>' + p.n + '</b></div></td><td>' + p.d + '</td><td class="num">' + (p.code || '-') + '</td><td>' + stChip(p.st === 'Em breve' ? 'Rascunho' : 'Ativo') + '</td></tr>'; });
-  return shellAdmin('beneficios', 'Benefícios', head('Benefícios do clube' + novo(2), 'Parceiros, ofertas e códigos que aparecem para os membros.', '<button class="btn btn-p" data-act="toastNovo">' + ic('plus') + 'Novo parceiro</button>') + tbl([{t:'Parceiro'},{t:'Oferta'},{t:'Código'},{t:'Situação'}], rows));
+  return shellAdmin('beneficios', 'Benefícios', head('Benefícios do clube' + novo(3), 'Parceiros, ofertas e códigos que aparecem para os membros.', '<button class="btn btn-p" data-act="toastNovo">' + ic('plus') + 'Novo parceiro</button>') + tbl([{t:'Parceiro'},{t:'Oferta'},{t:'Código'},{t:'Situação'}], rows));
 }
 
 /* ---------- admin: fase 3 ---------- */
@@ -748,7 +749,7 @@ function barChart(v){
   return '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Porcentagem de alunos que chegam a cada aula">' + grid + bars + '</svg>';
 }
 function aTurmas(){
-  return shellAdmin('turmas', 'Turmas', head('Turmas' + novo(3), 'Turmas com data de início, cronograma e aulas liberadas por data.', '<button class="btn btn-p" data-act="toastNovo">' + ic('plus') + 'Nova turma</button>') +
+  return shellAdmin('turmas', 'Turmas', head('Turmas' + novo(2), 'Turmas com data de início, cronograma e aulas liberadas por data.', '<button class="btn btn-p" data-act="toastNovo">' + ic('plus') + 'Nova turma</button>') +
     tbl([{t:'Turma'},{t:'Curso'},{t:'Início'},{t:'Encontros'},{t:'Alunos',r:1},{t:'Situação'}], [['Online 2027.1','Contratos com fornecedores','04/11/2026','3 de 8','42','Ativa'],['Online SP 2027.1','Advocacia in-house na prática','09/03/2027','0 de 8','27','Ativa'],['Presencial Centro 2027.1','Advocacia in-house na prática','10/03/2027','0 de 8','18','Ativa']].map(function(r){ return '<tr><td><b>' + r[0] + '</b></td><td>' + r[1] + '</td><td class="num">' + r[2] + '</td><td>' + r[3] + '</td><td class="r num">' + r[4] + '</td><td>' + stChip(r[5]) + '</td></tr>'; })) +
     '<section class="sec"><div class="sec-h"><h2>Cronograma da turma online 2027.1</h2><p>Cada encontro libera para a turma no dia e na hora da aula</p></div><div class="card">' + ['04/11','11/11','18/11','25/11','02/12','09/12','16/12','13/01'].map(function(d, i){ return '<div class="lrow" style="grid-template-columns:90px minmax(0,1fr) 150px"><b class="num">' + d + ' · 19h</b><span>Encontro ' + (i + 1) + '</span><span>' + (i < 2 ? stChip('Publicada') : i === 2 ? '<span class="chip live">Hoje</span>' : '<span class="chip">Libera no dia</span>') + '</span></div>'; }).join('') + '</div></section>');
 }
@@ -770,7 +771,7 @@ function aAssistente(){
     '<section><div class="sec-h"><h2>Base de conhecimento</h2></div><div class="card pad stack"><div class="row between small"><span>Aulas transcritas</span><b class="num">14</b></div><div class="row between small"><span>Documentos do IAE</span><b class="num">3</b></div><div class="row between small"><span>Última atualização</span><b>hoje, 06:00</b></div><div class="hr" style="margin:4px 0"></div><div class="drop">' + ic('upload','lg') + '<b>Adicionar documento</b><span class="small">PDF ou texto: regulamento, FAQ, ementas</span></div><label class="row small"><button class="switch" role="switch" aria-checked="true" data-act="sw" aria-label="Encaminhar"></button><span>Quando não souber, encaminhar a pergunta para a equipe</span></label></div></section></div>');
 }
 function aCertificados(){
-  return shellAdmin('certificados', 'Certificados', head('Certificados' + novo(3), 'Emitidos sozinhos quando o aluno cumpre a regra de conclusão do curso.') +
+  return shellAdmin('certificados', 'Certificados', head('Certificados' + novo(2), 'Emitidos sozinhos quando o aluno cumpre a regra de conclusão do curso.') +
     '<div class="cols-2"><section>' + tbl([{t:'Aluno'},{t:'Curso'},{t:'Emitido'},{t:'Código'}], [['Mariana Teixeira','Do escritório para a empresa','30/10/2026','IAE-2026-7K4P-0193'],['Luíza Fontes','Do escritório para a empresa','29/10/2026','IAE-2026-2HQ9-0192'],['Pedro Albuquerque','Do escritório para a empresa','27/10/2026','IAE-2026-9MX1-0188']].map(function(r){ return '<tr><td><b>' + r[0] + '</b></td><td>' + r[1] + '</td><td class="num">' + r[2] + '</td><td class="num small"><a href="#/publico/validar">' + r[3] + '</a></td></tr>'; })) + '</section>' +
     '<section class="card pad stack-l"><b>Regra de conclusão</b><label class="row small"><button class="switch" role="switch" aria-checked="true" data-act="sw" aria-label="Aulas"></button><span>Assistir a 100% das aulas</span></label><label class="row small"><button class="switch" role="switch" aria-checked="true" data-act="sw" aria-label="Presença"></button><span>Presença em 75% dos encontros ao vivo</span></label><label class="row small"><button class="switch" role="switch" aria-checked="false" data-act="sw" aria-label="Quiz"></button><span>Nota mínima no exercício final</span></label><span class="muted tiny">O texto sempre diz "curso livre", como pede a regra do MEC para cursos sem instituição credenciada.</span></section></div>');
 }
@@ -781,7 +782,7 @@ function aFunil(){
     tbl([{t:'Inscrito'},{t:'Perfil'},{t:'Quando'},{t:'CRM'}], leads.map(function(l){ return '<tr><td><b>' + l[0] + '</b></td><td>' + l[1] + '</td><td>' + l[2] + '</td><td><span class="chip good">' + ic('check','sm') + 'No Nexoris</span></td></tr>'; })));
 }
 function aIntegracoes(){
-  var I = [['Asaas','Pagamentos, assinaturas e nota fiscal','Conectado',1],['Mux','Vídeo: envio, conversão, legenda e entrega','Conectado',1],['Zoom','Aulas ao vivo e gravações','Conectado',1],['Resend','E-mails automáticos','Conectado',1],['CRM Nexoris','Lead da aula aberta e compra viram contato','Conectado',3],['Google Analytics','Eventos de compra, início e fim de aula','Conectado',3]].filter(function(x){ return has(x[3]); });
+  var I = [['Asaas','Pagamentos, assinaturas e nota fiscal','Conectado',1],['Cloudflare R2','Vídeo: guarda e entrega as aulas convertidas','Conectado',1],['Zoom','Aulas ao vivo e gravações','Conectado',1],['Resend','E-mails automáticos','Conectado',1],['CRM Nexoris','Lead da aula aberta e compra viram contato','Conectado',3],['Google Analytics','Eventos de compra, início e fim de aula','Conectado',3]].filter(function(x){ return has(x[3]); });
   return shellAdmin('integracoes', 'Integrações', head('Integrações', 'As contas ficam no CNPJ do IAE. A plataforma só conversa com elas.') + '<div class="cols-3">' + I.map(function(x){ return '<div class="card pad stack"><div class="row between"><b>' + x[0] + novo(x[3]) + '</b>' + stChip(x[2]) + '</div><span class="muted small">' + x[1] + '</span><span class="tiny muted">Último evento há ' + ['2 min','14 min','1 h','5 min','9 min','1 min'][I.indexOf(x)] + '</span></div>'; }).join('') + '</div>');
 }
 
@@ -806,9 +807,9 @@ function aEdicao(){
 }
 function aVideo(){
   return shellAdmin('video', 'Vídeo e proteção', head('Vídeo e proteção' + novo(4), 'Onde o acervo fica e como ele é protegido. As telas do aluno não mudam.') +
-    '<div class="cols-2e"><section class="card pad stack-l"><div class="row between"><b>Acervo de vídeo</b><span class="chip navy">Migrando</span></div><div class="row between small"><span>Mux (entrega gerenciada)</span><span class="num">19 aulas</span></div><div class="row between small"><span>Cloudflare R2 com conversão própria</span><span class="num">31 aulas</span></div><div class="meter"><i style="--w:62%"></i></div>' +
-    '<span class="muted small">Gatilho atingido: a conta do Mux passou de US$ 400 por mês. Com o acervo no R2, a entrega custa perto de zero. A troca acontece aula por aula, sem o aluno perceber.</span><dl class="stat-strip" style="grid-template-columns:1fr 1fr"><div><dt>Antes, por mês</dt><dd>R$ 2.108</dd></div><div><dt>Depois, por mês</dt><dd>R$ 306</dd><span class="d up">-85%</span></div></dl></section>' +
-    '<section class="card pad stack-l"><b>Proteção</b>' + [['Link que expira em até 4 h, renovado sem o aluno perceber',true],['Sem botão de download',true],['2 sessões ao mesmo tempo por aluno',true],['Nome e parte do e-mail do aluno sobre o vídeo',true],['DRM (Widevine e FairPlay)',false]].map(function(p, i){ return '<label class="row small"><button class="switch" role="switch" aria-checked="' + p[1] + '" data-act="sw" aria-label="' + p[0] + '"></button><span>' + p[0] + (i === 4 ? '<br><span class="muted">R$ 503 por mês mais licença. Ligar só com vazamento comprovado ou contrato que exija.</span>' : '') + '</span></label>'; }).join('') + '</section></div>');
+    '<div class="cols-2e"><section class="card pad stack-l"><div class="row between"><b>Acervo de vídeo</b><span class="chip navy">Cloudflare R2</span></div><div class="row between small"><span>Aulas no acervo</span><span class="num">50 aulas</span></div><div class="row between small"><span>Espaço usado, com os originais</span><span class="num">412 GB</span></div><div class="meter"><i style="--w:62%"></i></div>' +
+    '<span class="muted small">O Operador converte cada aula no computador e sobe para o R2. O aluno baixa os pedaços direto da Cloudflare, e a entrega não cobra por aluno.</span><dl class="stat-strip" style="grid-template-columns:1fr 1fr"><div><dt>Guardar, por mês</dt><dd>R$ 31</dd></div><div><dt>Entregar, por mês</dt><dd>R$ 0</dd></div></dl></section>' +
+    '<section class="card pad stack-l"><b>Proteção</b>' + [['Link assinado em cada pedaço do vídeo (cerca de R$ 25 por mês)',true],['Sem botão de download',true],['2 sessões ao mesmo tempo por aluno',true],['Nome e parte do e-mail do aluno sobre o vídeo',true],['DRM (Widevine e FairPlay)',false]].map(function(p, i){ return '<label class="row small"><button class="switch" role="switch" aria-checked="' + p[1] + '" data-act="sw" aria-label="' + p[0] + '"></button><span>' + p[0] + (i === 4 ? '<br><span class="muted">R$ 503 por mês mais licença. Ligar só com vazamento comprovado ou contrato que exija.</span>' : '') + '</span></label>'; }).join('') + '</section></div>');
 }
 
 /* ---------- escritório (fase 3) ---------- */
@@ -877,7 +878,7 @@ var ACT = {
   fecharNova:function(){ S.novaAula = false; S.uploading = false; render(); },
   upload:function(){ S.uploading = true; S.upStage = 0; S.upPct = 0; render(); runUpload(); },
   publicarAula:function(){ S.novaAula = false; S.uploading = false; render(); toast('Aula publicada. Os alunos do curso foram avisados.'); },
-  pubGrav:function(el){ S.pubOk[el.getAttribute('data-id')] = true; render(); toast('Gravação publicada no curso, com legenda.'); },
+  pubGrav:function(el){ S.pubOk[el.getAttribute('data-id')] = true; render(); toast(has(3) ? 'Gravação publicada no curso, com legenda.' : 'Gravação publicada no curso.'); },
   sala:function(el){ S.sala = el.getAttribute('data-v'); render(); },
   mail:function(el){ S.mail = +el.getAttribute('data-i'); render(); },
   cupomForm:function(){ S.novoCupom = !S.novoCupom; render(); },
