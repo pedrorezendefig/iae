@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proposta da plataforma IAE</title>
+<meta name="description" content="Proposta aos sócios do IAE: a plataforma de cursos própria, como o vídeo chega ao aluno, o que entra em cada fase, o protótipo navegável e o investimento.">
+<link rel="stylesheet" href="../../prototipos/assets/fontes.css">
+<style>
+:root{
+  --navy:#00213D; --navy-2:#0B3A63; --navy-3:#1E4B73; --navy-4:#2E5F8C;
+  --navy-wash:#E7ECF1; --navy-wash-2:#D3DDE7;
+  --ink:#1C1C1C; --fg-2:#45403E; --muted:#6B6360;
+  --sand:#CCBAB0; --sand-2:#E6DED9; --sand-3:#F3EEEA; --rose:#B49D97; --cocoa:#3D2926;
+  --page:#EFEEEC; --surface:#FFFFFF;
+  --line:#E4DEDA; --line-strong:#C9C0BB;
+  --focus:#B8664F;
+  --on-navy-2:#AFC0D2; --on-navy-3:#C9D5E1; --navy-line:rgba(255,255,255,.14);
+  --shadow:0 1px 2px rgba(0,33,61,.05), 0 10px 26px -14px rgba(0,33,61,.24);
+  --shadow-up:0 2px 6px rgba(0,33,61,.08), 0 30px 60px -24px rgba(0,33,61,.45);
+  --font:"Gotham","Montserrat","Helvetica Neue",Arial,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --wrap:1180px; --gut:28px;
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth; scroll-padding-top:72px}
+body{margin:0; background:var(--page); color:var(--ink); font:400 16px/1.6 var(--font); -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility}
+::selection{background:var(--navy); color:#fff}
+h1,h2,h3,p,ul,ol,dl,dd,figure{margin:0}
+ul,ol{padding:0; list-style:none}
+h1,h2,h3{text-wrap:balance; letter-spacing:-.018em}
+a{color:var(--navy-3); text-underline-offset:3px; text-decoration-thickness:1px}
+button{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--focus); outline-offset:3px; border-radius:4px}
+.num{font-variant-numeric:tabular-nums}
+.ico{width:18px; height:18px; flex:0 0 auto; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round}
+.wrap{width:100%; max-width:var(--wrap); margin:0 auto; padding:0 var(--gut)}
+*{scrollbar-width:thin; scrollbar-color:var(--line-strong) transparent}
+
+/* ---------- capa ---------- */
+.capa{position:relative; overflow:hidden; background:var(--navy); color:#fff}
+.capa::after{content:""; position:absolute; right:-14%; bottom:-34%; width:min(1100px,92%); aspect-ratio:2/1; background:#fff; opacity:.045; -webkit-mask:var(--mark) center/contain no-repeat; mask:var(--mark) center/contain no-repeat; pointer-events:none}
+.capa .wrap{position:relative; z-index:1; padding-top:40px; padding-bottom:64px; display:flex; flex-direction:column; gap:64px; min-height:min(88vh,780px)}
+.capa-top{display:flex; justify-content:space-between; align-items:center; gap:20px}
+.capa-top svg{width:168px; height:auto; fill:#fff}
+.capa-top span{font-size:13px; color:var(--on-navy-2); font-weight:500; text-align:right; line-height:1.5}
+.capa h1{font-size:clamp(38px,6vw,76px); line-height:1.02; font-weight:700; letter-spacing:-.028em; max-width:13ch}
+.capa .lede{color:var(--on-navy-3); font-size:clamp(16px,1.6vw,19px); line-height:1.6; max-width:56ch; margin-top:24px}
+.ficha{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); border-top:1px solid var(--navy-line); margin-top:auto}
+.ficha div{padding:22px 24px 0 0; border-right:1px solid var(--navy-line); margin-right:24px}
+.ficha div:last-child{border-right:0; margin-right:0}
+.ficha dt{font-size:13px; color:var(--on-navy-2); font-weight:500}
+.ficha dd{font-size:clamp(20px,2.1vw,27px); font-weight:700; letter-spacing:-.02em; margin-top:6px; line-height:1.15}
+.ficha dd small{display:block; font-size:13.5px; font-weight:400; color:var(--on-navy-3); letter-spacing:0; margin-top:6px; line-height:1.45}
+
+/* ---------- navegação ---------- */
+.nav{position:sticky; top:0; z-index:50; background:rgba(239,238,236,.9); backdrop-filter:saturate(1.4) blur(10px); -webkit-backdrop-filter:saturate(1.4) blur(10px); border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex; align-items:center; gap:28px; height:56px}
+.nav svg.m{width:40px; height:20px; fill:var(--navy); flex:0 0 auto}
+.nav ul{display:flex; gap:4px; overflow-x:auto; scrollbar-width:none; flex:1}
+.nav ul::-webkit-scrollbar{display:none}
+.nav a{display:block; padding:7px 12px; border-radius:6px; color:var(--fg-2); font-size:13.5px; font-weight:500; text-decoration:none; white-space:nowrap; transition:background .2s var(--ease), color .2s var(--ease)}
+.nav a:hover{background:var(--sand-2); color:var(--ink)}
+.nav a[aria-current="true"]{color:var(--navy); background:var(--navy-wash)}
+
+/* ---------- seções ---------- */
+section.s{padding:112px 0}
+.s-head{display:grid; grid-template-columns:minmax(0,5fr) minmax(0,6fr); gap:24px 64px; align-items:end; margin-bottom:56px}
+.s-head h2{font-size:clamp(30px,3.8vw,46px); line-height:1.06; font-weight:700; color:var(--navy)}
+.s-head p{color:var(--fg-2); font-size:17px; max-width:58ch}
+.nota{font-size:13px; color:var(--muted); line-height:1.55}
+
+/* por que */
+.porque{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:0; border-top:1px solid var(--line-strong)}
+.porque > div{padding:28px 32px 0 0}
+.porque > div + div{padding-left:32px; border-left:1px solid var(--line)}
+.porque h3{font-size:19px; font-weight:700; color:var(--ink); line-height:1.3}
+.porque p{color:var(--fg-2); font-size:15.5px; margin-top:10px}
+.taxa{margin-top:72px; background:var(--surface); border-radius:14px; box-shadow:var(--shadow); padding:32px 36px; display:grid; grid-template-columns:minmax(0,4fr) minmax(0,7fr); gap:24px 56px; align-items:center}
+.taxa h3{font-size:22px; font-weight:700; color:var(--navy); line-height:1.2}
+.taxa p{color:var(--fg-2); font-size:15px; margin-top:8px}
+.barras{display:grid; gap:14px}
+.barra{display:grid; grid-template-columns:150px minmax(0,1fr) 92px; gap:16px; align-items:center; font-size:14px}
+.barra span:first-child{color:var(--fg-2); font-weight:500}
+.barra .t{height:12px; border-radius:3px; background:var(--sand-3); overflow:hidden}
+.barra .t i{display:block; height:100%; width:var(--w); min-width:3px; background:var(--navy-3); border-radius:3px}
+.barra.ruim .t i{background:var(--rose)}
+.barra b{text-align:right; font-weight:700}
+
+/* vídeo */
+.fluxo{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:0; position:relative}
+.no{position:relative; padding:0 28px 0 0}
+.no .pt{display:flex; align-items:center; gap:0; margin-bottom:22px}
+.no .pt i{width:46px; height:46px; border-radius:50%; display:grid; place-items:center; background:var(--surface); border:1.5px solid var(--navy-wash-2); color:var(--navy); flex:0 0 auto; box-shadow:var(--shadow)}
+.no .pt i .ico{width:21px; height:21px}
+.no .pt::after{content:""; flex:1; height:1.5px; margin-left:14px; background:linear-gradient(90deg,var(--navy-4),var(--navy-wash-2))}
+.no:last-child .pt::after{display:none}
+.no.destaque .pt i{background:var(--navy); color:#fff; border-color:var(--navy)}
+.no h3{font-size:18px; font-weight:700; line-height:1.25}
+.no p{font-size:14.5px; color:var(--fg-2); margin-top:8px; max-width:30ch}
+.no .tag{display:inline-block; margin-top:12px; font-size:12px; font-weight:600; color:var(--navy-3); background:var(--navy-wash); border-radius:999px; padding:3px 10px}
+.base{margin-top:40px; display:flex; gap:16px; align-items:flex-start; padding:20px 24px; border-radius:12px; background:var(--sand-3); color:var(--fg-2); font-size:15px}
+.base .ico{color:var(--cocoa); margin-top:3px}
+.base b{color:var(--ink)}
+.custo-v{display:grid; grid-template-columns:minmax(0,5fr) minmax(0,6fr); gap:40px 64px; margin-top:80px; align-items:start}
+.custo-v h3{font-size:26px; line-height:1.15; font-weight:700; color:var(--navy)}
+.custo-v > div > p{color:var(--fg-2); margin-top:14px; max-width:46ch}
+.troca{margin-top:28px; display:grid; gap:12px}
+.troca li{display:grid; grid-template-columns:22px minmax(0,1fr); gap:12px; font-size:15px; color:var(--fg-2)}
+.troca .ico{color:var(--navy-3); margin-top:3px}
+.troca li.custo .ico{color:var(--cocoa)}
+.troca b{color:var(--ink); font-weight:600}
+.graf{background:var(--surface); border-radius:14px; box-shadow:var(--shadow); padding:28px 30px 24px}
+.graf-h{display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; font-size:13px; color:var(--muted)}
+.graf-h b{color:var(--ink); font-size:15px; font-weight:600}
+.leg{display:flex; gap:16px; flex-wrap:wrap}
+.leg span{display:inline-flex; align-items:center; gap:7px}
+.leg i{width:10px; height:10px; border-radius:2px; display:inline-block}
+.cols{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; margin-top:26px; height:230px; align-items:end; border-bottom:1px solid var(--line-strong); padding:0 6px}
+.col{display:flex; justify-content:center; align-items:flex-end; gap:8px; height:100%}
+.col div{width:min(40%,54px); position:relative; border-radius:4px 4px 0 0; height:var(--h); min-height:3px; transform-origin:bottom; transition:transform .9s var(--ease)}
+.col div span{position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); font-size:12.5px; font-weight:700; white-space:nowrap; color:var(--ink)}
+.col .m{background:var(--rose)}
+.col .r{background:var(--navy)}
+.cols-x{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; padding:10px 6px 0; text-align:center; font-size:13px; color:var(--fg-2); font-weight:500}
+.graf .nota{margin-top:18px}
+.js .graf:not(.on) .col div{transform:scaleY(0)}
+
+/* fases e protótipo */
+.palco{background:var(--navy); color:#fff; padding:112px 0 96px}
+.palco .s-head h2{color:#fff}
+.palco .s-head p{color:var(--on-navy-3)}
+.abas{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); border-top:1px solid var(--navy-line)}
+.aba{all:unset; box-sizing:border-box; color:#fff; cursor:pointer; padding:20px 20px 22px 0; display:grid; grid-template-columns:40px minmax(0,1fr); gap:4px 14px; align-content:start; border-top:2px solid transparent; margin-top:-1px; transition:border-color .3s var(--ease)}
+.aba .n{grid-row:span 2; width:36px; height:36px; border-radius:50%; border:1.5px solid rgba(255,255,255,.3); display:grid; place-items:center; font-weight:700; font-size:15px; transition:background .3s var(--ease), color .3s var(--ease), border-color .3s var(--ease)}
+.aba b{font-size:16px; font-weight:700; line-height:1.3; color:#fff}
+.aba small{font-size:13px; color:var(--on-navy-2); line-height:1.45}
+.aba:hover .n{border-color:#fff}
+.aba[aria-selected="true"]{border-top-color:var(--sand)}
+.aba[aria-selected="true"] .n{background:var(--sand); border-color:var(--sand); color:var(--cocoa)}
+.aba:focus-visible{outline:2px solid var(--sand); outline-offset:-2px}
+.cena{display:grid; gap:36px; margin-top:44px}
+.itens{display:grid; grid-template-columns:minmax(0,300px) minmax(0,1fr); grid-template-rows:auto auto 1fr; gap:12px 48px; align-items:start}
+.itens .conta{grid-column:1; align-self:end; margin-top:12px}
+.itens h3{font-size:22px; font-weight:700; line-height:1.2}
+.itens > p{color:var(--on-navy-3); font-size:15px}
+.itens ul{grid-column:2; grid-row:1 / span 3; display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px 28px}
+.itens li{display:grid; grid-template-columns:22px minmax(0,1fr); gap:12px; font-size:15px; color:#E3EAF1; line-height:1.5}
+.itens li .ico{color:var(--sand); margin-top:2px}
+.itens li b{color:#fff; font-weight:600; display:block}
+.itens .conta{padding-top:18px; border-top:1px solid var(--navy-line); font-size:13px; color:var(--on-navy-2)}
+.itens .conta b{color:#fff}
+.itens.troca-anim{animation:entra .5s var(--ease)}
+@keyframes entra{from{opacity:0; transform:translateY(8px)}to{opacity:1; transform:none}}
+.janela{border-radius:12px; overflow:hidden; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.18), 0 30px 60px -24px rgba(0,0,0,.55); outline:1px solid rgba(255,255,255,.1)}
+.janela-bar{display:flex; align-items:center; gap:12px; padding:10px 12px 10px 16px; background:#F7F5F3; border-bottom:1px solid var(--line); color:var(--fg-2); font-size:13px}
+.janela-bar .t{flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:500}
+.seg{display:flex; background:var(--sand-3); border-radius:7px; padding:3px; gap:2px}
+.seg button{border:0; background:transparent; color:var(--fg-2); padding:5px 12px; border-radius:5px; cursor:pointer; font-size:13px; font-weight:500}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:#fff; color:var(--navy); font-weight:600; box-shadow:0 1px 2px rgba(0,33,61,.12)}
+.abrir{display:inline-flex; align-items:center; gap:6px; color:var(--navy-3); font-weight:600; text-decoration:none; white-space:nowrap; padding:5px 6px; border-radius:6px}
+.abrir:hover{background:var(--navy-wash)}
+.abrir .ico{width:15px; height:15px}
+.tela{position:relative; overflow:hidden; background:var(--page); height:var(--alto,640px)}
+.tela iframe{position:absolute; top:0; left:0; border:0; width:1280px; height:800px; transform-origin:0 0; transform:scale(var(--k,1)); transition:opacity .35s var(--ease), filter .35s var(--ease)}
+.tela.solta iframe{width:100%; height:100%; transform:none}
+.tela.carregando iframe{opacity:.25; filter:blur(3px)}
+.palco .nota{color:var(--on-navy-2); margin-top:16px}
+
+/* investimento */
+.planos{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; align-items:stretch}
+.plano{background:var(--surface); border-radius:14px; box-shadow:var(--shadow); padding:30px 30px 28px; display:flex; flex-direction:column; gap:18px}
+.plano h3{font-size:18px; font-weight:700; line-height:1.3}
+.plano .preco{font-size:40px; font-weight:700; letter-spacing:-.03em; line-height:1; color:var(--navy)}
+.plano .preco small{font-size:15px; font-weight:500; letter-spacing:0; color:var(--muted)}
+.plano .pv{font-size:14.5px; color:var(--fg-2)}
+.plano .pv b{color:var(--ink)}
+.plano ul{display:grid; gap:10px; padding-top:18px; border-top:1px solid var(--line)}
+.plano li{display:grid; grid-template-columns:20px minmax(0,1fr); gap:10px; font-size:14.5px; color:var(--fg-2)}
+.plano li .ico{width:17px; height:17px; color:var(--navy-3); margin-top:3px}
+.plano .ano{margin-top:auto; padding-top:16px; border-top:1px solid var(--line); font-size:13.5px; color:var(--muted)}
+.plano .ano b{color:var(--ink); font-size:15px}
+.plano.rec{background:var(--navy); color:#fff; box-shadow:0 2px 6px rgba(0,0,0,.1), 0 26px 50px -24px rgba(0,0,0,.4); position:relative}
+.plano.rec .selo{position:absolute; top:-12px; left:30px; background:var(--sand); color:var(--cocoa); font-size:12px; font-weight:700; padding:4px 12px; border-radius:999px}
+.plano.rec .preco{color:#fff}
+.plano.rec .preco small,.plano.rec .ano{color:var(--on-navy-2)}
+.plano.rec .pv,.plano.rec li{color:var(--on-navy-3)}
+.plano.rec .pv b,.plano.rec .ano b{color:#fff}
+.plano.rec ul,.plano.rec .ano{border-color:var(--navy-line)}
+.plano.rec li .ico{color:var(--sand)}
+.infra{display:grid; grid-template-columns:minmax(0,5fr) minmax(0,6fr); gap:40px 64px; margin-top:80px; align-items:start}
+.infra h3{font-size:26px; line-height:1.15; font-weight:700; color:var(--navy)}
+.infra > div > p{color:var(--fg-2); margin-top:14px; max-width:46ch}
+.conta-t{width:100%; border-collapse:collapse; font-size:15px}
+.conta-t td{padding:14px 0; border-bottom:1px solid var(--line); vertical-align:top}
+.conta-t td:last-child{text-align:right; font-weight:600; white-space:nowrap; padding-left:16px}
+.conta-t td small{display:block; color:var(--muted); font-size:13px; margin-top:2px}
+.conta-t tr.tot td{border-bottom:0; border-top:1.5px solid var(--ink); font-weight:700; font-size:17px; padding-top:16px}
+.conta-t tr.tot td:last-child{color:var(--navy)}
+.dono{margin-top:22px; display:grid; gap:10px}
+.dono li{display:grid; grid-template-columns:20px minmax(0,1fr); gap:10px; font-size:14.5px; color:var(--fg-2)}
+.dono .ico{width:17px; height:17px; color:var(--navy-3); margin-top:3px}
+
+/* como trabalhamos */
+.semana{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:0; border-top:1px solid var(--line-strong)}
+.semana > div{padding:26px 28px 0 0}
+.semana > div + div{padding-left:28px; border-left:1px solid var(--line)}
+.semana .d{font-size:13px; font-weight:600; color:var(--navy-3)}
+.semana h3{font-size:19px; font-weight:700; margin-top:6px}
+.semana p{font-size:15px; color:var(--fg-2); margin-top:8px}
+
+/* próximos passos */
+.passos{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px}
+.lado{background:var(--surface); border-radius:14px; box-shadow:var(--shadow); padding:30px 32px}
+.lado h3{font-size:19px; font-weight:700; color:var(--navy)}
+.lado ol{margin-top:18px; display:grid; gap:14px; counter-reset:p}
+.lado li{counter-increment:p; display:grid; grid-template-columns:30px minmax(0,1fr); gap:12px; font-size:15px; color:var(--fg-2)}
+.lado li::before{content:counter(p); width:26px; height:26px; border-radius:50%; background:var(--navy-wash); color:var(--navy); display:grid; place-items:center; font-size:13px; font-weight:700; font-variant-numeric:tabular-nums}
+.lado li b{color:var(--ink); font-weight:600}
+.prazo{margin-top:20px; background:var(--navy); color:#fff; border-radius:14px; padding:34px 36px; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:20px 40px; align-items:center}
+.prazo h3{font-size:clamp(22px,2.4vw,28px); font-weight:700; line-height:1.2; max-width:30ch}
+.prazo p{color:var(--on-navy-3); margin-top:8px; font-size:15px; max-width:60ch}
+.prazo .data{font-size:14px; color:var(--on-navy-2); text-align:right; line-height:1.5}
+.prazo .data b{display:block; font-size:30px; color:#fff; letter-spacing:-.02em}
+
+footer{padding:40px 0 56px; border-top:1px solid var(--line); font-size:13px; color:var(--muted)}
+footer .wrap{display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; align-items:center}
+footer svg{width:110px; height:auto; fill:var(--navy)}
+
+@media (max-width:1000px){
+  .s-head,.custo-v,.infra,.taxa{grid-template-columns:1fr}
+  .itens{grid-template-columns:1fr}
+  .itens ul,.itens .conta{grid-column:1; grid-row:auto}
+  .planos{grid-template-columns:1fr; max-width:520px}
+  .plano.rec{order:-1}
+  .fluxo{grid-template-columns:1fr 1fr; gap:44px 0}
+  .no:nth-child(2) .pt::after{display:none}
+  .semana{grid-template-columns:1fr 1fr}
+  .semana > div:nth-child(3){padding-left:0; border-left:0}
+  .semana > div:nth-child(n+3){margin-top:12px}
+  .ficha{grid-template-columns:1fr 1fr; row-gap:22px}
+  .ficha div:nth-child(2){border-right:0; margin-right:0}
+}
+@media (max-width:760px){
+  :root{--gut:16px}
+  section.s,.palco{padding:72px 0}
+  .s-head{margin-bottom:36px}
+  .capa .wrap{gap:48px; padding-top:28px; padding-bottom:44px; min-height:0}
+  .capa-top span{display:none}
+  .porque{grid-template-columns:1fr; border-top:0}
+  .porque > div,.porque > div + div{padding:22px 0 0; border-left:0; border-top:1px solid var(--line-strong); margin-top:4px}
+  .taxa{padding:24px 20px; margin-top:48px}
+  .barra{grid-template-columns:96px minmax(0,1fr) 78px; gap:10px; font-size:13px}
+  .fluxo{grid-template-columns:1fr; gap:0}
+  .no{display:grid; grid-template-columns:46px minmax(0,1fr); gap:0 18px; padding:0 0 28px}
+  .no .pt{grid-row:span 3; flex-direction:column; margin:0; align-self:stretch}
+  .no .pt::after,.no:nth-child(2) .pt::after{display:block; width:1.5px; height:auto; flex:1; margin:10px 0 0; background:linear-gradient(180deg,var(--navy-4),var(--navy-wash-2))}
+  .no:last-child .pt::after{display:none}
+  .no p{max-width:none}
+  .no .tag{justify-self:start}
+  .custo-v{margin-top:56px}
+  .graf{padding:22px 18px 20px}
+  .cols{height:190px; gap:8px}
+  .abas{grid-template-columns:1fr 1fr; border-top:0}
+  .aba{padding:14px 12px 14px 0; border-top:1px solid var(--navy-line); margin-top:0}
+  .aba[aria-selected="true"]{border-top:2px solid var(--sand)}
+  .aba small{display:none}
+  .aba{grid-template-columns:36px minmax(0,1fr); align-items:center}
+  .aba .n{grid-row:auto}
+  .janela-bar{flex-wrap:wrap}
+  .janela-bar .t{flex-basis:100%; order:-1}
+  .ficha{grid-template-columns:1fr}
+  .ficha div{border-right:0; margin-right:0; padding:16px 0 0; border-top:1px solid var(--navy-line)}
+  .ficha{border-top:0}
+  .semana{grid-template-columns:1fr; border-top:0}
+  .semana > div,.semana > div + div,.semana > div:nth-child(3){padding:20px 0 0; border-left:0; border-top:1px solid var(--line-strong); margin-top:4px}
+  .passos{grid-template-columns:1fr}
+  .lado{padding:24px 20px}
+  .prazo{grid-template-columns:1fr; padding:26px 22px}
+  .prazo .data{text-align:left}
+  .infra{margin-top:56px}
+  .plano{padding:26px 22px 22px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none!important; animation:none!important}
+  .js .graf:not(.on) .col div{transform:none}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7"/></symbol>
+  <symbol id="i-rec" viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10.5l5-3v9l-5-3"/></symbol>
+  <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18h10.5a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.4 9.1 4.5 4.5 0 0 0 7 18z"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 8.8v6.4l5.2-3.2z"/></symbol>
+  <symbol id="i-server" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="7" rx="1.5"/><rect x="4" y="13" width="16" height="7" rx="1.5"/><path d="M8 7.5h.01M8 16.5h.01"/></symbol>
+  <symbol id="i-hand" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.2-3 7.6-7 9-4-1.4-7-4.8-7-9V6z"/></symbol>
+</svg>
+
+<header class="capa">
+  <div class="wrap">
+    <div class="capa-top">
+      <svg viewBox="0 0 776 290" role="img" aria-label="IAE, Instituto de Advocacia Empresarial"><use href="#assinatura"/></svg>
+      <span>Proposta aos sócios do IAE<br>Outubro de 2026</span>
+    </div>
+    <div>
+      <h1>A plataforma de cursos do IAE</h1>
+      <p class="lede">Uma plataforma própria, com a cara do IAE, para levar as aulas para além do centro do Rio. O aluno compra, entra e assiste em qualquer tela. O IAE cuida de cursos, alunos e vendas pelo painel, sem depender de ninguém.</p>
+    </div>
+    <dl class="ficha">
+      <div><dt>Investimento recomendado</dt><dd class="num">R$ 3.000<small>Por mês, com a primeira versão sem custo</small></dd></div>
+      <div><dt>Infraestrutura</dt><dd class="num">Cerca de R$ 135<small>Por mês, paga direto aos fornecedores</small></dd></div>
+      <div><dt>Vídeo</dt><dd>Até 1080p<small>Ajusta sozinho à internet do aluno</small></dd></div>
+      <div><dt>Início</dt><dd>Novembro<small>Clube de membros aberto em dezembro</small></dd></div>
+    </dl>
+  </div>
+</header>
+
+<nav class="nav" aria-label="Seções">
+  <div class="wrap">
+    <svg class="m" viewBox="0 0 484 240" aria-hidden="true"><use href="#marca"/></svg>
+    <ul>
+      <li><a href="#porque">Por que própria</a></li>
+      <li><a href="#video">O vídeo</a></li>
+      <li><a href="#fases">Fases e protótipo</a></li>
+      <li><a href="#investimento">Investimento</a></li>
+      <li><a href="#semana">Como trabalhamos</a></li>
+      <li><a href="#passos">Próximos passos</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+<section class="s" id="porque">
+  <div class="wrap">
+    <div class="s-head">
+      <h2>Uma escola, não um infoproduto</h2>
+      <p>O IAE se compara a FGV e Insper. Plataformas como Hotmart e Kiwify resolvem a venda, mas cobram de cada matrícula e deixam o curso com cara de marketing digital. A plataforma própria fica com a marca, os dados e o acervo do IAE.</p>
+    </div>
+    <div class="porque">
+      <div><h3>Sem a barreira do centro à noite</h3><p>A demanda de São Paulo e dos alunos que não chegam ao centro às 19h vira turma online, com a mesma dupla de professores.</p></div>
+      <div><h3>O IAE edita tudo sozinho</h3><p>Cursos, aulas, preços, cupons, bolsas da UERJ e alunos ficam num painel simples. Nenhuma mudança de conteúdo depende da nossa equipe.</p></div>
+      <div><h3>Tudo em nome do IAE</h3><p>Código, acervo de vídeo e contas de infraestrutura ficam no CNPJ do IAE desde o primeiro dia. Se um dia o contrato acabar, nada sai do lugar.</p></div>
+    </div>
+    <div class="taxa">
+      <div>
+        <h3>Quanto fica no caminho de uma matrícula de R$ 2.000</h3>
+        <p>Taxa por venda. Na plataforma própria, o pagamento passa pelo Asaas, sem mensalidade.</p>
+      </div>
+      <div class="barras" role="img" aria-label="Hotmart R$ 200, cartão pelo Asaas R$ 60,29, Pix pelo Asaas R$ 1,99">
+        <div class="barra ruim"><span>Hotmart</span><span class="t"><i style="--w:100%"></i></span><b class="num">R$ 200,00</b></div>
+        <div class="barra"><span>Cartão, Asaas</span><span class="t"><i style="--w:30.1%"></i></span><b class="num">R$ 60,29</b></div>
+        <div class="barra"><span>Pix, Asaas</span><span class="t"><i style="--w:1%"></i></span><b class="num">R$ 1,99</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="s" id="video" style="padding-top:0">
+  <div class="wrap">
+    <div class="s-head">
+      <h2>Como a aula chega ao aluno</h2>
+      <p>O vídeo é a parte cara de qualquer plataforma de cursos. Escolhemos, junto com a Helena, um caminho em que o custo quase não muda quando os alunos chegam: o vídeo é convertido uma vez e fica guardado na Cloudflare, que não cobra pela entrega.</p>
+    </div>
+    <ol class="fluxo">
+      <li class="no"><span class="pt"><i><svg class="ico"><use href="#i-rec"/></svg></i></span><h3>A gravação</h3><p>A aula gravada na câmera, no OBS ou no Zoom. Live também vira aula por este caminho.</p></li>
+      <li class="no"><span class="pt"><i><svg class="ico"><use href="#i-cpu"/></svg></i></span><h3>O Operador converte</h3><p>Um script no computador gera as versões para a web. Hoje, Pedro e Helena.</p><span class="tag">360p, 720p e 1080p</span></li>
+      <li class="no destaque"><span class="pt"><i><svg class="ico"><use href="#i-cloud"/></svg></i></span><h3>Guardado no R2</h3><p>A Cloudflare guarda a aula e o arquivo original, e entrega pelo cache dela.</p><span class="tag">Entrega sem custo</span></li>
+      <li class="no"><span class="pt"><i><svg class="ico"><use href="#i-play"/></svg></i></span><h3>O aluno assiste</h3><p>O player escolhe a qualidade pela internet de cada um e retoma de onde parou.</p></li>
+    </ol>
+    <p class="base"><svg class="ico"><use href="#i-server"/></svg><span><b>O servidor do IAE não toca no vídeo.</b> Ele cuida de login, matrículas, progresso e do painel. Por isso continua leve e barato, com 30 ou com 500 alunos.</span></p>
+
+    <div class="custo-v">
+      <div>
+        <h3>Previsível do primeiro ao quinhentésimo aluno</h3>
+        <p>Um serviço de vídeo gerenciado, como o Mux, sai de graça no começo e passa a cobrar por hora assistida. No R2, a conta é só o espaço guardado.</p>
+        <ul class="troca">
+          <li><svg class="ico"><use href="#i-check"/></svg><span><b>Formato padrão desde o início.</b> O acervo nunca precisa ser convertido de novo para trocar de fornecedor.</span></li>
+          <li class="custo"><svg class="ico"><use href="#i-hand"/></svg><span><b>O preço é uma rotina manual por aula.</b> Por isso há dois Operadores desde o primeiro dia.</span></li>
+          <li class="custo"><svg class="ico"><use href="#i-key"/></svg><span><b>Legenda e proteção reforçada entram depois,</b> nas fases 3 e 4, sem mudar nada para o aluno.</span></li>
+        </ul>
+      </div>
+      <figure class="graf" id="graf">
+        <div class="graf-h">
+          <b>Custo do vídeo por mês</b>
+          <span class="leg"><span><i style="background:var(--rose)"></i>Serviço gerenciado (Mux)</span><span><i style="background:var(--navy)"></i>Cloudflare R2</span></span>
+        </div>
+        <div class="cols" role="img" aria-label="Com 30 alunos: Mux R$ 0, R2 cerca de R$ 31. Com 200 alunos: Mux R$ 0, R2 cerca de R$ 31. Com 500 alunos: Mux cerca de R$ 730, R2 cerca de R$ 31.">
+          <div class="col"><div class="m" style="--h:0%"><span>R$ 0</span></div><div class="r" style="--h:3.7%"><span>R$ 31</span></div></div>
+          <div class="col"><div class="m" style="--h:0%"><span>R$ 0</span></div><div class="r" style="--h:3.7%"><span>R$ 31</span></div></div>
+          <div class="col"><div class="m" style="--h:88%"><span>R$ 730</span></div><div class="r" style="--h:3.7%"><span>R$ 31</span></div></div>
+        </div>
+        <div class="cols-x"><span>30 alunos</span><span>200 alunos</span><span>500 alunos</span></div>
+        <figcaption class="nota">Estimativa com 50 h de aulas guardadas, cada aluno assistindo 8 h por mês. Cada 100 h a mais de acervo somam cerca de R$ 65 por mês no R2. Câmbio de R$ 5,05.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="palco" id="fases">
+  <div class="wrap">
+    <div class="s-head">
+      <h2>O que a plataforma entrega, fase por fase</h2>
+      <p>Cada fase soma o que veio antes. Escolha uma fase e navegue no protótipo logo abaixo, como aluno ou como o IAE no painel. Os dados e os vídeos do protótipo são fictícios.</p>
+    </div>
+    <div class="abas" role="tablist" aria-label="Fases">
+      <button class="aba" role="tab" id="aba-1" aria-controls="cena" aria-selected="true" data-f="1"><span class="n">1</span><b>Primeira versão</b><small>Ao fim da implementação</small></button>
+      <button class="aba" role="tab" id="aba-2" aria-controls="cena" aria-selected="false" tabindex="-1" data-f="2"><span class="n">2</span><b>Clube e aulas curtas</b><small>Logo depois, para dezembro</small></button>
+      <button class="aba" role="tab" id="aba-3" aria-controls="cena" aria-selected="false" tabindex="-1" data-f="3"><span class="n">3</span><b>Melhorias semanais</b><small>Uma por sexta, na ordem do IAE</small></button>
+      <button class="aba" role="tab" id="aba-4" aria-controls="cena" aria-selected="false" tabindex="-1" data-f="4"><span class="n">4</span><b>Por gatilho</b><small>Quando o gatilho acontecer</small></button>
+    </div>
+    <div class="cena" id="cena" role="tabpanel" aria-labelledby="aba-1">
+      <div class="itens" id="itens"></div>
+      <div class="janela">
+        <div class="janela-bar">
+          <span class="t" id="jt">Protótipo, fase 1, como aluno</span>
+          <div class="seg" role="group" aria-label="Ver como">
+            <button aria-pressed="true" data-p="aluno">Aluno</button>
+            <button aria-pressed="false" data-p="admin">IAE, no painel</button>
+          </div>
+          <a class="abrir" id="abrir" href="../../prototipos/fase-1.html#/aluno/inicio" target="_blank" rel="noopener">Tela cheia<svg class="ico"><use href="#i-out"/></svg></a>
+        </div>
+        <div class="tela" id="tela">
+          <iframe id="proto" title="Protótipo navegável da plataforma do IAE" src="../../prototipos/fase-1.html#/aluno/inicio" loading="lazy"></iframe>
+        </div>
+      </div>
+    </div>
+    <p class="nota">Na barra escura do protótipo dá para ligar a marcação do que é novo em cada fase e abrir a lista completa do que entra.</p>
+  </div>
+</section>
+
+<section class="s" id="investimento">
+  <div class="wrap">
+    <div class="s-head">
+      <h2>Investimento</h2>
+      <p>Uma mensalidade com duas partes: a sustentação, que mantém a plataforma no ar, e as esteiras, que entregam melhorias toda semana. Quanto mais esteiras, menor o custo da primeira versão. O IAE pode mudar o número de esteiras a qualquer momento.</p>
+    </div>
+    <div class="planos">
+      <article class="plano">
+        <h3>Só sustentação</h3>
+        <p class="preco num">R$ 1.000 <small>por mês</small></p>
+        <p class="pv">Primeira versão: <b class="num">R$ 2.000</b></p>
+        <ul>
+          <li><svg class="ico"><use href="#i-check"/></svg>Plataforma no ar, segura e com backup</li>
+          <li><svg class="ico"><use href="#i-check"/></svg>Correção de erros e relatório mensal de custos</li>
+          <li><svg class="ico"><use href="#i-check"/></svg>Sem melhorias novas</li>
+        </ul>
+        <p class="ano">Primeiro ano: <b class="num">R$ 14.000</b></p>
+      </article>
+      <article class="plano">
+        <h3>Sustentação e 1 esteira</h3>
+        <p class="preco num">R$ 2.000 <small>por mês</small></p>
+        <p class="pv">Primeira versão: <b class="num">R$ 2.000</b></p>
+        <ul>
+          <li><svg class="ico"><use href="#i-check"/></svg>Tudo da sustentação</li>
+          <li><svg class="ico"><use href="#i-check"/></svg>Uma pessoa dedicada às melhorias</li>
+          <li><svg class="ico"><use href="#i-check"/></svg>Uma entrega por semana</li>
+        </ul>
+        <p class="ano">Primeiro ano: <b class="num">R$ 26.000</b></p>
+      </article>
+      <article class="plano rec">
+        <span class="selo">Recomendada</span>
+        <h3>Sustentação e 2 esteiras</h3>
+        <p class="preco num">R$ 3.000 <small>por mês</small></p>
+        <p class="pv">Primeira versão: <b>sem custo</b></p>
+        <ul>
+          <li><svg class="ico"><use href="#i-check"/></svg>Tudo da sustentação</li>
+          <li><svg class="ico"><use href="#i-check"/></svg>Duas pessoas dedicadas às melhorias</li>
+          <li><svg class="ico"><use href="#i-check"/></svg>Duas entregas por semana, o clube a tempo de dezembro</li>
+        </ul>
+        <p class="ano">Primeiro ano: <b class="num">R$ 36.000</b></p>
+      </article>
+    </div>
+    <p class="nota" style="margin-top:18px">Primeiro ano: primeira versão mais 12 mensalidades. A sustentação começa quando a primeira versão entra no ar. A infraestrutura fica fora desses valores.</p>
+
+    <div class="infra">
+      <div>
+        <h3>Infraestrutura, paga direto aos fornecedores</h3>
+        <p>As contas ficam no CNPJ e no cartão do IAE, sem IOF de terceiros e sem margem nossa. Cuidamos da gestão técnica e mandamos o custo todo mês.</p>
+        <ul class="dono">
+          <li><svg class="ico"><use href="#i-check"/></svg><span>Por venda, no Asaas: Pix a R$ 1,99 e cartão a 2,99% mais R$ 0,49.</span></li>
+          <li><svg class="ico"><use href="#i-check"/></svg><span>O código e o acervo de vídeo são do IAE.</span></li>
+        </ul>
+      </div>
+      <table class="conta-t">
+        <tbody>
+          <tr><td>Servidor Hostinger<small>Site, painel e banco de dados. Plano de 2 anos.</small></td><td class="num">R$ 60</td></tr>
+          <tr><td>Cloudflare R2<small>As aulas e os originais, com 50 h de acervo</small></td><td class="num">cerca de R$ 31</td></tr>
+          <tr><td>Zoom Pro<small>Aula ao vivo até 100 pessoas, com desconto para instituição sem fins lucrativos</small></td><td class="num">R$ 43</td></tr>
+          <tr><td>E-mails automáticos (Resend)<small>Até 3.000 por mês</small></td><td class="num">R$ 0</td></tr>
+          <tr class="tot"><td>Total por mês</td><td class="num">cerca de R$ 135</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="s" id="semana" style="padding-top:0">
+  <div class="wrap">
+    <div class="s-head">
+      <h2>Uma entrega toda sexta</h2>
+      <p>Cada melhoria vira um cartão com o requisito escrito e entra na ordem de prioridade do IAE. Pedido novo entra na semana seguinte. A Helena acompanha do lado do IAE, como ponte técnica.</p>
+    </div>
+    <div class="semana">
+      <div><span class="d">Segunda</span><h3>Refinamento</h3><p>Escrevemos o requisito de cada melhoria. A Helena confere com o IAE.</p></div>
+      <div><span class="d">Terça a quinta</span><h3>Desenvolvimento</h3><p>O código sai com testes, escrito com IA e revisado por um de nós antes de entrar.</p></div>
+      <div><span class="d">Sexta</span><h3>Entrega</h3><p>A versão nova vai ao ar. A Helena testa e registra o que precisa de ajuste.</p></div>
+      <div><span class="d">Sempre</span><h3>Folga para correção</h3><p>Parte da semana fica livre para o que alunos e Helena apontarem.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="s" id="passos" style="padding-top:0">
+  <div class="wrap">
+    <div class="s-head">
+      <h2>Para começar</h2>
+      <p>A conta no Asaas e o desconto do Zoom passam por análise dos fornecedores e podem levar alguns dias. Por isso entram antes da implementação.</p>
+    </div>
+    <div class="passos">
+      <div class="lado">
+        <h3>Do lado do IAE</h3>
+        <ol>
+          <li><span><b>Escolher a opção de investimento</b> e assinar a proposta.</span></li>
+          <li><span><b>Enviar o material:</b> manual de marca, a aula gravada em arquivo original, textos do curso e de 3 a 5 depoimentos.</span></li>
+          <li><span><b>Abrir as contas no CNPJ:</b> Asaas, Hostinger, Cloudflare e Zoom, pedindo o desconto institucional.</span></li>
+          <li><span><b>Enviar a lista de alunos atuais e bolsistas,</b> para a abertura.</span></li>
+        </ol>
+      </div>
+      <div class="lado">
+        <h3>Do nosso lado</h3>
+        <ol>
+          <li><span><b>Converter a aula real</b> nas três qualidades, para o IAE comparar.</span></li>
+          <li><span><b>Fechar a primeira versão e a lista de melhorias</b> por prioridade, validadas com a Helena.</span></li>
+          <li><span><b>Construir e subir o curso de 5 h,</b> com teste completo de uma compra real.</span></li>
+          <li><span><b>Treinar a Helena e o Vinicius</b> no painel e abrir para os alunos atuais.</span></li>
+        </ol>
+      </div>
+    </div>
+    <div class="prazo">
+      <div>
+        <h3>Para o clube abrir antes do fim das turmas atuais, a implementação começa até o início de novembro.</h3>
+        <p>A primeira versão abre para os alunos atuais. O clube de membros é a primeira melhoria logo em seguida.</p>
+      </div>
+      <p class="data">Clube no ar<b>Dezembro</b></p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <svg viewBox="0 0 776 290" role="img" aria-label="IAE"><use href="#assinatura"/></svg>
+    <span>Proposta preparada por Pedro, Rib e Lucas para o Instituto de Advocacia Empresarial · outubro de 2026</span>
+  </div>
+</footer>
+
+<script src="../../prototipos/assets/marca.js"></script>
+<script>
+(function(){
+  'use strict';
+  document.documentElement.classList.add('js');
+  document.body.insertAdjacentHTML('afterbegin', window.IAE_SPRITE || '');
+  var p = document.getElementById('p-mark');
+  if (p){
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 484 240"><path fill-rule="evenodd" d="' + p.getAttribute('d') + '"/></svg>';
+    document.documentElement.style.setProperty('--mark', 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")');
+  }
+
+  var FASES = {
+    1: { nome:'Primeira versão', resumo:'O aluno compra, entra e assiste. O IAE edita tudo sozinho pelo painel.', novas:15, itens:[
+      ['Compra vitalícia por Pix e cartão', 'Acesso liberado na hora, cartão em até 12x e bolsa da UERJ aplicada no pagamento.'],
+      ['Player até 1080p', 'A qualidade se ajusta à internet, e a aula retoma de onde parou em qualquer tela.'],
+      ['Aula ao vivo pelo Zoom', 'Um link por aluno dentro da plataforma. A gravação vira aula do curso.'],
+      ['Painel do IAE', 'Cursos, aulas, alunos, vendas, cupons e bolsas, sem depender da equipe.'],
+      ['E-mails automáticos', 'Boas-vindas, compra, acesso liberado e lembrete de aula.']]},
+    2: { nome:'Clube e aulas curtas', resumo:'O clube de membros convive com os cursos comprados, a tempo de dezembro.', novas:6, itens:[
+      ['Clube de membros', 'Assinatura mensal ou anual, convivendo com a compra vitalícia.'],
+      ['Aulas curtas de 30 a 40 min', 'Compra avulsa em um clique para quem já é aluno.'],
+      ['Benefícios dos parceiros', 'UERJ, OAB Rio e outros, com código para o membro.']]},
+    3: { nome:'Melhorias semanais', resumo:'Uma melhoria por sexta, na ordem de prioridade que o IAE definir.', novas:14, itens:[
+      ['Turmas online com calendário', 'Aulas liberadas por data, para a turma de São Paulo.'],
+      ['Venda para escritórios', 'Assentos, convite por e-mail, progresso da equipe e fatura.'],
+      ['Comunidade e assistente de IA', 'Fórum por curso e um assistente que responde com a base do IAE, citando a aula e o minuto.'],
+      ['Certificado verificável', 'PDF com QR Code e página pública de validação.'],
+      ['Legenda, transcrição e busca', 'Clique na frase e o vídeo vai para o minuto.']]},
+    4: { nome:'Por gatilho', resumo:'Entram quando o gatilho de cada item acontecer, não antes.', novas:4, itens:[
+      ['Trilha com pré-requisito e histórico', 'Base para a pós. Gatilho: convênio com instituição credenciada no MEC.'],
+      ['Edição automática da aula crua', 'A IA propõe cortes, capítulos e resumo; o IAE aprova. Gatilho: volume de gravação.'],
+      ['Proteção reforçada do vídeo', 'Link assinado em cada pedaço do vídeo e, só com vazamento, DRM.']]}
+  };
+  var CHECK = '<svg class="ico"><use href="#i-check"/></svg>';
+  var st = { f:1, p:'aluno' };
+  var abas = [].slice.call(document.querySelectorAll('.aba'));
+  var segs = [].slice.call(document.querySelectorAll('.seg button'));
+  var itens = document.getElementById('itens'), frame = document.getElementById('proto'), tela = document.getElementById('tela');
+  var abrir = document.getElementById('abrir'), jt = document.getElementById('jt'), cena = document.getElementById('cena');
+
+  function total(f){ var t = 0; for (var i = 1; i <= f; i++) t += FASES[i].novas; return t; }
+  function url(){ return '../../prototipos/fase-' + st.f + '.html#/' + st.p + '/inicio'; }
+
+  function pintaItens(anima){
+    var F = FASES[st.f];
+    itens.innerHTML = '<h3>' + F.nome + '</h3><p>' + F.resumo + '</p><ul>' +
+      F.itens.map(function(i){ return '<li>' + CHECK + '<span><b>' + i[0] + '</b>' + i[1] + '</span></li>'; }).join('') +
+      '</ul><p class="conta"><b class="num">' + F.novas + ' funcionalidades novas</b> nesta fase, <span class="num">' + total(st.f) + '</span> no total.</p>';
+    if (anima){ itens.classList.remove('troca-anim'); void itens.offsetWidth; itens.classList.add('troca-anim'); }
+  }
+  function carrega(){
+    var u = url();
+    tela.classList.add('carregando');
+    frame.src = u;
+    abrir.href = u;
+    jt.textContent = 'Protótipo, fase ' + st.f + ', ' + (st.p === 'aluno' ? 'como aluno' : 'como o IAE, no painel');
+  }
+  frame.addEventListener('load', function(){ tela.classList.remove('carregando'); });
+
+  function escolhe(f, foco){
+    if (f === st.f) return;
+    st.f = f;
+    abas.forEach(function(a){
+      var on = +a.getAttribute('data-f') === f;
+      a.setAttribute('aria-selected', on); a.tabIndex = on ? 0 : -1;
+      if (on){ cena.setAttribute('aria-labelledby', a.id); if (foco) a.focus(); }
+    });
+    pintaItens(true); carrega();
+  }
+  abas.forEach(function(a, i){
+    a.addEventListener('click', function(){ escolhe(+a.getAttribute('data-f')); });
+    a.addEventListener('keydown', function(e){
+      var k = e.key, n = null;
+      if (k === 'ArrowRight') n = (i + 1) % abas.length;
+      else if (k === 'ArrowLeft') n = (i - 1 + abas.length) % abas.length;
+      else if (k === 'Home') n = 0; else if (k === 'End') n = abas.length - 1;
+      if (n !== null){ e.preventDefault(); escolhe(n + 1, true); }
+    });
+  });
+  segs.forEach(function(b){
+    b.addEventListener('click', function(){
+      var v = b.getAttribute('data-p'); if (v === st.p) return;
+      st.p = v;
+      segs.forEach(function(x){ x.setAttribute('aria-pressed', x === b); });
+      carrega();
+    });
+  });
+
+  /* o protótipo é desenhado para tela larga; aqui ele roda em 1280 px reduzido, e no celular roda solto */
+  function escala(){
+    var w = tela.clientWidth;
+    if (w >= 640){
+      var k = Math.min(1, w / 1280);
+      tela.classList.remove('solta');
+      tela.style.setProperty('--k', k);
+      tela.style.setProperty('--alto', Math.round(800 * k) + 'px');
+    } else {
+      tela.classList.add('solta');
+      tela.style.setProperty('--alto', '640px');
+    }
+  }
+  escala();
+  window.addEventListener('resize', escala);
+
+  pintaItens(false);
+
+  var graf = document.getElementById('graf');
+  if ('IntersectionObserver' in window){
+    new IntersectionObserver(function(es, o){ es.forEach(function(e){ if (e.isIntersecting){ graf.classList.add('on'); o.disconnect(); } }); }, { threshold:.4 }).observe(graf);
+  } else graf.classList.add('on');
+
+  var links = [].slice.call(document.querySelectorAll('.nav a'));
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if (!e.isIntersecting) return;
+        links.forEach(function(l){ l.setAttribute('aria-current', l.getAttribute('href') === '#' + e.target.id); });
+      });
+    }, { rootMargin:'-45% 0px -50% 0px' });
+    ['porque','video','fases','investimento','semana','passos'].forEach(function(id){ io.observe(document.getElementById(id)); });
+  }
+})();
+</script>
+</body>
+</html>

@@ -9,15 +9,15 @@ var FASES = [
   { n:1, curto:'Primeira versão', nome:'Primeira versão',
     quando:'Ao fim da implementação, com o curso de 5 h já no ar',
     resumo:'O aluno compra, entra e assiste. O IAE edita tudo sozinho pelo painel.' },
-  { n:2, curto:'Clube e aulas curtas', nome:'Clube e aulas curtas',
-    quando:'Logo depois da primeira versão, as três primeiras da lista',
-    resumo:'Assinatura do clube convivendo com a compra vitalícia, aulas curtas avulsas e os benefícios dos parceiros.' },
+  { n:2, curto:'Turmas e aulas curtas', nome:'Turmas, aulas curtas e certificado',
+    quando:'Antes da venda da turma online de março',
+    resumo:'Turmas com data de início e aula liberada no dia, gravação do Zoom entrando sozinha na turma certa, aulas curtas avulsas e certificado com código.' },
   { n:3, curto:'Melhorias da lista', nome:'Demais melhorias',
     quando:'Uma por sexta, na ordem de prioridade que o IAE deu',
-    resumo:'Turmas online, venda para escritórios, comunidade, assistente de IA, certificado, números e a aula ao vivo dentro da plataforma.' },
+    resumo:'Clube de membros com os benefícios dos parceiros, venda para escritórios, comunidade, assistente de IA, números e a aula ao vivo dentro da plataforma.' },
   { n:4, curto:'Por gatilho', nome:'Fase 3, por gatilho',
     quando:'Quando o gatilho de cada item acontecer',
-    resumo:'Trilha com pré-requisito e histórico, edição automática da aula crua, troca do vídeo para o R2 e proteção reforçada.' }
+    resumo:'Trilha com pré-requisito e histórico, edição automática da aula crua, proteção reforçada do vídeo.' }
 ];
 
 /* o que cada fase acrescenta; papel: aluno, admin ou escritorio; rota leva à tela */
@@ -27,49 +27,49 @@ var FEATS = [
   {f:1, p:'aluno', i:'book', t:'Catálogo e página do curso', d:'Marca do IAE, ementa, professores em dupla, carga horária e depoimentos.', r:'#/aluno/curso/in-house'},
   {f:1, p:'aluno', i:'card', t:'Compra vitalícia por Pix e cartão', d:'Acesso liberado na hora. Cartão em até 12x.', r:'#/aluno/checkout/in-house'},
   {f:1, p:'aluno', i:'tag', t:'Bolsa da UERJ aplicada no pagamento', d:'Pelo e-mail institucional, além de cupons.', r:'#/aluno/checkout/in-house'},
-  {f:1, p:'aluno', i:'play', t:'Player protegido até 1080p', d:'Legenda em português, velocidade, qualidade, nome do aluno na tela.', r:'#/aluno/aula/orcamento/3'},
+  {f:1, p:'aluno', i:'play', t:'Player protegido até 1080p', d:'360p, 720p ou 1080p conforme a internet, velocidade e nome do aluno na tela.', r:'#/aluno/aula/orcamento/3'},
   {f:1, p:'aluno', i:'home', t:'Continuar de onde parou', d:'Em qualquer tela, com o progresso do curso sempre visível.', r:'#/aluno/inicio'},
-  {f:1, p:'aluno', i:'live', t:'Aula ao vivo por link do Zoom', d:'Um link por aluno, dentro da plataforma. A gravação vira aula.', r:'#/aluno/ao-vivo'},
+  {f:1, p:'aluno', i:'live', t:'Aula ao vivo por link do Zoom', d:'Um link por aluno, dentro da plataforma, para quem está no Rio ou em São Paulo. A gravação vira aula.', r:'#/aluno/ao-vivo'},
   {f:1, p:'aluno', i:'shield', t:'Perfil e dados pessoais', d:'Pagamentos, consentimento, exportar e excluir dados.', r:'#/aluno/perfil'},
   {f:1, p:'admin', i:'layers', t:'Painel de conteúdo', d:'Cursos, módulos, aulas, textos e vídeos, sem depender da equipe.', r:'#/admin/curso/orcamento'},
-  {f:1, p:'admin', i:'upload', t:'Envio de vídeo direto do navegador', d:'Converte no Mux e gera a legenda em português.', r:'#/admin/curso/orcamento'},
+  {f:1, p:'admin', i:'upload', t:'Vídeo escolhido e publicado pelo painel', d:'O Operador converte no computador e sobe para o R2; o admin escolhe e publica.', r:'#/admin/curso/orcamento'},
   {f:1, p:'admin', i:'live', t:'Agenda ao vivo e gravação publicada pelo painel', d:'Link do Zoom por aluno; a gravação entra no curso com um clique.', r:'#/admin/ao-vivo'},
   {f:1, p:'admin', i:'users', t:'Alunos e acessos', d:'Quem comprou, o que assiste e liberação manual.', r:'#/admin/alunos'},
   {f:1, p:'admin', i:'card', t:'Vendas', d:'Pix, cartão e boleto pelo Asaas.', r:'#/admin/vendas'},
   {f:1, p:'admin', i:'tag', t:'Cupons e bolsas', d:'UERJ pelo e-mail institucional; cupons com validade e limite.', r:'#/admin/cupons'},
   {f:1, p:'admin', i:'mail', t:'E-mails automáticos', d:'Boas-vindas, compra, acesso liberado e lembrete de aula.', r:'#/admin/emails'},
   // fase 2
-  {f:2, p:'aluno', i:'star', t:'Clube de membros com assinatura', d:'Mensal ou anual, convivendo com os cursos comprados.', r:'#/aluno/clube'},
+  {f:2, p:'aluno', i:'calendar', t:'Turmas com data de início', d:'Cada encontro libera no dia, e cada turma tem seus alunos e seu calendário.', r:'#/aluno/turma'},
   {f:2, p:'aluno', i:'clock', t:'Aulas curtas de 30 a 40 min', d:'Compra avulsa em 1 clique para quem já é aluno.', r:'#/aluno/aulas-curtas'},
-  {f:2, p:'aluno', i:'gift', t:'Benefícios e parcerias', d:'UERJ, OAB Rio e parceiros, com código para o membro.', r:'#/aluno/beneficios'},
-  {f:2, p:'admin', i:'star', t:'Clube: planos e assinantes', d:'Quem assina, o que está incluído e quem está em atraso.', r:'#/admin/clube'},
-  {f:2, p:'admin', i:'clock', t:'Aulas curtas', d:'Preço avulso e inclusão no clube.', r:'#/admin/aulas-curtas'},
-  {f:2, p:'admin', i:'gift', t:'Benefícios do clube', d:'Parceiros, ofertas e códigos.', r:'#/admin/beneficios'},
+  {f:2, p:'admin', i:'clock', t:'Aulas curtas', d:'Preço avulso por aula.', r:'#/admin/aulas-curtas'},
+  {f:2, p:'admin', i:'refresh', t:'Gravação do Zoom publicada sozinha', d:'O Zoom avisa, o script do Operador converte e a aula entra no curso.', r:'#/admin/ao-vivo'},
+  {f:2, p:'aluno', i:'award', t:'Certificado com código de verificação', d:'PDF com QR Code e página pública de validação.', r:'#/aluno/certificados'},
   // fase 3
-  {f:3, p:'admin', i:'refresh', t:'Gravação do Zoom publicada sozinha', d:'O Zoom avisa a plataforma e a aula entra no curso.', r:'#/admin/ao-vivo'},
-  {f:3, p:'aluno', i:'calendar', t:'Turmas online com calendário', d:'Aulas liberadas por data, para a turma de São Paulo.', r:'#/aluno/turma'},
+  {f:3, p:'aluno', i:'star', t:'Clube de membros com assinatura', d:'Mensal ou anual, convivendo com os cursos comprados.', r:'#/aluno/clube'},
+  {f:3, p:'aluno', i:'gift', t:'Benefícios e parcerias', d:'UERJ, OAB Rio e parceiros, com código para o membro.', r:'#/aluno/beneficios'},
+  {f:3, p:'admin', i:'star', t:'Clube: planos e assinantes', d:'Quem assina, o que está incluído e quem está em atraso.', r:'#/admin/clube'},
+  {f:3, p:'admin', i:'gift', t:'Benefícios do clube', d:'Parceiros, ofertas e códigos.', r:'#/admin/beneficios'},
   {f:3, p:'escritorio', i:'building', t:'Venda para escritórios', d:'Assentos, convite por e-mail, progresso da equipe e fatura.', r:'#/escritorio/painel'},
   {f:3, p:'aluno', i:'message', t:'Comunidade dos membros', d:'Fórum por curso e por turma, sem feed social.', r:'#/aluno/comunidade'},
   {f:3, p:'admin', i:'file', t:'Nota fiscal automática', d:'Emitida pelo Asaas a cada venda.', r:'#/admin/vendas'},
   {f:3, p:'aluno', i:'play', t:'Funil da aula gratuita', d:'Página, formulário e aula aberta; o lead vai para o CRM.', r:'#/publico/aula-aberta'},
   {f:3, p:'admin', i:'plug', t:'CRM Nexoris e Google Analytics', d:'Lead e compra chegam sozinhos aos dois.', r:'#/admin/integracoes'},
   {f:3, p:'aluno', i:'spark', t:'Assistente com a base do IAE', d:'Responde citando a aula e o minuto.', r:'#/aluno/aula/orcamento/3?aba=assistente'},
-  {f:3, p:'aluno', i:'award', t:'Certificado com código de verificação', d:'PDF com QR Code e página pública de validação.', r:'#/aluno/certificados'},
   {f:3, p:'aluno', i:'message', t:'Dúvidas em cada aula', d:'O professor responde; o admin modera.', r:'#/aluno/aula/orcamento/3?aba=duvidas'},
   {f:3, p:'admin', i:'chart', t:'Painel de números', d:'Vendas, alunos ativos, conclusão e onde o aluno para.', r:'#/admin/numeros'},
-  {f:3, p:'aluno', i:'search', t:'Transcrição e busca dentro da aula', d:'Clique na frase e o vídeo vai para o minuto.', r:'#/aluno/aula/orcamento/3?aba=transcricao'},
+  {f:3, p:'aluno', i:'search', t:'Legenda, transcrição e busca na aula', d:'Geradas no computador do Operador. Clique na frase e o vídeo vai para o minuto.', r:'#/aluno/aula/orcamento/3?aba=transcricao'},
   {f:3, p:'aluno', i:'search', t:'Busca no catálogo', d:'Por título, professor e tema.', r:'#/aluno/cursos'},
   {f:3, p:'aluno', i:'live', t:'Aula ao vivo dentro da plataforma', d:'Sem abrir o Zoom; presença registrada.', r:'#/aluno/sala'},
   // fase 4
   {f:4, p:'aluno', i:'route', t:'Trilha com pré-requisito e histórico', d:'Base para a pós com instituição parceira. Gatilho: convênio assinado.', r:'#/aluno/trilha'},
   {f:4, p:'admin', i:'route', t:'Montagem da trilha', d:'Ordem, pré-requisitos e oferta por período.', r:'#/admin/trilhas'},
   {f:4, p:'admin', i:'scissors', t:'Edição automática da aula crua', d:'A IA propõe cortes, capítulos e resumo; o admin aprova.', r:'#/admin/edicao'},
-  {f:4, p:'admin', i:'server', t:'Acervo no R2 e proteção reforçada', d:'Migração quando o Mux passar de US$ 400; DRM só com vazamento.', r:'#/admin/video'}
+  {f:4, p:'admin', i:'server', t:'Proteção reforçada do vídeo', d:'Link assinado em cada pedaço do vídeo. DRM só com vazamento.', r:'#/admin/video'}
 ];
 
 /* ---------- pessoas ---------- */
 var PROFS = {
-  gustavo:{nome:'Gustavo Costa', ini:'GC', cor:'', bio:'Presidente do IAE. 30 anos no jurídico da White Martins, 17 como vice-presidente para a América Latina.'},
+  gustavo:{nome:'Gustavo Costa', ini:'GC', cor:'', bio:'Presidente do IAE. Quase 30 anos no jurídico da White Martins.'},
   ana:{nome:'Ana Luiza Lima', ini:'AL', cor:'sand', bio:'Sócia do IAE.'},
   rafael:{nome:'Rafael Monteiro', ini:'RM', cor:'cocoa', bio:'Diretor jurídico de uma varejista nacional. Professor convidado (fictício).'},
   beatriz:{nome:'Beatriz Carvalho', ini:'BC', cor:'sand', bio:'Gerente jurídica de contratos na indústria. Professora convidada (fictícia).'}
@@ -222,12 +222,12 @@ var ALUNOS = [
 ];
 var VENDAS = [
   { quando:'15/11 · 10:42', quem:'Júlia Andrade', o:'Advocacia in-house na prática', meio:'Cartão 12x', v:'R$ 2.000,00', st:'Pago', nf:'NFS-e 000412' },
-  { quando:'15/11 · 09:05', quem:'Caio Ramos', o:'Clube IAE mensal', meio:'Cartão recorrente', v:'R$ 99,00', st:'Pago', nf:'NFS-e 000411', f:2 },
+  { quando:'15/11 · 09:05', quem:'Caio Ramos', o:'Clube IAE mensal', meio:'Cartão recorrente', v:'R$ 99,00', st:'Pago', nf:'NFS-e 000411', f:3 },
   { quando:'14/11 · 21:18', quem:'Luíza Fontes', o:'Orçamento do jurídico · bolsa UERJ 50%', meio:'Pix', v:'R$ 345,00', st:'Pago', nf:'NFS-e 000410' },
   { quando:'14/11 · 18:30', quem:'Pedro Albuquerque', o:'Aula curta: escritório externo', meio:'Pix', v:'R$ 97,00', st:'Pago', nf:'NFS-e 000409', f:2 },
   { quando:'14/11 · 11:02', quem:'Renata Siqueira', o:'Advocacia in-house na prática', meio:'Pix', v:'R$ 2.000,00', st:'Aguardando', nf:'' },
   { quando:'13/11 · 16:47', quem:'Barros Moura Advogados', o:'A cabeça do cliente corporativo · 10 assentos', meio:'Boleto', v:'R$ 7.200,00', st:'Pago', nf:'NFS-e 000408', f:3 },
-  { quando:'12/11 · 08:15', quem:'Mariana Teixeira', o:'Clube IAE anual', meio:'Cartão 12x', v:'R$ 990,00', st:'Pago', nf:'NFS-e 000407', f:2 }
+  { quando:'12/11 · 08:15', quem:'Mariana Teixeira', o:'Clube IAE anual', meio:'Cartão 12x', v:'R$ 990,00', st:'Pago', nf:'NFS-e 000407', f:3 }
 ];
 
 window.IAE = { FASES:FASES, FEATS:FEATS, PROFS:PROFS, ALUNA:ALUNA, CURSOS:CURSOS, CURTAS:CURTAS, AO_VIVO:AO_VIVO, AULA:AULA, IA:IA, DUVIDAS:DUVIDAS, ALUNOS:ALUNOS, VENDAS:VENDAS };
