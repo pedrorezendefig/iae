@@ -230,5 +230,14 @@ var VENDAS = [
   { quando:'12/11 · 08:15', quem:'Mariana Teixeira', o:'Clube IAE anual', meio:'Cartão 12x', v:'R$ 990,00', st:'Pago', nf:'NFS-e 000407', f:3 }
 ];
 
-window.IAE = { FASES:FASES, FEATS:FEATS, PROFS:PROFS, ALUNA:ALUNA, CURSOS:CURSOS, CURTAS:CURTAS, AO_VIVO:AO_VIVO, AULA:AULA, IA:IA, DUVIDAS:DUVIDAS, ALUNOS:ALUNOS, VENDAS:VENDAS };
+// Vídeos que o Operador já converteu e subiu para o R2 (teste da ADR 0002). fp: SHA-256 do
+// primeiro e do último MB do arquivo, mais o tamanho; é como a tela reconhece a gravação.
+var R2 = 'https://pub-4297e63f892b438f8ea552efc3d63e50.r2.dev/teste-iae/';
+var VIDEOS_R2 = [
+  { fp:'c2c5f246363d878b1f1790042f8c382e3a287e034f3bfc1fb89743b603b46e04-347206953', titulo:'IA no início da carreira: o que usar na prática', duracao:3738.18, master:R2 + '2c9c920e-0e02-4674-a16f-af344e806242/master.m3u8' },
+  { fp:'adba08f05d79b61018d850199e53cc47e838a23d5e78b422701e3f16e434627d-9794306', titulo:'Proatividade', duracao:78.07, master:R2 + '06a30d62-820a-40dc-b8fd-8b3d2c1b07d5/master.m3u8' },
+  { fp:'e3dfcf8719d9271cd47cc00cfd0e6da49cbd3727b3c260080997f97a587d0f15-5072931', titulo:'Trecho de 1 minuto', duracao:60.1, master:R2 + '9689b8c4-b2da-4871-9a9f-45527dd9aafd/master.m3u8' }
+];
+
+window.IAE = { FASES:FASES, FEATS:FEATS, PROFS:PROFS, ALUNA:ALUNA, CURSOS:CURSOS, CURTAS:CURTAS, AO_VIVO:AO_VIVO, AULA:AULA, IA:IA, DUVIDAS:DUVIDAS, ALUNOS:ALUNOS, VENDAS:VENDAS, VIDEOS_R2:VIDEOS_R2 };
 })();
