@@ -304,7 +304,7 @@ function vConfirmado(r){
 
 /* ---------- aluno: player ---------- */
 var P = null;
-function stopPlayer(){ if (P){ clearInterval(P.timer); clearInterval(P.wmTimer); clearTimeout(P.idleT); P = null; } if (document.fullscreenElement) document.exitFullscreen().catch(function(){}); }
+function stopPlayer(){ if (P){ if (P.hls) P.hls.destroy(); if (P.video){ P.video.pause(); P.video.removeAttribute('src'); P.video.load(); } clearInterval(P.timer); clearInterval(P.wmTimer); clearTimeout(P.idleT); P = null; } if (document.fullscreenElement) document.exitFullscreen().catch(function(){}); }
 
 function vAula(r){
   var c = curso('orcamento'), n = parseInt(r.b || '3', 10), A = D.AULA, aula = null;
@@ -313,7 +313,7 @@ function vAula(r){
   var abas = [['aulas','Aulas',1]].concat(has(3) ? [['transcricao','Transcrição',3],['duvidas','Dúvidas',3],['assistente','Assistente',3]] : []);
   var aba = r.q.aba && abas.some(function(x){ return x[0] === r.q.aba; }) ? r.q.aba : 'aulas';
   S.aba = aba;
-  S.after = function(){ mountPlayer(n === 3 ? A.inicio : 0, n, aula); };
+  S.after = function(){ if (aula.real) mountReal(aula); else mountPlayer(n === 3 ? A.inicio : 0, n, aula); };
   var tabs = abas.length > 1 ? '<div class="tabs" role="tablist">' + abas.map(function(x){ return '<button role="tab" data-act="aba" data-v="' + x[0] + '" aria-selected="' + (aba === x[0]) + '">' + x[1] + (x[2] > 1 ? novo(x[2]) : '') + '</button>'; }).join('') + '</div>' : '';
   var side = '<aside class="card side"><div class="side-h"><b>' + c.titulo + '</b><div class="row between"><span>' + c.progresso + '% concluído · faltam 2h41</span><span>3 de 5</span></div><div class="meter" style="margin-top:8px"><i style="--w:' + c.progresso + '%"></i></div></div>' + tabs + '<div class="side-b" id="sideB">' + sidePane(aba, c, n) + '</div></aside>';
   return shellAluno('cursos', '<div class="watch fade-in"><div><div class="stage" id="stage" tabindex="0" aria-label="Player da aula. Espaço para tocar ou pausar, setas para avançar ou voltar 10 segundos."></div>' +
@@ -388,9 +388,9 @@ function mountPlayer(t0, n, aula){
 }
 function moveWm(){ var w = $('#wm'); if (!w) return; w.style.left = (8 + Math.random() * 52) + '%'; w.style.top = (8 + Math.random() * 62) + '%'; }
 function wake(){ if (!P) return; var st = $('#stage'); st.classList.remove('idle'); clearTimeout(P.idleT); P.idleT = setTimeout(function(){ if (P && P.playing && !P.menu) st.classList.add('idle'); }, 2600); }
-function setT(t){ if (!P) return; P.t = Math.max(0, Math.min(P.dur, t)); P.si = -1; upd(); wake(); }
+function setT(t){ if (!P) return; P.t = Math.max(0, Math.min(P.dur, t)); if (P.real) P.video.currentTime = P.t; P.si = -1; upd(); wake(); }
 function toggle(){
-  if (!P) return; P.playing = !P.playing; var st = $('#stage'); st.classList.toggle('playing', P.playing);
+  if (!P) return; P.playing = !P.playing; if (P.real){ if (P.playing) P.video.play(); else P.video.pause(); } var st = $('#stage'); st.classList.toggle('playing', P.playing);
   $('#ppBtn').innerHTML = ic(P.playing ? 'pause' : 'play'); $('#ppBtn').setAttribute('aria-label', P.playing ? 'Pausar' : 'Tocar');
   if (!P.playing && !P.tipShown){ P.tipShown = true; var tip = document.createElement('div'); tip.className = 'tip-once'; tip.textContent = 'Você pode voltar deste ponto em qualquer dispositivo.'; st.appendChild(tip); setTimeout(function(){ tip.remove(); }, 3600); }
   wake();
@@ -401,6 +401,8 @@ function upd(){
   var A = D.AULA, t = P.t, pct = t / P.dur * 100;
   $('#fill').style.width = pct + '%'; $('#knob').style.left = pct + '%'; $('#buf').style.width = Math.min(100, pct + 6) + '%';
   $('#ctime').textContent = fmt(t) + ' / ' + fmt(P.dur);
+  if (P.real){ var rv = P.video, b = t; for (var bi = 0; bi < rv.buffered.length; bi++) if (rv.buffered.start(bi) <= t + .3 && rv.buffered.end(bi) >= t) b = rv.buffered.end(bi); $('#buf').style.width = (P.dur ? b / P.dur * 100 : 0) + '%';
+    if (Math.floor(t) - P.lastSave >= 5){ P.lastSave = Math.floor(t); var rs = $('#saved'); if (rs) rs.textContent = 'progresso salvo em ' + fmt(t); } return; }
   var si = 0; A.slides.forEach(function(s, i){ if (s.at <= t) si = i; });
   if (P.n !== 3) si = 0;
   if (si !== P.si){
@@ -417,10 +419,10 @@ function upd(){
   if (Math.floor(t) - P.lastSave >= 5){ P.lastSave = Math.floor(t); var sv = $('#saved'); if (sv) sv.textContent = 'progresso salvo em ' + fmt(t); }
 }
 function menuHTML(){
-  var qs = ['Automática','1080p','720p','360p'], sp = [.75, 1, 1.25, 1.5, 1.75, 2];
-  return '<h4>Qualidade</h4>' + qs.map(function(q){ return '<button data-act="q" data-v="' + q + '" aria-pressed="' + (P.q === q) + '"><span>' + q + (q === 'Automática' ? ' (1080p)' : '') + '</span>' + (P.q === q ? ic('check','sm') : '') + '</button>'; }).join('') +
+  var qs = P.real && P.hls ? ['Automática'].concat(P.hls.levels.map(function(l){ return l.height; }).sort(function(a, b){ return b - a; }).map(function(h){ return h + 'p'; })) : ['Automática','1080p','720p','360p'], sp = [.75, 1, 1.25, 1.5, 1.75, 2];
+  return '<h4>Qualidade</h4>' + qs.map(function(q){ return '<button data-act="q" data-v="' + q + '" aria-pressed="' + (P.q === q) + '"><span>' + q + (q === 'Automática' ? ' (' + (P.real ? (P.atual ? P.atual + 'p' : '...') : '1080p') + ')' : '') + '</span>' + (P.q === q ? ic('check','sm') : '') + '</button>'; }).join('') +
     '<h4>Velocidade</h4><div class="two">' + sp.map(function(s){ return '<button data-act="sp" data-v="' + s + '" aria-pressed="' + (P.speed === s) + '">' + String(s).replace('.', ',') + 'x</button>'; }).join('') + '</div>' +
-    (has(3) ? '<h4>Legenda</h4><button data-act="cc" aria-pressed="' + P.cc + '"><span>Português</span>' + (P.cc ? ic('check','sm') : '') + '</button>' : '');
+    (has(3) && !P.real ? '<h4>Legenda</h4><button data-act="cc" aria-pressed="' + P.cc + '"><span>Português</span>' + (P.cc ? ic('check','sm') : '') + '</button>' : '');
 }
 
 /* ---------- aluno: ao vivo ---------- */
@@ -616,42 +618,122 @@ function aCurso(r){
       (has(3) ? '<label class="row small"><button class="switch" role="switch" aria-checked="' + (c.id === 'orcamento') + '" data-act="sw" aria-label="Incluir no clube"></button><span><b>Incluir no clube' + novo(3) + '</b><br><span class="muted">Assinantes assistem sem comprar.</span></span></label>' : '') +
       (has(3) ? '<label class="row small"><button class="switch" role="switch" aria-checked="true" data-act="sw" aria-label="Venda para escritórios"></button><span><b>Vender por assentos para escritórios' + novo(3) + '</b><br><span class="muted">R$ 720 por assento, com fatura por boleto.</span></span></label>' : '') + '<div><button class="btn btn-p" data-act="salvar">Salvar</button></div></div>';
   } else {
-    var upPanel = S.novaAula ? '<div class="card pad stack-l" style="margin-bottom:14px; border-color:var(--navy-3)"><div class="row between"><b>Nova aula no módulo 3</b><button class="btn btn-g btn-sm" data-act="fecharNova">Cancelar</button></div><div class="field"><label>Título da aula</label><input class="inp" value="Indicadores que a diretoria lê, parte 2"></div>' +
-      (!S.uploading ? '<div class="drop" data-act="upload">' + ic('upload','lg') + '<b>Escolher o vídeo enviado pelo Operador</b><span class="small">O Operador converte a gravação no computador dele e sobe para o R2. Aqui você só escolhe.</span></div><div class="help">' + ic('info','sm') + '<span>A primeira vez aqui: o vídeo já chega em 360p, 720p e 1080p. Você escolhe, confere e publica.</span></div>' :
+    var upPanel = S.novaAula ? '<div class="card pad stack-l" style="margin-bottom:14px; border-color:var(--navy-3)"><div class="row between"><b>Nova aula no módulo 3</b><button class="btn btn-g btn-sm" data-act="fecharNova">Cancelar</button></div><div class="field"><label>Título da aula</label><input class="inp" id="upTit" value="Indicadores que a diretoria lê, parte 2"></div><input type="file" id="upFile" accept="video/*" hidden>' +
+      (!S.uploading ? '<div class="drop" data-act="upload">' + ic('upload','lg') + '<b>Escolher o vídeo enviado pelo Operador</b><span class="small">Arraste a gravação aqui ou clique para escolher. O Operador converte no computador dele e sobe para o R2; aqui a aula aparece pronta.</span></div><div class="help">' + ic('info','sm') + '<span>A primeira vez aqui: o vídeo já chega em 360p, 720p e 1080p. Você escolhe, confere e publica.</span></div>' :
       '<div class="up-steps" id="upSteps">' + upSteps() + '</div>') + '</div>' : '';
     body = upPanel + c.modulos.map(function(m, i){
       return '<div class="mod-ed"><div class="mod-ed-h">' + ic('grip','sm') + '<b class="grow">Módulo ' + (i + 1) + ': ' + m.t + '</b><span class="muted small">' + m.aulas.length + (m.aulas.length > 1 ? ' aulas' : ' aula') + '</span><button class="btn btn-g btn-sm" aria-label="Mais opções">' + ic('more') + '</button></div>' +
-        m.aulas.map(function(a){ var conv = c.id === 'orcamento' && a.n === 4 && !S.convOk; return '<div class="lrow"><span class="grip">' + ic('grip','sm') + '</span><span>' + a.t + '<small>' + (a.gravada ? a.gravada + ', da aula ao vivo' : (has(3) ? 'Com legenda em português' : '360p, 720p e 1080p')) + '</small></span><span class="num muted hide-m">' + a.d + '</span><span class="hide-m">' + (conv ? '<span class="chip warn">Para conferir</span>' : stChip('Publicada')) + '</span><button class="btn btn-g btn-sm" aria-label="Editar">' + ic('edit','sm') + '</button></div>'; }).join('') +
+        m.aulas.map(function(a){ var conv = c.id === 'orcamento' && a.n === 4 && !S.convOk; return '<div class="lrow"><span class="grip">' + ic('grip','sm') + '</span><span>' + a.t + '<small>' + (a.gravada ? a.gravada + ', da aula ao vivo' : (has(3) ? 'Com legenda em português' : '360p, 720p e 1080p')) + '</small></span><span class="num muted hide-m">' + a.d + '</span><span class="hide-m">' + (conv ? '<span class="chip warn">Para conferir</span>' : stChip('Publicada')) + '</span>' + (a.real ? '<a class="btn btn-s btn-sm" href="#/aluno/aula/orcamento/' + a.n + '">' + ic('eye','sm') + 'Ver como aluno</a>' : '<button class="btn btn-g btn-sm" aria-label="Editar">' + ic('edit','sm') + '</button>') + '</div>'; }).join('') +
         (i === c.modulos.length - 1 ? '<div class="lrow" style="grid-template-columns:1fr"><button class="btn btn-s btn-sm" style="justify-self:start" data-act="novaAula">' + ic('plus','sm') + 'Nova aula</button></div>' : '') + '</div>';
     }).join('');
   }
   return shellAdmin('cursos', c.titulo, '<div class="ph"><div><div class="muted small"><a href="#/admin/cursos">Cursos</a> / editar</div><h1 style="margin-top:6px">' + c.titulo + '</h1></div><div class="row"><span class="small muted">Publicado</span><button class="switch" role="switch" aria-checked="true" data-act="sw" aria-label="Publicado"></button><a class="btn btn-s" href="#/aluno/curso/' + c.id + '">' + ic('eye','sm') + 'Ver a página</a></div></div>' + tabs + body);
 }
-function upList(){ var st = ['Buscando o vídeo no R2','Conferindo 360p, 720p e 1080p']; if (has(3)) st.push('Legenda em português gerada pelo Operador'); if (has(4)) st.push('Edição automática: 14 sugestões de corte para revisar'); st.push('Pronta para publicar'); return st; }
-function upSteps(){
-  var st = upList(), k = S.upStage, last = st.length - 1;
-  return st.map(function(s, i){
-    var done = i < k || (i === last && k >= last), run = i === k && i !== last;
-    var lab = s + (i === 0 && k === 0 ? ' · ' + Math.round(S.upPct) + '%' : '');
-    var extra = has(4) && i === 3 ? (done ? ' <a href="#/admin/edicao">Revisar</a>' : '') + novo(4) : '';
-    return '<div class="up-step ' + (done ? 'done' : run ? 'run' : '') + '"><span class="st">' + (done ? ic('check') : '') + '</span><span>' + lab + extra + '</span></div>' +
-      (i === 0 && k === 0 ? '<div class="meter" style="margin:-2px 0 4px 34px"><i style="--w:' + S.upPct + '%"></i></div>' : '');
-  }).join('') + (k >= last ? '<div class="row"><button class="btn btn-p" data-act="publicarAula">Publicar a aula</button><span class="muted small">Os alunos do curso recebem um aviso.</span></div>' : '');
+/* ---------- vídeo de verdade: a gravação que o Operador já subiu para o R2 ---------- */
+// Arrastar a gravação: a página tira a impressão digital do arquivo (tamanho, primeiro e
+// último MB), acha o Vídeo no acervo do R2 e confere as playlists de verdade. Nada é enviado.
+function upList(){
+  var st = [['ler','Lendo a gravação'],['acervo','Procurando no R2 o vídeo enviado pelo Operador'],['conf','Conferindo 360p, 720p e 1080p no R2']];
+  if (has(3)) st.push(['leg','Legenda em português gerada pelo Operador']);
+  if (has(4)) st.push(['edit','Edição automática: 14 sugestões de corte para revisar']);
+  st.push(['pronto','Pronta para publicar']);
+  return st.map(function(x){ return {k:x[0], t:x[1], st:''}; });
 }
-function runUpload(){
-  S.upStage = 0; S.upPct = 0;
-  var paint = function(){ var h = $('#upSteps'); if (h) h.innerHTML = upSteps(); return !!h; };
-  var t = setInterval(function(){
-    if (!$('#upSteps')){ clearInterval(t); return; }
-    S.upPct = Math.min(100, S.upPct + 6);
-    if (S.upPct >= 100){ clearInterval(t); S.upStage = 1; paint(); next(); return; }
-    paint();
-  }, 120);
-  function next(){
-    var last = upList().length - 1;
-    var k = setInterval(function(){ if (!$('#upSteps')){ clearInterval(k); return; } S.upStage++; paint(); if (S.upStage >= last) clearInterval(k); }, 1100);
+function upSteps(){
+  var U = S.up; if (!U) return '';
+  return U.steps.map(function(s){
+    var extra = s.k === 'edit' ? (s.st === 'done' ? ' <a href="#/admin/edicao">Revisar</a>' : '') + novo(4) : '';
+    return '<div class="up-step ' + (s.st === 'done' ? 'done' : s.st === 'run' ? 'run' : '') + '"><span class="st">' + (s.st === 'done' ? ic('check') : '') + '</span><span>' + s.t + extra + (s.nota ? ' <span class="muted">· ' + s.nota + '</span>' : '') + '</span></div>';
+  }).join('') + (U.erro ? '<div class="help">' + ic('info','sm') + '<span>' + U.erro + '</span></div><div><button class="btn btn-s btn-sm" data-act="upload">Escolher outra gravação</button></div>' : '') +
+    (U.video ? '<div class="row"><button class="btn btn-p" data-act="publicarAula">Publicar a aula</button><span class="muted small">Os alunos do curso recebem um aviso.</span></div>' : '');
+}
+function paintUp(){ var h = $('#upSteps'); if (h) h.innerHTML = upSteps(); }
+function passo(k, st, nota){ S.up.steps.forEach(function(s){ if (s.k === k){ s.st = st; if (nota) s.nota = nota; } }); paintUp(); }
+function espera(ms){ return new Promise(function(r){ setTimeout(r, reduce ? 0 : ms); }); }
+async function impressao(file){
+  var M = 1 << 20, a = await file.slice(0, M).arrayBuffer(), b = await file.slice(Math.max(0, file.size - M)).arrayBuffer();
+  var u = new Uint8Array(a.byteLength + b.byteLength); u.set(new Uint8Array(a)); u.set(new Uint8Array(b), a.byteLength);
+  var h = new Uint8Array(await crypto.subtle.digest('SHA-256', u));
+  return Array.prototype.map.call(h, function(x){ return x.toString(16).padStart(2, '0'); }).join('') + '-' + file.size;
+}
+async function conferirR2(master){
+  var txt = await (await fetch(master, {cache:'no-store'})).text(), linhas = txt.split('\n'), q = [];
+  for (var i = 0; i < linhas.length; i++){
+    var m = /RESOLUTION=\d+x(\d+)/.exec(linhas[i]);
+    if (m){ var pl = await (await fetch(new URL(linhas[i + 1].trim(), master), {cache:'no-store'})).text(); q.push({h:+m[1], pedacos:(pl.match(/#EXTINF/g) || []).length}); }
+  }
+  if (!q.length) throw new Error('O R2 respondeu, mas a playlist veio vazia.');
+  return q;
+}
+async function runUpload(file){
+  S.up = {steps:upList()}; paintUp();
+  try {
+    passo('ler', 'run');
+    var fp = await impressao(file);
+    passo('ler', 'done', esc(file.name) + ', ' + (file.size / 1e6).toLocaleString('pt-BR', {maximumFractionDigits:0}) + ' MB');
+    passo('acervo', 'run'); await espera(400);
+    var v = D.VIDEOS_R2.filter(function(x){ return x.fp === fp; })[0];
+    if (!v){ passo('acervo', ''); S.up.erro = 'Esta gravação ainda não passou pelo Operador. Ele converte no computador dele e sobe para o R2; depois disso ela aparece aqui pronta.'; paintUp(); return; }
+    passo('acervo', 'done', 'enviado pelo Operador, ' + fmt(v.duracao));
+    passo('conf', 'run');
+    var q = await conferirR2(v.master);
+    passo('conf', 'done', q.map(function(x){ return x.h + 'p'; }).join(', ') + ', ' + q[0].pedacos + ' pedaços de 6 s cada');
+    if (has(3)){ await espera(500); passo('leg', 'done'); }
+    if (has(4)){ await espera(500); passo('edit', 'done'); }
+    passo('pronto', 'done');
+    var t = $('#upTit'); if (t && t.value === t.defaultValue) t.value = v.titulo;
+    S.up.video = v; paintUp();
+  } catch (e){
+    S.up.steps.forEach(function(s){ if (s.st === 'run') s.st = ''; });
+    S.up.erro = 'Não consegui falar com o R2 (' + esc(e.message) + '). Confira a internet.'; paintUp();
   }
 }
+function comecarEnvio(file){ if (!file) return; S.uploading = true; render(); runUpload(file); }
+document.addEventListener('change', function(e){ if (e.target.id === 'upFile') comecarEnvio(e.target.files[0]); });
+document.addEventListener('dragover', function(e){ if (e.dataTransfer && [].indexOf.call(e.dataTransfer.types, 'Files') > -1) e.preventDefault(); });
+document.addEventListener('drop', function(e){
+  if (!e.dataTransfer || !e.dataTransfer.files.length) return;
+  e.preventDefault();
+  var d = e.target.closest && e.target.closest('.drop[data-act="upload"], #upSteps');
+  if (d) comecarEnvio(e.dataTransfer.files[0]);
+});
+function publicarReal(){
+  var c = curso('orcamento'), n = 0, t = $('#upTit');
+  c.modulos.forEach(function(m){ m.aulas.forEach(function(a){ n = Math.max(n, a.n); }); });
+  c.modulos[c.modulos.length - 1].aulas.push({n:n + 1, t:esc(t && t.value.trim() || S.up.video.titulo), d:fmt(S.up.video.duracao), st:'todo', real:S.up.video});
+  S.up = null;
+}
+
+function mountReal(aula){
+  var st = $('#stage'); if (!st) return;
+  var me = P = { real:true, t:0, dur:aula.real.duracao || 0, playing:false, speed:1, cc:false, q:'Automática', menu:false, si:-1, n:aula.n, aula:aula, tipShown:false, lastSave:0, atual:null };
+  st.innerHTML = '<video id="rv" playsinline preload="metadata" class="rv"></video><div class="wm wm-real" id="wm">' + D.ALUNA.marca + '</div>' +
+    '<button class="big-play" data-act="pp" aria-label="Tocar"><span>' + ic('play','lg') + '</span></button>' +
+    '<div class="ctrl"><div class="seek" id="seek"><span class="track"></span><span class="buf" id="buf"></span><span class="fill" id="fill"></span><span class="knob" id="knob"></span><span class="hov" id="hov"></span></div>' +
+    '<div class="cbar"><button class="cb" data-act="pp" id="ppBtn" aria-label="Tocar">' + ic('play') + '</button><button class="cb hide-m" data-act="skip" data-v="-10" aria-label="Voltar 10 segundos">' + ic('back') + '</button><button class="cb hide-m" data-act="skip" data-v="10" aria-label="Avançar 10 segundos">' + ic('fwd') + '</button>' +
+    '<button class="cb hide-m" aria-label="Volume">' + ic('vol') + '</button><span class="ctime" id="ctime"></span><span style="flex:1"></span>' +
+    '<button class="cb" data-act="speedQuick" id="spBtn" aria-label="Velocidade">1x</button>' +
+    '<button class="cb" data-act="menu" aria-label="Qualidade e velocidade">' + ic('gear') + '<span class="hide-m" id="qLbl" style="font-weight:500">Automática</span></button><button class="cb" data-act="fs" aria-label="Tela cheia">' + ic('max') + '</button></div></div>' +
+    '<div class="cmenu" id="cmenu"></div>';
+  var v = me.video = $('#rv');
+  if (window.Hls && Hls.isSupported()){
+    me.hls = new Hls({ capLevelToPlayerSize:true, maxBufferLength:30, maxMaxBufferLength:60 });
+    me.hls.loadSource(aula.real.master); me.hls.attachMedia(v);
+    me.hls.on(Hls.Events.LEVEL_SWITCHED, function(e, d){ if (P !== me) return; me.atual = me.hls.levels[d.level].height; rotQ(); });
+  } else v.src = aula.real.master;
+  v.addEventListener('timeupdate', function(){ if (P === me){ me.t = v.currentTime; upd(); } });
+  v.addEventListener('durationchange', function(){ if (P === me && isFinite(v.duration)){ me.dur = v.duration; upd(); } });
+  v.addEventListener('progress', function(){ if (P === me) upd(); });
+  v.addEventListener('ended', function(){ if (P === me && me.playing) toggle(); });
+  var seek = $('#seek');
+  seek.addEventListener('click', function(e){ var b = seek.getBoundingClientRect(); setT((e.clientX - b.left) / b.width * me.dur); });
+  seek.addEventListener('mousemove', function(e){ var b = seek.getBoundingClientRect(), x = Math.max(0, Math.min(1, (e.clientX - b.left) / b.width)), h = $('#hov'); h.textContent = fmt(x * me.dur); h.style.left = (x * 100) + '%'; });
+  st.addEventListener('mousemove', wake); st.addEventListener('touchstart', wake, {passive:true});
+  st.addEventListener('keydown', function(e){ if (e.key === ' ' || e.key === 'k'){ e.preventDefault(); toggle(); } if (e.key === 'ArrowRight') setT(me.t + 10); if (e.key === 'ArrowLeft') setT(me.t - 10); });
+  me.wmTimer = setInterval(moveWm, 14000); moveWm();
+  upd();
+}
+function rotQ(){ var l = $('#qLbl'); if (l && P) l.textContent = P.q === 'Automática' ? (P.atual ? 'Auto · ' + P.atual + 'p' : 'Automática') : P.q; }
 
 /* ---------- admin: ao vivo ---------- */
 function aAoVivo(){
@@ -849,10 +931,10 @@ var ACT = {
   pp:function(){ toggle(); },
   skip:function(el){ setT(P.t + (+el.getAttribute('data-v'))); },
   cc:function(){ togCC(); var m = $('#cmenu'); if (m && m.classList.contains('on')) m.innerHTML = menuHTML(); },
-  speedQuick:function(){ var sp = [1, 1.25, 1.5, 2], i = sp.indexOf(P.speed); P.speed = sp[(i + 1) % sp.length]; $('#spBtn').textContent = String(P.speed).replace('.', ',') + 'x'; },
+  speedQuick:function(){ var sp = [1, 1.25, 1.5, 2], i = sp.indexOf(P.speed); P.speed = sp[(i + 1) % sp.length]; if (P.real) P.video.playbackRate = P.speed; $('#spBtn').textContent = String(P.speed).replace('.', ',') + 'x'; },
   menu:function(el, e){ e.stopPropagation(); var m = $('#cmenu'); P.menu = !m.classList.contains('on'); m.innerHTML = menuHTML(); m.classList.toggle('on', P.menu); },
-  q:function(el, e){ e.stopPropagation(); P.q = el.getAttribute('data-v'); $('#qLbl').textContent = P.q === 'Automática' ? '1080p' : P.q; $('#cmenu').innerHTML = menuHTML(); },
-  sp:function(el, e){ e.stopPropagation(); P.speed = +el.getAttribute('data-v'); $('#spBtn').textContent = String(P.speed).replace('.', ',') + 'x'; $('#cmenu').innerHTML = menuHTML(); },
+  q:function(el, e){ e.stopPropagation(); P.q = el.getAttribute('data-v'); if (P.real){ var qh = parseInt(P.q, 10); P.hls.currentLevel = P.q === 'Automática' ? -1 : P.hls.levels.map(function(l){ return l.height; }).indexOf(qh); rotQ(); } else $('#qLbl').textContent = P.q === 'Automática' ? '1080p' : P.q; $('#cmenu').innerHTML = menuHTML(); },
+  sp:function(el, e){ e.stopPropagation(); P.speed = +el.getAttribute('data-v'); if (P.real) P.video.playbackRate = P.speed; $('#spBtn').textContent = String(P.speed).replace('.', ',') + 'x'; $('#cmenu').innerHTML = menuHTML(); },
   fs:function(){ var st = $('#stage'); if (document.fullscreenElement) document.exitFullscreen(); else if (st.requestFullscreen) st.requestFullscreen().catch(function(){}); },
   aba:function(el){ S.aba = el.getAttribute('data-v'); $$('.tabs [role="tab"]').forEach(function(b){ b.setAttribute('aria-selected', b === el); }); $('#sideB').innerHTML = sidePane(S.aba, curso('orcamento'), P ? P.n : 3); if (S.aba === 'assistente'){ var l = $('#aiLog'); if (l) l.scrollTop = l.scrollHeight; } upd(); },
   seek:function(el){ var t = +el.getAttribute('data-t'); if (P){ setT(t); if (!P.playing) toggle(); var st = $('#stage'); if (st && innerWidth < 1100) st.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block:'start'}); } },
@@ -876,8 +958,8 @@ var ACT = {
   edTab:function(el){ S.edTab = el.getAttribute('data-v'); render(); },
   novaAula:function(){ S.novaAula = true; S.uploading = false; render(); },
   fecharNova:function(){ S.novaAula = false; S.uploading = false; render(); },
-  upload:function(){ S.uploading = true; S.upStage = 0; S.upPct = 0; render(); runUpload(); },
-  publicarAula:function(){ S.novaAula = false; S.uploading = false; render(); toast('Aula publicada. Os alunos do curso foram avisados.'); },
+  upload:function(){ var f = $('#upFile'); if (f) f.click(); },
+  publicarAula:function(){ if (S.up && S.up.video) publicarReal(); S.novaAula = false; S.uploading = false; render(); toast('Aula publicada. Os alunos do curso foram avisados.'); },
   pubGrav:function(el){ S.pubOk[el.getAttribute('data-id')] = true; render(); toast(has(3) ? 'Gravação publicada no curso, com legenda.' : 'Gravação publicada no curso.'); },
   sala:function(el){ S.sala = el.getAttribute('data-v'); render(); },
   mail:function(el){ S.mail = +el.getAttribute('data-i'); render(); },
