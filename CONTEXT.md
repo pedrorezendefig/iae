@@ -1,6 +1,6 @@
 # IAE
 
-Projeto dos sócios Pedro, Rib e Lucas para o IAE, escola de prática jurídica para advogados in-house. O produto é a plataforma de cursos online do IAE. O trabalho é acompanhado pelo IAE OS.
+Projeto dos sócios Pedro, Rib e Lucas para o IAE, escola de prática jurídica para advogados in-house. O produto é a plataforma de cursos online do IAE. O trabalho é acompanhado nas GitHub Issues e na Página do Projeto.
 
 ## Pessoas e papéis
 
@@ -35,14 +35,14 @@ O vínculo entre um Aluno e um Curso que dá o direito de assistir às Aulas del
 _Avoid_: Acesso, inscrição, enrollment
 
 **Plataforma de cursos**:
-O produto que o IAE OS controla: o site onde os alunos assistem às aulas do IAE.
+O produto do projeto: o site onde os alunos assistem às aulas do IAE.
 _Avoid_: Área de membros (é só uma parte dela), LMS
 
 ## Processo
 
-**IAE OS**:
-O painel que mostra o andamento do trabalho a partir do GitHub: issues, PRs, produção e documentação. Só lê dados, não guarda nada.
-_Avoid_: Dashboard, Hospital OS
+**Página do Projeto**:
+A página do IAE no PedroOS, o painel do Pedro, que mostra o andamento do trabalho a partir do GitHub. Só lê dados, não guarda nada. Substituiu o antigo IAE OS, que morava em `tools/workflow-dashboard/`.
+_Avoid_: IAE OS, Dashboard, Hospital OS
 
 **Clonagem**:
 Copiar o modelo do Hospital OS para o IAE. O Hospital continua igual, e cada cópia evolui sozinha depois.

@@ -1,16 +1,15 @@
 # Stack
 
-O que o projeto usa hoje e o que está previsto para a Plataforma de cursos. Peça nova na stack entra aqui, no mesmo PR que a traz. O IAE OS mostra este arquivo na Documentação, sub-aba Stack.
+O que o projeto usa hoje e o que está previsto para a Plataforma de cursos. Peça nova na stack entra aqui, no mesmo PR que a traz. A Página do Projeto do IAE no PedroOS mostra este arquivo na Documentação, sub-aba Stack.
 
-## Hoje: IAE OS
+## Hoje: ferramentas do repo
 
 | Peça | Para que serve |
 |---|---|
-| Python 3.12, só a biblioteca padrão | o coletor e o servidor do painel (`tools/workflow-dashboard/`), sem dependências para instalar |
-| HTML, CSS e JavaScript sem build | o front do painel, servido como arquivos estáticos; o `marked` vem copiado em `static/vendor/` |
-| `gh` (GitHub CLI) | a fonte dos dados do painel: issues, PRs e comentários |
+| Python 3.12 | os lints de `tools/` e os scripts das skills |
+| `gh` (GitHub CLI) | issues, PRs e a subida das skills do fluxo |
 | GitHub Actions | o CI dos PRs (testes de `tools/` e o lint de texto) |
-| pytest e Node | os testes do painel; o Node roda o `app.js` de verdade nos testes |
+| pytest e Node | os testes de `tools/`; o Node roda nos testes o script do `higiene-issues.yml` |
 
 ## Prevista: Plataforma de cursos
 
