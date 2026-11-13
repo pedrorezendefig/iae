@@ -8,3 +8,6 @@ __pycache__/
 .pytest_cache/
 .claude/worktrees/
 docs/comercial/prototipos/*.mp4
+
+# Fora do git antes de o repositório ficar público: proposta, preço e protótipos para o Cliente
+docs/comercial/
